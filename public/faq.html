@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FAQ | DigiWorld</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0; padding: 0;
+      color: #333;
+      min-height: 100vh;
+    }
+    nav {
+      background: linear-gradient(90deg, #235bff22 0%, #f0faff 100%);
+      padding: 16px 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-weight: 600;
+      font-size: 1.1em;
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 3px 12px #0002;
+      margin-bottom: 24px;
+    }
+    nav a {
+      color: #235bff;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    nav a:hover {
+      color: #228be6;
+      border-bottom: 2px solid #235bff;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto 48px auto;
+      background: white;
+      padding: 36px 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(31,38,135,0.15);
+    }
+    h1 {
+      text-align: center;
+      color: #235bff;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+    .faq-item {
+      border-bottom: 1px solid #ddd;
+      padding: 16px 0;
+    }
+    .faq-question {
+      cursor: pointer;
+      position: relative;
+      font-weight: 600;
+      font-size: 1.12rem;
+      color: #1a2a6c;
+      padding-right: 30px;
+    }
+    .faq-question::after {
+      content: '+';
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 1.5rem;
+      line-height: 1;
+      transition: transform 0.3s ease;
+    }
+    .faq-question.active::after {
+      content: '-';
+      transform: rotate(180deg);
+    }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      color: #444;
+      margin-top: 8px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .faq-answer.open {
+      max-height: 500px; /* enough to show content */
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="products.html">Products</a>
+    <a href="faq.html" style="border-bottom:2px solid #235bff; color:#235bff;">FAQ</a>
+    <a href="how.html">How It Works</a>
+    <a href="about.html">About Us</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <div class="container">
+    <h1>Frequently Asked Questions</h1>
+
+    <div class="faq-item">
+      <div class="faq-question">How do I receive my digital key after purchase?</div>
+      <div class="faq-answer">
+        After successful payment, your digital key is sent instantly to the email address you provide during checkout.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Are these keys genuine and legal?</div>
+      <div class="faq-answer">
+        Yes, all keys sold are 100% genuine, sourced legally, and guaranteed to activate your software without issues.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">What payment methods do you accept?</div>
+      <div class="faq-answer">
+        We accept crypto payments through NowPayments and PayPal for your convenience.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">Can I use one key on multiple devices?</div>
+      <div class="faq-answer">
+        Typically, each key is valid for one device only. Please check the product details for specific license terms.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">What if I lose my key?</div>
+      <div class="faq-answer">
+        Contact our support team at support@keyzone.com with your purchase details and we will assist you promptly.
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // FAQ toggle logic
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const answer = question.nextElementSibling;
+        const isOpen = answer.classList.contains('open');
+        if (isOpen) {
+          answer.classList.remove('open');
+          question.classList.remove('active');
+        } else {
+          answer.classList.add('open');
+          question.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

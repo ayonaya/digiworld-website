@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DigiWorld - Checkout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary-color: #f57224;
+      --primary-dark: #d45703;
+      --bg-light: #f9f9f9;
+      --text-color: #222;
+      --border-color: #ddd;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg-light);
+      margin: 0; padding: 0;
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px 12px;
+    }
+    .container {
+      background: #fff;
+      width: 100%;
+      max-width: 440px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+      padding: 32px 28px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    h1 {
+      font-weight: 700;
+      font-size: 1.9rem;
+      margin-bottom: 24px;
+      color: var(--primary-color);
+      letter-spacing: 1.5px;
+    }
+    #productName {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--primary-dark);
+    }
+    #productPrice {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 28px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-color);
+      text-align: left;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 14px 12px;
+      font-size: 1rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+      margin-bottom: 28px;
+      outline: none;
+    }
+    input[type="email"]:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 8px rgba(245,114,36,0.3);
+    }
+    #nowpayments-widget {
+      border-radius: 12px;
+      box-shadow: 0 4px 16px #235bff22;
+      width: 100%;
+      height: 600px;
+      border: none;
+      margin-bottom: 28px;
+    }
+    #paypal-button-container {
+      margin-bottom: 20px;
+    }
+    #result {
+      margin-top: 24px;
+      font-size: 1.1rem;
+      min-height: 28px;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+    @media (max-width: 480px) {
+      .container {
+        padding: 28px 18px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      #productName {
+        font-size: 1.3rem;
+      }
+      #productPrice {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+
+  <!-- PayPal SDK: Replace YOUR_PAYPAL_CLIENT_ID -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Checkout</h1>
+    <div id="productName">Loading product...</div>
+    <div id="productPrice"></div>
+
+    <label for="email">Email Address</label>
+    <input type="email" id="email" placeholder="Enter your email" required />
+
+    <!-- NowPayments crypto widget -->
+    <iframe
+      id="nowpayments-widget"
+      src="https://nowpayments.io/embeds/payment-widget?iid=4576104722"
+      scrolling="no"
+      frameborder="0"
+    ></iframe>
+
+    <!-- PayPal button container -->
+    <div id="paypal-button-container"></div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Your products list - keep in sync with your site
+    const products = [
+      { id: "win10pro", name: "Windows 10 Pro Key", price: "$10" },
+      { id: "office2019", name: "Office 2019 Pro Plus Key", price: "$12" },
+      { id: "win11pro", name: "Windows 11 Pro Key", price: "$12" },
+      { id: "office365", name: "Microsoft Office 365", price: "$15 / year" },
+      { id: "winserver2019", name: "Windows Server 2019 Key", price: "$25" },
+      { id: "vs2019", name: "Visual Studio 2019", price: "$20" }
+    ];
+
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    const productNameEl = document.getElementById('productName');
+    const productPriceEl = document.getElementById('productPrice');
+    const resultEl = document.getElementById('result');
+    const emailInput = document.getElementById('email');
+
+    const productId = getQueryParam('product');
+    let selectedProduct = null;
+
+    if (productId) {
+      selectedProduct = products.find(p => p.id === productId);
+      if (selectedProduct) {
+        productNameEl.textContent = selectedProduct.name;
+        productPriceEl.textContent = selectedProduct.price;
+      } else {
+        productNameEl.textContent = "Product not found";
+        productPriceEl.textContent = "";
+      }
+    } else {
+      productNameEl.textContent = "No product selected";
+      productPriceEl.textContent = "";
+    }
+
+    // PayPal Button
+    paypal.Buttons({
+      style: {
+        layout: 'vertical',
+        color:  'blue',
+        shape:  'pill',
+        label:  'paypal'
+      },
+      createOrder: function(data, actions) {
+        if (!selectedProduct) {
+          alert("No product selected");
+          return;
+        }
+        return actions.order.create({
+          purchase_units: [{
+            amount: { value: selectedProduct.price.replace('$', '') }
+          }]
+        });
+      },
+      onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+          const email = emailInput.value.trim();
+          if (!email) {
+            resultEl.style.color = '#b91c1c';
+            resultEl.textContent = 'Please enter your email before paying!';
+            return;
+          }
+          resultEl.style.color = '#f57224';
+          resultEl.textContent = 'Processing your order...';
+
+          fetch('/buy-key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, productId: selectedProduct.id })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if(data.key && !data.key.startsWith('Sorry')) {
+              resultEl.style.color = '#2c834d';
+              resultEl.innerHTML = `<strong>Your key has been sent to:</strong><br>${email}`;
+            } else if(data.key && data.key.startsWith('Sorry')) {
+              resultEl.style.color = '#d52c2c';
+              resultEl.textContent = data.key;
+            } else {
+              resultEl.style.color = '#d52c2c';
+              resultEl.textContent = data.error || 'Server error';
+            }
+          })
+          .catch(err => {
+            resultEl.style.color = '#d52c2c';
+            resultEl.textContent = 'Error processing your order.';
+            console.error(err);
+          });
+        });
+      }
+    }).render('#paypal-button-container');
+  </script>
+</body>
+</html>

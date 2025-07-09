@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DigiWorld - Products</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --daraz-orange: #f57224;
+      --daraz-dark: #212121;
+      --daraz-grey: #fafafa;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--daraz-grey);
+      color: var(--daraz-dark);
+    }
+    /* Header styles */
+    .header {
+      background: var(--daraz-orange);
+      color: #fff;
+      padding: 0 0 4px 0;
+      box-shadow: 0 2px 8px #2221;
+    }
+    .header-main {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px 10px 24px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.7em;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      color: #fff;
+      text-decoration: none;
+    }
+    .logo img {
+      width: 44px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px #0002;
+    }
+    nav.nav {
+      display: flex;
+      gap: 20px;
+    }
+    nav.nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.02em;
+      transition: color 0.15s;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+    }
+    nav.nav a:hover {
+      color: #ffd700;
+      border-bottom: 2px solid #ffd700;
+    }
+    nav.nav .buy {
+      background: #fff;
+      color: var(--daraz-orange) !important;
+      border-radius: 5px;
+      padding: 6px 16px;
+      font-weight: bold;
+      border: none;
+      margin-left: 8px;
+    }
+    nav.nav .buy:hover {
+      background: #ffd700;
+      color: #212121 !important;
+    }
+    /* Page Title */
+    .page-title {
+      max-width: 1200px;
+      margin: 32px auto 20px auto;
+      font-size: 2.4em;
+      font-weight: 700;
+      color: var(--daraz-orange);
+      padding: 0 24px;
+    }
+    /* Search Bar */
+    .search-container {
+      max-width: 1200px;
+      margin: 0 auto 20px auto;
+      padding: 0 24px;
+      text-align: center;
+    }
+    #productSearch {
+      width: 320px;
+      padding: 10px 14px;
+      font-size: 1.1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-shadow: 0 1px 3px #ccc;
+      transition: border-color 0.2s;
+    }
+    #productSearch:focus {
+      outline: none;
+      border-color: var(--daraz-orange);
+      box-shadow: 0 0 6px var(--daraz-orange);
+    }
+    /* Product Grid */
+    .product-grid {
+      max-width: 1200px;
+      margin: 0 auto 60px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      min-height: 350px;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px #f5722422;
+      padding: 20px 20px 24px 20px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: box-shadow 0.15s;
+      min-height: 380px;
+    }
+    .product-card:hover {
+      box-shadow: 0 6px 24px #f5722433;
+    }
+    .product-card img {
+      width: 120px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px #f5722412;
+      align-self: center;
+    }
+    .p-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--daraz-orange);
+      text-align: center;
+    }
+    .p-desc {
+      font-size: 1em;
+      color: #555;
+      margin-bottom: 14px;
+      min-height: 64px;
+      line-height: 1.3;
+    }
+    .p-activation {
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 16px;
+      line-height: 1.4;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 6px;
+      width: 100%;
+    }
+    .p-price {
+      font-size: 1.4em;
+      color: #d45703;
+      font-weight: 700;
+      margin-bottom: 14px;
+      text-align: center;
+      width: 100%;
+    }
+    .buy-btn {
+      background: var(--daraz-orange);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 14px 0;
+      width: 100%;
+      font-size: 1.15em;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.17s;
+      text-transform: uppercase;
+    }
+    .buy-btn:hover {
+      background: #ffd700;
+      color: #212121;
+    }
+    /* Pagination */
+    .pagination {
+      max-width: 1200px;
+      margin: 0 auto 40px auto;
+      text-align: center;
+      padding: 0 24px;
+    }
+    .pagination button {
+      background: var(--daraz-orange);
+      color: #fff;
+      border: none;
+      margin: 0 4px;
+      padding: 8px 14px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.15s;
+    }
+    .pagination button:hover {
+      background: #ffd700;
+      color: #212121;
+    }
+    .pagination button.disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      color: #888;
+    }
+    /* Footer */
+    .footer {
+      width: 100%;
+      background: #d45703;
+      color: #fff9f3;
+      padding: 38px 0 16px 0;
+      text-align: center;
+      font-size: 1em;
+      letter-spacing: 0.1px;
+      margin-top: 60px;
+    }
+    @media (max-width: 900px) {
+      .header-main, .product-grid { max-width: 98vw; }
+    }
+    @media (max-width: 600px) {
+      .header-main { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 8px 10px 8px; }
+      .product-card img { width: 80px; }
+      .p-title { font-size: 1.1em; }
+      .p-desc, .p-activation { font-size: 0.9em; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-main">
+      <a href="index.html" class="logo">
+        <img src="logo.jpg" alt="DigiWorld Logo" /> DigiWorld
+      </a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="faq.html">FAQ</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="checkout.html" class="buy">Buy Now</a>
+      </nav>
+    </div>
+  </header>
+
+  <h1 class="page-title">Our Products</h1>
+
+  <div class="search-container">
+    <input type="text" id="productSearch" placeholder="Search products..." />
+  </div>
+
+  <section class="product-grid" id="productGrid">
+    <!-- Product cards rendered by JS -->
+  </section>
+
+  <div class="pagination" id="pagination"></div>
+
+  <footer class="footer">
+    &copy; 2024 DigiWorld | All rights reserved. &bull; Support: support@keyzone.com
+  </footer>
+
+  <script>
+    const products = [
+      {
+        id: "win10pro",
+        name: "Windows 10 Pro Key",
+        desc: "Instant license delivery. Lifetime activation for 1 PC.",
+        activation: "Activate via Settings > Update & Security > Activation. Enter the product key to activate.",
+        price: "$10",
+        img: "win10pro.jpg",
+      },
+      {
+        id: "office2019",
+        name: "Office 2019 Pro Plus Key",
+        desc: "One-time payment, full features included. Get your key instantly!",
+        activation: "Open any Office app > Account > Change Product Key. Enter your key and activate.",
+        price: "$12",
+        img: "office2019.jpg",
+      },
+      {
+        id: "win11pro",
+        name: "Windows 11 Pro Key",
+        desc: "Latest edition, secure and fast. Delivered in seconds.",
+        activation: "Go to Settings > System > Activation. Enter the product key to activate Windows 11.",
+        price: "$12",
+        img: "win11pro.jpg",
+      },
+      {
+        id: "office365",
+        name: "Microsoft Office 365",
+        desc: "Subscription-based Office suite. Always updated with latest features.",
+        activation: "Sign in with your Microsoft account and link your subscription. No product key needed.",
+        price: "$15 / year",
+        img: "office365.jpg",
+      },
+      {
+        id: "winserver2019",
+        name: "Windows Server 2019 Key",
+        desc: "Reliable server OS for your business needs with full license.",
+        activation: "Use Server Manager > Local Server > Activate Windows. Enter your product key.",
+        price: "$25",
+        img: "winserver2019.jpg",
+      },
+      {
+        id: "vs2019",
+        name: "Visual Studio 2019",
+        desc: "Full-featured IDE for developers with license key.",
+        activation: "Sign in to Visual Studio with your account and enter the product key under Help > Register Product.",
+        price: "$20",
+        img: "vs2019.jpg",
+      },
+    ];
+
+    const productsPerPage = 4;
+    let currentPage = 1;
+    let filteredProducts = [...products];
+
+    const productGrid = document.getElementById("productGrid");
+    const pagination = document.getElementById("pagination");
+    const searchInput = document.getElementById("productSearch");
+
+    function renderProducts() {
+      productGrid.innerHTML = "";
+      const startIndex = (currentPage - 1) * productsPerPage;
+      const endIndex = startIndex + productsPerPage;
+      const pageProducts = filteredProducts.slice(startIndex, endIndex);
+
+      if (pageProducts.length === 0) {
+        productGrid.innerHTML = "<p>No products found.</p>";
+        pagination.innerHTML = "";
+        return;
+      }
+
+      pageProducts.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.setAttribute("data-name", product.name);
+
+        card.innerHTML = `
+          <img src="${product.img}" alt="${product.name}" />
+          <div class="p-title">${product.name}</div>
+          <div class="p-desc">${product.desc}</div>
+          <div class="p-activation"><strong>How to activate:</strong><br>${product.activation}</div>
+          <div class="p-price">${product.price}</div>
+          <button class="buy-btn" onclick="buyProduct('${product.id}')">Buy Now</button>
+        `;
+
+        productGrid.appendChild(card);
+      });
+
+      renderPagination();
+    }
+
+    function renderPagination() {
+      pagination.innerHTML = "";
+      const pageCount = Math.ceil(filteredProducts.length / productsPerPage);
+
+      if (pageCount <= 1) return;
+
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "Prev";
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.className = prevBtn.disabled ? "disabled" : "";
+      prevBtn.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderProducts();
+          window.scrollTo(0, 0);
+        }
+      };
+      pagination.appendChild(prevBtn);
+
+      for (let i = 1; i <= pageCount; i++) {
+        const pageBtn = document.createElement("button");
+        pageBtn.textContent = i;
+        pageBtn.className = i === currentPage ? "disabled" : "";
+        pageBtn.disabled = i === currentPage;
+        pageBtn.onclick = () => {
+          currentPage = i;
+          renderProducts();
+          window.scrollTo(0, 0);
+        };
+        pagination.appendChild(pageBtn);
+      }
+
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "Next";
+      nextBtn.disabled = currentPage === pageCount;
+      nextBtn.className = nextBtn.disabled ? "disabled" : "";
+      nextBtn.onclick = () => {
+        if (currentPage < pageCount) {
+          currentPage++;
+          renderProducts();
+          window.scrollTo(0, 0);
+        }
+      };
+      pagination.appendChild(nextBtn);
+    }
+
+    function filterProducts() {
+      const query = searchInput.value.toLowerCase();
+      filteredProducts = products.filter(p =>
+        p.name.toLowerCase().includes(query)
+      );
+      currentPage = 1;
+      renderProducts();
+    }
+
+    function buyProduct(productId) {
+      window.location.href = `checkout.html?product=${encodeURIComponent(productId)}`;
+    }
+
+    searchInput.addEventListener("input", filterProducts);
+
+    renderProducts();
+  </script>
+</body>
+</html>

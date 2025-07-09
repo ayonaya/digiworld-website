@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DigiWorld - Buy Digital License Keys Instantly</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --daraz-orange: #f57224;
+      --daraz-dark: #212121;
+      --daraz-light: #fff9f3;
+      --daraz-grey: #fafafa;
+      --daraz-border: #ececec;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--daraz-grey);
+      color: var(--daraz-dark);
+    }
+    /* Header */
+    .header {
+      background: var(--daraz-orange);
+      color: #fff;
+      padding: 0 0 4px 0;
+      box-shadow: 0 2px 8px #2221;
+    }
+    .header-main {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px 10px 24px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.7em;
+      font-weight: bold;
+      letter-spacing: 1.5px;
+      color: #fff;
+      text-decoration: none;
+    }
+    .logo img {
+      width: 44px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px #0002;
+    }
+    .search-bar {
+      flex: 1;
+      margin: 0 30px;
+      display: flex;
+      align-items: center;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 9px 16px;
+      border-radius: 6px 0 0 6px;
+      border: none;
+      font-size: 1.02em;
+      outline: none;
+    }
+    .search-bar button {
+      padding: 9px 18px;
+      background: #fff;
+      color: var(--daraz-orange);
+      border: none;
+      border-radius: 0 6px 6px 0;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1em;
+      border-left: 1px solid #eee;
+      transition: background 0.18s;
+    }
+    .search-bar button:hover {
+      background: #ffefd9;
+    }
+    .nav {
+      display: flex;
+      gap: 20px;
+    }
+    .nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.02em;
+      transition: color 0.15s;
+      padding-bottom: 2px;
+      border-bottom: 2px solid transparent;
+    }
+    .nav a:hover {
+      color: #ffd700;
+      border-bottom: 2px solid #ffd700;
+    }
+    .nav .buy {
+      background: #fff;
+      color: var(--daraz-orange) !important;
+      border-radius: 5px;
+      padding: 6px 16px;
+      font-weight: bold;
+      transition: background 0.15s, color 0.15s;
+      border: none;
+      margin-left: 8px;
+    }
+    .nav .buy:hover {
+      background: #ffd700;
+      color: #212121 !important;
+    }
+    /* Banner */
+    .banner {
+      width: 100%;
+      max-width: 1200px;
+      margin: 26px auto 40px auto;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px #f5722422;
+      overflow: hidden;
+      min-height: 280px;
+      background: linear-gradient(95deg, #fff9f3 60%, #ffe2d0 100%);
+      color: var(--daraz-dark);
+      display: flex;
+      align-items: center;
+      padding: 40px 60px;
+      justify-content: space-between;
+    }
+    .banner .left {
+      max-width: 500px;
+    }
+    .banner h2 {
+      font-size: 2.1em;
+      margin: 0 0 8px 0;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: var(--daraz-orange);
+    }
+    .banner p {
+      margin: 0 0 18px 0;
+      font-size: 1.1em;
+      color: #484848;
+    }
+    .banner .cta {
+      background: var(--daraz-orange);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px 36px;
+      font-weight: bold;
+      font-size: 1.1em;
+      box-shadow: 0 2px 8px #f5722422;
+      cursor: pointer;
+      transition: background 0.17s, color 0.17s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .banner .cta:hover {
+      background: #ffd700;
+      color: #212121;
+    }
+    .banner-img {
+      flex: 1;
+      text-align: right;
+    }
+    .banner-img img {
+      width: 100%;
+      max-width: 600px;
+      height: auto;
+      border-radius: 16px;
+      box-shadow: 0 3px 12px #0002;
+      background: #fff;
+    }
+    /* Product Cards */
+    .products-section {
+      max-width: 1200px;
+      margin: 0 auto 40px auto;
+      padding: 0 18px;
+    }
+    .products-title {
+      font-size: 1.4em;
+      font-weight: 600;
+      margin: 26px 0 14px 0;
+      color: var(--daraz-orange);
+      letter-spacing: 0.5px;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 24px;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px #f5722422;
+      padding: 20px 14px 18px 14px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: box-shadow 0.15s;
+      min-height: 270px;
+    }
+    .product-card:hover {
+      box-shadow: 0 6px 24px #f5722433;
+    }
+    .product-card img {
+      width: 90px;
+      margin-bottom: 16px;
+      border-radius: 8px;
+      box-shadow: 0 1px 6px #f5722412;
+    }
+    .product-card .p-title {
+      font-size: 1.09em;
+      font-weight: 600;
+      margin-bottom: 9px;
+      color: var(--daraz-orange);
+    }
+    .product-card .p-desc {
+      font-size: 0.99em;
+      color: #555;
+      margin-bottom: 14px;
+      min-height: 38px;
+    }
+    .product-card .p-price {
+      font-size: 1.15em;
+      color: #d45703;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .product-card .buy-btn {
+      background: var(--daraz-orange);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 9px 0;
+      width: 100%;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.17s;
+    }
+    .product-card .buy-btn:hover {
+      background: #ffd700;
+      color: #212121;
+    }
+    /* Footer */
+    .footer {
+      width: 100%;
+      background: #d45703;
+      color: #fff9f3;
+      padding: 38px 0 16px 0;
+      text-align: center;
+      font-size: 1em;
+      letter-spacing: 0.1px;
+      margin-top: 60px;
+    }
+    @media (max-width: 900px) {
+      .header-main, .banner, .products-section { max-width: 98vw; }
+      .banner { flex-direction: column; text-align: left; padding: 30px 18px; }
+      .banner-img { margin-top: 22px; text-align: left; }
+    }
+    @media (max-width: 600px) {
+      .header-main { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 8px 10px 8px; }
+      .banner { padding: 16px 8px; min-height: 110px;}
+      .banner-img img { width: 110px;}
+      .products-title { font-size: 1.1em; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-main">
+      <a href="index.html" class="logo">
+        <img src="logo.jpg" alt="DigiWorld Logo"> DigiWorld
+      </a>
+      <div class="search-bar">
+        <input type="text" id="homeSearch" placeholder="Search for digital keys...">
+        <button onclick="filterProducts()">Search</button>
+      </div>
+      <nav class="nav">
+        <a href="products.html">Products</a>
+        <a href="faq.html">FAQ</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="checkout.html" class="buy">Buy Now</a>
+      </nav>
+    </div>
+  </header>
+  <div class="banner">
+    <div class="left">
+      <h2>Buy Genuine Microsoft Keys Instantly</h2>
+      <p>Windows, Office & more – delivered instantly to your email! Safe, affordable & 100% authentic.</p>
+      <a href="checkout.html" class="cta">Shop Now</a>
+    </div>
+    <div class="banner-img">
+      <img src="key-banner.png" alt="Digital Key Banner" />
+    </div>
+  </div>
+  <section class="products-section">
+    <div class="products-title">Featured Products</div>
+    <div class="product-grid" id="productList">
+      <div class="product-card" data-name="Windows 10 Pro">
+        <img src="win10pro.jpg" alt="Windows 10 Pro">
+        <div class="p-title">Windows 10 Pro Key</div>
+        <div class="p-desc">Instant license delivery. Lifetime activation for 1 PC.</div>
+        <div class="p-price">$10</div>
+        <button class="buy-btn" onclick="window.location.href='checkout.html'">Buy Now</button>
+      </div>
+      <div class="product-card" data-name="Office 2019 Pro Plus">
+        <img src="office2019.jpg" alt="Office 2019 Pro Plus">
+        <div class="p-title">Office 2019 Pro Plus Key</div>
+        <div class="p-desc">1-time payment, full features. Get your key instantly!</div>
+        <div class="p-price">$12</div>
+        <button class="buy-btn" onclick="window.location.href='checkout.html'">Buy Now</button>
+      </div>
+      <div class="product-card" data-name="Windows 11 Pro">
+        <img src="win11pro.jpg" alt="Windows 11 Pro">
+        <div class="p-title">Windows 11 Pro Key</div>
+        <div class="p-desc">Latest edition, secure and fast. Delivered in seconds.</div>
+        <div class="p-price">$12</div>
+        <button class="buy-btn" onclick="window.location.href='checkout.html'">Buy Now</button>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">
+    &copy; 2024 DigiWorld | All rights reserved. &bull; Support: support@keyzone.com
+  </footer>
+
+  <script>
+    function filterProducts() {
+      const searchTerm = document.getElementById('homeSearch').value.toLowerCase();
+      const products = document.querySelectorAll('#productList .product-card');
+      products.forEach(product => {
+        const name = product.getAttribute('data-name').toLowerCase();
+        if (name.includes(searchTerm)) {
+          product.style.display = 'flex';
+        } else {
+          product.style.display = 'none';
+        }
+      });
+    }
+
+    // Live filter as user types
+    document.getElementById('homeSearch').addEventListener('input', filterProducts);
+    // Filter on button click
+    document.querySelector('.search-bar button').addEventListener('click', filterProducts);
+  </script>
+</body>
+</html>
