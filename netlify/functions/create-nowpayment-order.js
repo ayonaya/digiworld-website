@@ -63,14 +63,12 @@ exports.handler = async (event, context) => {
             cancel_url: `https://${process.env.URL}/payment-cancelled.html?order_id=${order_id}`,
         };
 
-        // --- NEW: Add network if payCurrency is USDT ---
-        if (payCurrency.toLowerCase() === 'usdt') {
-            // IMPORTANT: Choose your preferred USDT network. Common ones are 'trc20', 'erc20', 'bep20'.
-            // Ensure this network is enabled in your NowPayments account settings.
-            paymentData.network = 'trc20'; // Example: Using TRC20 network for USDT
-            console.log("USDT payment: Specifying TRC20 network.");
-        }
-        // --- END NEW ---
+        // --- REMOVED: The 'network' parameter as NowPayments explicitly states it's not allowed ---
+        // if (payCurrency.toLowerCase() === 'usdt') {
+        //     paymentData.network = 'trc20'; 
+        //     console.log("USDT payment: Specifying TRC20 network.");
+        // }
+        // --- END REMOVED ---
 
         const headers = {
             'x-api-key': NOWPAYMENTS_API_KEY,
