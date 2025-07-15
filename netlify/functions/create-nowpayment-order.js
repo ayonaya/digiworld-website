@@ -10,18 +10,19 @@ exports.handler = async (event, context) => {
     }
 
     // Parse the request body to get payment details
-    const { productId, email, amount, currency } = JSON.parse(event.body);
+    // Now expecting 'payCurrency' from the frontend
+    const { productId, email, amount, currency, payCurrency } = JSON.parse(event.body);
 
     // Retrieve API keys from Netlify Environment Variables
     const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
     const NOWPAYMENTS_API_BASE_URL = 'https://api.nowpayments.io/v1';
 
-    // Validate required fields
-    if (!productId || !email || !amount || !currency) {
+    // Validate required fields, including payCurrency
+    if (!productId || !email || !amount || !currency || !payCurrency) {
         return { 
             statusCode: 400, 
             headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ message: 'Missing required fields for payment.' }) 
+            body: JSON.stringify({ message: 'Missing required fields for payment, including payCurrency.' }) 
         };
     }
 
@@ -40,22 +41,21 @@ exports.handler = async (event, context) => {
         const order_id = `DIGIWORLD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
         // Construct the IPN Callback URL for NowPayments.
-        // FIX: Removed the redundant 'https://' prefix. process.env.URL already includes it.
         const ipn_callback_url = `${process.env.URL}/.netlify/functions/nowpayments-ipn`; 
 
         // Prepare the payment data payload for NowPayments API
         const paymentData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
-            pay_currency: 'btc', // You might make this dynamic if users can choose crypto
+            pay_currency: payCurrency, // <--- NOW DYNAMIC
             order_id: order_id,
             order_description: `Digital License for Product ID: ${productId}`,
             ipn_callback_url: ipn_callback_url,
             success_url: `https://${process.env.URL}/payment-success.html?order_id=${order_id}`,
             cancel_url: `https://${process.env.URL}/payment-cancelled.html?order_id=${order_id}`,
-            // Consider adding ipn_extra_data here to pass email and productId to the IPN handler
-            // For example:
-            // ipn_extra_data: { customerEmail: email, productId: productId } 
+            // You might also want to pass email and productId in ipn_extra_data
+            // to retrieve them easily in the IPN handler:
+            ipn_extra_data: { customerEmail: email, productId: productId } 
         };
 
         // Set up request headers, including your API key
@@ -67,9 +67,7 @@ exports.handler = async (event, context) => {
         // Make the API call to NowPayments
         const response = await axios.post(`${NOWPAYMENTS_API_BASE_URL}/payment`, paymentData, { headers });
 
-        // --- NEW DEBUGGING LOG ---
-        console.log('Full NowPayments API response data:', response.data);
-        // --- END NEW DEBUGGING LOG ---
+        console.log('Full NowPayments API response data:', response.data); // Keep this for debugging
 
         console.log(`NowPayments payment created: ${response.data.payment_id} for order ${order_id}`);
 
@@ -86,7 +84,6 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        // Log and return detailed error information
         console.error('Error creating NowPayments order:', error.response ? error.response.data : error.message);
         return {
             statusCode: error.response && error.response.status ? error.response.status : 500,
