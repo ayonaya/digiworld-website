@@ -326,26 +326,24 @@
             nowpaymentsButton.disabled = true;
 
             try {
+                // FIX: The body of this request now matches what the create-nowpayment-order.js function expects.
                 const response = await fetch('/.netlify/functions/create-nowpayment-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        price_amount: productData.price,
-                        price_currency: 'usd',
-                        pay_currency: 'usdttrc20', // FIX: Added the missing pay_currency field
-                        order_id: `${productData.id}-${Date.now()}`,
-                        order_description: productData.name,
-                        success_url: window.location.href,
-                        cancel_url: window.location.href,
-                        ipn_callback_url: 'YOUR_IPN_CALLBACK_URL'
+                        productId: productData.id,
+                        email: emailInput.value,
+                        amount: productData.price,
+                        currency: 'usd',
+                        payCurrency: 'usdttrc20' // You can change this to your preferred crypto
                     })
                 });
 
                 const data = await response.json();
 
-                if (response.ok && data.invoice_id) { // Check for invoice_id for redirection
+                if (response.ok && data.payUrl) { // Check for payUrl from the server
                     // Redirect to NowPayments invoice page
-                    window.location.href = `https://nowpayments.io/payment/?iid=${data.invoice_id}`;
+                    window.location.href = data.payUrl;
                 } else {
                     throw new Error(data.message || 'Failed to create payment invoice.');
                 }
