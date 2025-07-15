@@ -1,132 +1,77 @@
 // netlify/functions/create-nowpayment-order.js
-// This function handles the request from your frontend to create a NowPayments order.
-
 const axios = require('axios');
-const { initializeApp, getApps, getApp } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const { credential } = require('firebase-admin');
 
-// Initialize Firebase Admin SDK (same as in firestore-key-manager.js)
-if (!getApps().length) {
-    try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-        initializeApp({
-            credential: credential.cert(serviceAccount),
-        });
-        console.log("Firebase Admin SDK initialized in create-nowpayment-order.");
-    } catch (e) {
-        console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize Firebase Admin SDK in create-nowpayment-order:", e);
-    }
-}
-const db = getFirestore();
-
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const { productId, email, amount, currency, payCurrency } = JSON.parse(event.body);
-
-    const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
-    const NOWPAYMENTS_API_BASE_URL = 'https://api.nowpayments.io/v1';
-
-    if (!productId || !email || !amount || !currency || !payCurrency) {
-        return { 
-            statusCode: 400, 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ message: 'Missing required fields for payment, including payCurrency.' }) 
-        };
-    }
-
-    if (!NOWPAYMENTS_API_KEY) {
-        console.error("NowPayments API key is not set. Please check your Netlify environment variables.");
-        return { 
-            statusCode: 500, 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ message: "Payment service not configured." }) 
-        };
-    }
-
     try {
-        const order_id = `DIGIWORLD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
-        const ipn_callback_url = `${process.env.URL}/.netlify/functions/nowpayments-ipn`; 
+        const { productId, email, amount, currency, payCurrency } = JSON.parse(event.body);
+        const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
+
+        if (!productId || !email || !amount || !currency || !payCurrency) {
+            console.error("Validation Error: Missing required fields.", { productId, email, amount, currency, payCurrency });
+            return { 
+                statusCode: 400, 
+                body: JSON.stringify({ message: 'Missing one or more required fields.' }) 
+            };
+        }
+
+        if (!NOWPAYMENTS_API_KEY) {
+            console.error("Configuration Error: NOWPAYMENTS_API_KEY is not set in environment variables.");
+            return { 
+                statusCode: 500, 
+                body: JSON.stringify({ message: "Payment service is not configured on the server." }) 
+            };
+        }
 
         const paymentData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
-            pay_currency: payCurrency, 
-            order_id: order_id,
-            order_description: `Digital License for Product ID: ${productId}`,
-            ipn_callback_url: ipn_callback_url,
-            success_url: `https://${process.env.URL}/payment-success.html?order_id=${order_id}`,
-            cancel_url: `https://${process.env.URL}/payment-cancelled.html?order_id=${order_id}`,
+            pay_currency: payCurrency,
+            order_id: `DIGIWORLD-${productId}-${Date.now()}`,
+            order_description: `Purchase of ${productId}`,
         };
-
-        // --- REMOVED: The 'network' parameter as NowPayments explicitly states it's not allowed ---
-        // if (payCurrency.toLowerCase() === 'usdt') {
-        //     paymentData.network = 'trc20'; 
-        //     console.log("USDT payment: Specifying TRC20 network.");
-        // }
-        // --- END REMOVED ---
 
         const headers = {
             'x-api-key': NOWPAYMENTS_API_KEY,
             'Content-Type': 'application/json'
         };
 
-        const response = await axios.post(`${NOWPAYMENTS_API_BASE_URL}/payment`, paymentData, { headers });
+        console.log("Attempting to create NowPayments payment with data:", paymentData);
+        const response = await axios.post('https://api.nowpayments.io/v1/payment', paymentData, { headers });
+        console.log("Successfully received response from NowPayments:", response.data);
 
-        console.log('Full NowPayments API response data:', response.data); 
+        // --- FIX: Handle cases where pay_url is missing ---
+        let redirectionUrl = response.data.pay_url;
 
-        if (!response.data.pay_url) {
-            console.error('NowPayments did not return pay_url in response:', response.data);
-            return {
-                statusCode: 500,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: 'Failed to get redirection URL from NowPayments. PayURL missing.',
-                    details: response.data
-                }),
-            };
+        // If pay_url is missing, but we have a purchase_id, construct the URL manually.
+        if (!redirectionUrl && response.data.purchase_id) {
+            console.log("pay_url was missing. Constructing URL from purchase_id.");
+            redirectionUrl = `https://nowpayments.io/payment/${response.data.purchase_id}`;
         }
 
-        const ordersRef = db.collection('orders');
-        await ordersRef.doc(order_id).set({
-            productId: productId,
-            customerEmail: email,
-            amount: parseFloat(amount),
-            currency: currency,
-            payCurrency: payCurrency,
-            paymentId: response.data.payment_id,
-            payAddress: response.data.pay_address,
-            payUrl: response.data.pay_url, 
-            status: 'initiated', 
-            createdAt: new Date().toISOString()
-        });
-        console.log(`Order ${order_id} details saved to Firestore.`);
-
-        console.log(`NowPayments payment created: ${response.data.payment_id} for order ${order_id}`);
+        if (!redirectionUrl) {
+            console.error("Critical Error: Could not determine redirection URL from NowPayments response.", response.data);
+            throw new Error("Failed to get redirection URL from NowPayments.");
+        }
 
         return {
             statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: 'NowPayments order created successfully',
-                paymentId: response.data.payment_id,
-                payUrl: response.data.pay_url,
-                order_id: order_id 
-            }),
+            body: JSON.stringify({ payUrl: redirectionUrl }),
         };
 
     } catch (error) {
-        console.error('Error creating NowPayments order:', error.response ? error.response.data : error.message);
+        console.error('Error creating NowPayments order:', error);
+        const errorResponse = error.response ? error.response.data : { message: error.message };
+        console.error('Detailed Error:', errorResponse);
+        
         return {
-            statusCode: error.response && error.response.status ? error.response.status : 500,
-            headers: { 'Content-Type': 'application/json' },
+            statusCode: 500,
             body: JSON.stringify({
                 message: 'Failed to create NowPayments order.',
-                error: error.response ? error.response.data : error.message
+                error: errorResponse
             }),
         };
     }
