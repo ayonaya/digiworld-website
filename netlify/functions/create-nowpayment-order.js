@@ -26,15 +26,13 @@ exports.handler = async (event) => {
             };
         }
 
-        // Data for creating an INVOICE, not a payment.
+        // Data for creating an INVOICE.
+        // FIX: Removed optional URL fields that contained placeholders to simplify the request.
         const invoiceData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
             order_id: `DIGIWORLD-${productId}-${Date.now()}`,
-            order_description: `Purchase of ${productId} for ${email}`,
-            ipn_callback_url: `https://YOUR_SITE_URL/.netlify/functions/nowpayments-ipn`, // Optional but recommended
-            success_url: `https://YOUR_SITE_URL/payment-success.html`, // Optional
-            cancel_url: `https://YOUR_SITE_URL/payment-cancelled.html` // Optional
+            order_description: `Purchase of ${productId} for ${email}`
         };
 
         const headers = {
@@ -42,9 +40,9 @@ exports.handler = async (event) => {
             'Content-Type': 'application/json'
         };
 
-        console.log("Attempting to create NowPayments INVOICE with data:", invoiceData);
+        console.log("Attempting to create NowPayments INVOICE with simplified data:", invoiceData);
 
-        // FIX: Using the /v1/invoice endpoint to get a hosted payment page
+        // Using the /v1/invoice endpoint to get a hosted payment page
         const response = await axios.post('https://api.nowpayments.io/v1/invoice', invoiceData, { headers });
 
         console.log("Successfully received INVOICE response from NowPayments:", response.data);
