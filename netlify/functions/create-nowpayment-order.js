@@ -50,20 +50,27 @@ exports.handler = async (event, context) => {
     try {
         const order_id = `DIGIWORLD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
-        // Corrected ipn_callback_url (removed double https://)
         const ipn_callback_url = `${process.env.URL}/.netlify/functions/nowpayments-ipn`; 
 
         const paymentData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
-            pay_currency: payCurrency, // Dynamic payCurrency (e.g., 'usdt', 'eth')
+            pay_currency: payCurrency, 
             order_id: order_id,
             order_description: `Digital License for Product ID: ${productId}`,
             ipn_callback_url: ipn_callback_url,
             success_url: `https://${process.env.URL}/payment-success.html?order_id=${order_id}`,
             cancel_url: `https://${process.env.URL}/payment-cancelled.html?order_id=${order_id}`,
-            // Removed ipn_extra_data as NowPayments does not allow it in this endpoint.
         };
+
+        // --- NEW: Add network if payCurrency is USDT ---
+        if (payCurrency.toLowerCase() === 'usdt') {
+            // IMPORTANT: Choose your preferred USDT network. Common ones are 'trc20', 'erc20', 'bep20'.
+            // Ensure this network is enabled in your NowPayments account settings.
+            paymentData.network = 'trc20'; // Example: Using TRC20 network for USDT
+            console.log("USDT payment: Specifying TRC20 network.");
+        }
+        // --- END NEW ---
 
         const headers = {
             'x-api-key': NOWPAYMENTS_API_KEY,
@@ -74,20 +81,18 @@ exports.handler = async (event, context) => {
 
         console.log('Full NowPayments API response data:', response.data); 
 
-        // IMPORTANT: Check if pay_url is present in the response before proceeding
         if (!response.data.pay_url) {
             console.error('NowPayments did not return pay_url in response:', response.data);
             return {
-                statusCode: 500, // Return 500 to indicate an issue to the frontend
+                statusCode: 500,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: 'Failed to get redirection URL from NowPayments. PayURL missing.',
-                    details: response.data // Include details for debugging
+                    details: response.data
                 }),
             };
         }
 
-        // --- Store initial order details in Firestore ---
         const ordersRef = db.collection('orders');
         await ordersRef.doc(order_id).set({
             productId: productId,
@@ -96,13 +101,12 @@ exports.handler = async (event, context) => {
             currency: currency,
             payCurrency: payCurrency,
             paymentId: response.data.payment_id,
-            payAddress: response.data.pay_address, // Store the crypto address
-            payUrl: response.data.pay_url, // Store the payUrl for reference
-            status: 'initiated', // Initial status
+            payAddress: response.data.pay_address,
+            payUrl: response.data.pay_url, 
+            status: 'initiated', 
             createdAt: new Date().toISOString()
         });
         console.log(`Order ${order_id} details saved to Firestore.`);
-        // --- End Firestore save ---
 
         console.log(`NowPayments payment created: ${response.data.payment_id} for order ${order_id}`);
 
