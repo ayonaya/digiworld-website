@@ -215,14 +215,10 @@
     </div>
   </div>
 
-  <!-- 
-    STEP 1: Replace 'YOUR_PAYPAL_CLIENT_ID' with your actual PayPal Sandbox or Live Client ID.
-    This is the most critical step.
-  -->
-  <script src="https://www.paypal.com/sdk/js?client-id=AaFq3yBRwswijC5_QY7dgLfyGNaU4JaRAQXaLK7qCC8D3o0twpG9LA_F6nW-8lOaGrZw972oLa8olZ-p&currency=USD"></script>
+  <!-- Live PayPal Client ID -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AUJ-Gq-fNlhznmvCsZa3hPtj-6_F3SjtjoV2DupGB8cQ4GCOiBf66OrF6AqyOyH21pp-TbGPUm7vngbk&currency=USD"></script>
   
   <script>
-    // This is a list of all products your store sells.
     const products = [
       { id: "office365lifetime", name: "Office 365 Lifetime Account", price: 23, image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg" },
       { id: "win10pro", name: "Windows 10 Pro Key", price: 9, image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif" },
@@ -233,9 +229,7 @@
       { id: "visio2021", name: "Microsoft Visio 2021 Key", price: 10, image: "https://img.drz.lazcdn.com/static/lk/p/e6fa1180deb98607be4cc772a1af56ca.png_400x400q75.avif" }
     ];
 
-    // This function runs after the entire page is loaded.
     document.addEventListener('DOMContentLoaded', () => {
-        // Get all the elements we need to work with from the page
         const summaryContainer = document.getElementById('summary-item-container');
         const totalPriceEl = document.getElementById('total-price');
         const resultMessageEl = document.getElementById('result-message');
@@ -244,15 +238,11 @@
         const paypalButtonContainer = document.getElementById('paypal-button-container');
         const paymentSeparator = document.querySelector('.payment-separator');
 
-        // Get the product ID from the URL (e.g., checkout.html?product=win11pro)
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('product');
-
-        // Find the product details from our products list
         const product = products.find(p => p.id === productId);
 
         if (product) {
-            // If the product is found, update the order summary on the right
             const priceFormatted = product.price.toFixed(2);
             summaryContainer.innerHTML = `
                 <div class="order-summary-item">
@@ -265,11 +255,14 @@
             `;
             totalPriceEl.textContent = `$${priceFormatted}`;
 
-            // --- Render the PayPal Button ---
             renderPayPalButton(product.price);
+            
+            // --- Attach Event Listener to NowPayments Button ---
+            nowpaymentsButton.addEventListener('click', () => {
+                handleNowPayments(product);
+            });
 
         } else {
-            // If no valid product ID is in the URL, show an error
             summaryContainer.innerHTML = '<p>Could not find the selected product. Please go back to the store and select an item.</p>';
             paypalButtonContainer.style.display = 'none';
             nowpaymentsButton.style.display = 'none';
@@ -277,72 +270,92 @@
         }
 
         function renderPayPalButton(productPrice) {
-            // Clear the "Loading..." message
             paypalButtonContainer.innerHTML = '';
-            
-            // Check if the PayPal SDK has loaded correctly
             if (typeof paypal === 'undefined') {
-                console.error("PayPal SDK not loaded. Check your script tag and Client ID.");
-                paypalButtonContainer.innerHTML = "<p>Could not load PayPal. Please check your connection or try again later.</p>";
+                console.error("PayPal SDK not loaded.");
+                paypalButtonContainer.innerHTML = "<p>Could not load PayPal.</p>";
                 return;
             }
-
             paypal.Buttons({
-                style: {
-                    layout: 'vertical',
-                    color:  'gold',
-                    shape:  'rect',
-                    label:  'paypal'
-                },
-                // This function is called when the user clicks the PayPal button
-                createOrder: function(data, actions) {
-                    // Validate the email address first
+                style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
+                createOrder: (data, actions) => {
                     if (!emailInput.value || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
                         resultMessageEl.textContent = 'Please enter a valid email address before paying.';
                         resultMessageEl.style.color = '#c0392b';
                         return Promise.reject(new Error('Invalid email'));
                     }
-                    resultMessageEl.textContent = ''; // Clear previous errors
-                    
-                    // Create the order with PayPal
+                    resultMessageEl.textContent = '';
                     return actions.order.create({
-                        purchase_units: [{
-                            amount: {
-                                value: productPrice.toFixed(2) // Use the dynamic product price
-                            }
-                        }]
+                        purchase_units: [{ amount: { value: productPrice.toFixed(2) } }]
                     });
                 },
-                // This function is called after the user approves the payment in the PayPal popup
-                onApprove: function(data, actions) {
-                    // This is where you would typically verify the payment on your server
-                    // For now, we will just show a success message on the client side.
-                    return actions.order.capture().then(function(details) {
+                onApprove: (data, actions) => {
+                    return actions.order.capture().then(details => {
                         console.log('PayPal client-side capture successful:', details);
                         resultMessageEl.style.color = '#155724';
                         resultMessageEl.innerHTML = `
                             <i class="fas fa-check-circle"></i> 
                             Payment successful! Your product key will be sent to <strong>${emailInput.value}</strong> shortly.
                         `;
-                        // Hide the payment buttons after success
                         paypalButtonContainer.style.display = 'none';
                         nowpaymentsButton.style.display = 'none';
                         paymentSeparator.style.display = 'none';
                     });
                 },
-                // Handle any errors that occur during the payment process
-                onError: function(err) {
+                onError: err => {
                     console.error('PayPal button error:', err);
-                    resultMessageEl.textContent = 'An error occurred with your payment. Please try again.';
+                    resultMessageEl.textContent = 'An error occurred with your payment.';
                     resultMessageEl.style.color = '#c0392b';
                 },
-                // Handle the case where the user cancels the payment
-                onCancel: function(data) {
+                onCancel: data => {
                     console.log('PayPal payment cancelled:', data);
                     resultMessageEl.textContent = 'Payment was cancelled.';
                     resultMessageEl.style.color = 'var(--muted)';
                 }
             }).render('#paypal-button-container');
+        }
+
+        async function handleNowPayments(productData) {
+            if (!emailInput.value || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
+                resultMessageEl.textContent = 'Please enter a valid email address before paying with crypto.';
+                resultMessageEl.style.color = '#c0392b';
+                return;
+            }
+
+            resultMessageEl.textContent = 'Initiating crypto payment...';
+            resultMessageEl.style.color = 'var(--muted)';
+            nowpaymentsButton.disabled = true;
+
+            try {
+                // IMPORTANT: You need to create this serverless function on Netlify.
+                const response = await fetch('/.netlify/functions/create-nowpayment-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        price_amount: productData.price,
+                        price_currency: 'usd',
+                        order_id: `${productData.id}-${Date.now()}`,
+                        order_description: productData.name,
+                        success_url: window.location.href, // Redirect back here on success
+                        cancel_url: window.location.href, // Redirect back here on cancel
+                        ipn_callback_url: 'YOUR_IPN_CALLBACK_URL' // Optional: For server-side notifications
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.pay_address) {
+                    // Redirect to NowPayments invoice page
+                    window.location.href = `https://nowpayments.io/payment/?iid=${data.invoice_id}`;
+                } else {
+                    throw new Error(data.message || 'Failed to create payment invoice.');
+                }
+            } catch (error) {
+                console.error('NowPayments Error:', error);
+                resultMessageEl.textContent = `Crypto payment failed: ${error.message}`;
+                resultMessageEl.style.color = '#c0392b';
+                nowpaymentsButton.disabled = false;
+            }
         }
     });
   </script>
