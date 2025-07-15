@@ -10,8 +10,8 @@ exports.handler = async (event) => {
         const { productId, email, amount, currency, payCurrency } = JSON.parse(event.body);
         const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
 
-        if (!productId || !email || !amount || !currency || !payCurrency) {
-            console.error("Validation Error: Missing required fields.", { productId, email, amount, currency, payCurrency });
+        if (!productId || !email || !amount || !currency ) {
+            console.error("Validation Error: Missing required fields.", { productId, email, amount, currency });
             return { 
                 statusCode: 400, 
                 body: JSON.stringify({ message: 'Missing one or more required fields.' }) 
@@ -26,13 +26,11 @@ exports.handler = async (event) => {
             };
         }
 
-        // Data for creating an INVOICE.
-        // FIX: Removed optional URL fields that contained placeholders to simplify the request.
         const invoiceData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
             order_id: `DIGIWORLD-${productId}-${Date.now()}`,
-            order_description: `Purchase of ${productId} for ${email}`
+            order_description: `Purchase of ${productId} for ${email}`,
         };
 
         const headers = {
@@ -40,14 +38,12 @@ exports.handler = async (event) => {
             'Content-Type': 'application/json'
         };
 
-        console.log("Attempting to create NowPayments INVOICE with simplified data:", invoiceData);
+        console.log("Attempting to create NowPayments INVOICE with data:", invoiceData);
 
-        // Using the /v1/invoice endpoint to get a hosted payment page
         const response = await axios.post('https://api.nowpayments.io/v1/invoice', invoiceData, { headers });
 
         console.log("Successfully received INVOICE response from NowPayments:", response.data);
 
-        // The response from the invoice endpoint contains an "invoice_url"
         const invoiceUrl = response.data.invoice_url;
 
         if (!invoiceUrl) {
@@ -57,17 +53,19 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 200,
-            // Send the correct invoice URL back to the frontend
             body: JSON.stringify({ invoice_url: invoiceUrl }),
         };
 
     } catch (error) {
         console.error('Error creating NowPayments invoice:', error.response ? error.response.data : error.message);
+        const errorResponse = error.response ? error.response.data : { message: error.message };
+        console.error('Detailed Error:', errorResponse);
+        
         return {
             statusCode: 500,
             body: JSON.stringify({
                 message: 'Failed to create NowPayments invoice.',
-                error: error.response ? error.response.data : { message: error.message }
+                error: errorResponse
             }),
         };
     }
