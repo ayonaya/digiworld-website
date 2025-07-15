@@ -40,7 +40,6 @@ exports.handler = async (event, context) => {
         const order_id = `DIGIWORLD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
         // Construct the IPN Callback URL for NowPayments.
-        // process.env.URL is a Netlify-provided environment variable that gives your site's URL.
         const ipn_callback_url = `https://${process.env.URL}/.netlify/functions/nowpayments-ipn`; 
 
         // Prepare the payment data payload for NowPayments API
@@ -51,14 +50,11 @@ exports.handler = async (event, context) => {
             order_id: order_id,
             order_description: `Digital License for Product ID: ${productId}`,
             ipn_callback_url: ipn_callback_url,
-            // Optional: Add success and cancel URLs for user redirection after payment
             success_url: `https://${process.env.URL}/payment-success.html?order_id=${order_id}`,
             cancel_url: `https://${process.env.URL}/payment-cancelled.html?order_id=${order_id}`,
-            // IMPORTANT: If you use a database for orders, you'd store productId and email
-            // associated with this order_id here, so the IPN can retrieve it later.
-            // NowPayments also allows `ipn_extra_data` for custom data.
-            // For example: "ipn_extra_data": { "customerEmail": email, "productId": productId }
-            // Check NowPayments API docs for the best way to pass this.
+            // Consider adding ipn_extra_data here to pass email and productId to the IPN handler
+            // For example:
+            // ipn_extra_data: { customerEmail: email, productId: productId } 
         };
 
         // Set up request headers, including your API key
@@ -70,6 +66,10 @@ exports.handler = async (event, context) => {
         // Make the API call to NowPayments
         const response = await axios.post(`${NOWPAYMENTS_API_BASE_URL}/payment`, paymentData, { headers });
 
+        // --- NEW DEBUGGING LOG ---
+        console.log('Full NowPayments API response data:', response.data);
+        // --- END NEW DEBUGGING LOG ---
+
         console.log(`NowPayments payment created: ${response.data.payment_id} for order ${order_id}`);
 
         // Return the payment URL (payUrl) to the frontend for redirection
@@ -79,8 +79,8 @@ exports.handler = async (event, context) => {
             body: JSON.stringify({
                 message: 'NowPayments order created successfully',
                 paymentId: response.data.payment_id,
-                payUrl: response.data.pay_url,
-                order_id: order_id // Include order_id for frontend tracking
+                payUrl: response.data.pay_url, // This is the field we expect to be present
+                order_id: order_id 
             }),
         };
 

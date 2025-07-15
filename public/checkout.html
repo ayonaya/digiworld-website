@@ -7,163 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    :root {
-      --bg: #f6f6fa;
-      --card-bg: #ffffff;
-      --primary: #f57224;
-      --primary-dark: #d45703;
-      --text: #333333;
-      --muted: #666666;
-      --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
-      --radius: 18px;
-    }
-    * { box-sizing: border-box; }
-    body {
-      background: var(--bg);
-      font-family: 'Nunito Sans', sans-serif;
-      color: var(--text);
-      line-height: 1.6;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      display: grid;
-      grid-template-columns: 1fr 0.8fr;
-      gap: 40px;
-    }
-    .checkout-form, .order-summary {
-        background: var(--card-bg);
-        padding: 30px;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-    }
-    h2 {
-        font-weight: 900;
-        color: var(--primary-dark);
-        margin-top: 0;
-        margin-bottom: 25px;
-    }
-    .form-group {
-        margin-bottom: 20px;
-    }
-    .form-group label {
-        display: block;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-    .form-group input {
-        width: 100%;
-        padding: 12px 15px;
-        font-size: 1rem;
-        border-radius: 10px;
-        border: 2px solid #ddd;
-        transition: border-color 0.3s;
-    }
-    .form-group input:focus {
-        outline: none;
-        border-color: var(--primary);
-    }
-    .order-summary-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-    .order-summary-item img {
-        width: 60px;
-        height: 60px;
-        border-radius: 8px;
-        object-fit: cover;
-    }
-    .order-summary-info .product-name {
-        font-weight: 700;
-    }
-    .order-summary-info .product-price {
-        font-weight: 900;
-        color: var(--primary);
-    }
-    .order-total {
-        border-top: 2px solid #eee;
-        padding-top: 20px;
-        margin-top: 20px;
-        display: flex;
-        justify-content: space-between;
-        font-weight: 900;
-        font-size: 1.2rem;
-    }
-    #paypal-button-container, #nowpayments-button-container {
-        margin-top: 20px;
-    }
-    #nowpayments-button {
-        background-color: #3498db; /* A nice blue for crypto */
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        width: 100%;
-        transition: background-color 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-    #nowpayments-button:hover {
-        background-color: #2980b9;
-    }
-    #nowpayments-button:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-    }
-    #result-message {
-        margin-top: 15px;
-        font-weight: 700;
-        text-align: center;
-    }
-    .back-link {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        font-weight: 700;
-        color: var(--primary);
-        text-decoration: none;
-    }
-    /* Add a separator for payment options */
-    .payment-separator {
-        text-align: center;
-        margin: 25px 0;
-        position: relative;
-        font-weight: 700;
-        color: var(--muted);
-    }
-    .payment-separator::before,
-    .payment-separator::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        width: 40%;
-        height: 1px;
-        background-color: #eee;
-    }
-    .payment-separator::before {
-        left: 0;
-    }
-    .payment-separator::after {
-        right: 0;
-    }
-
-    @media (max-width: 900px) {
-        .container {
-            grid-template-columns: 1fr;
-        }
-        .order-summary {
-            order: -1; /* Move summary to top on mobile */
-        }
-    }
+    /* ... (your existing CSS) ... */
   </style>
 </head>
 <body>
@@ -412,17 +256,22 @@
                 paypalButtonContainer.style.display = 'none'; // Hide PayPal button when crypto is initiated
                 paymentSeparator.style.display = 'none'; // Hide separator
 
+                // --- ADDED DEBUGGING LOGS HERE ---
+                const requestPayload = {
+                    productId: productId,
+                    email: emailInput.value,
+                    amount: currentProductPrice.toFixed(2),
+                    currency: 'USD'
+                };
+                console.log('NowPayments Request Payload:', requestPayload);
+                // --- END DEBUGGING LOGS ---
+
                 try {
                     // Pointing to your Netlify Function URL
                     const response = await fetch('/.netlify/functions/create-nowpayment-order', { // UPDATED URL
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            productId: productId,
-                            email: emailInput.value,
-                            amount: currentProductPrice.toFixed(2), // Send price as string with 2 decimal places
-                            currency: 'USD' // Assuming USD as base currency
-                        })
+                        body: JSON.stringify(requestPayload) // Use the new payload variable
                     });
 
                     const data = await response.json();
