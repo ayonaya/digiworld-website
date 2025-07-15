@@ -257,7 +257,6 @@
 
             renderPayPalButton(product.price);
             
-            // --- Attach Event Listener to NowPayments Button ---
             nowpaymentsButton.addEventListener('click', () => {
                 handleNowPayments(product);
             });
@@ -327,26 +326,24 @@
             nowpaymentsButton.disabled = true;
 
             try {
-                // IMPORTANT: You need to create this serverless function on Netlify.
                 const response = await fetch('/.netlify/functions/create-nowpayment-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         price_amount: productData.price,
                         price_currency: 'usd',
-                        // FIX: Added the missing pay_currency field.
-                        pay_currency: 'usdttrc20', // You can change this to your preferred crypto
+                        pay_currency: 'usdttrc20', // FIX: Added the missing pay_currency field
                         order_id: `${productData.id}-${Date.now()}`,
                         order_description: productData.name,
-                        success_url: window.location.href, // Redirect back here on success
-                        cancel_url: window.location.href, // Redirect back here on cancel
-                        ipn_callback_url: 'YOUR_IPN_CALLBACK_URL' // Optional: For server-side notifications
+                        success_url: window.location.href,
+                        cancel_url: window.location.href,
+                        ipn_callback_url: 'YOUR_IPN_CALLBACK_URL'
                     })
                 });
 
                 const data = await response.json();
 
-                if (response.ok && data.pay_address) {
+                if (response.ok && data.invoice_id) { // Check for invoice_id for redirection
                     // Redirect to NowPayments invoice page
                     window.location.href = `https://nowpayments.io/payment/?iid=${data.invoice_id}`;
                 } else {
