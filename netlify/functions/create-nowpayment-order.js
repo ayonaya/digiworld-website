@@ -1,5 +1,22 @@
 // netlify/functions/create-nowpayment-order.js
 const axios = require('axios');
+const { initializeApp, getApps } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { credential } = require('firebase-admin');
+
+// Initialize Firebase Admin SDK only once
+if (!getApps().length) {
+    try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        initializeApp({
+            credential: credential.cert(serviceAccount),
+        });
+        console.log("Firebase Admin SDK initialized in create-nowpayment-order.");
+    } catch (e) {
+        console.error("Failed to initialize Firebase Admin SDK in create-nowpayment-order:", e);
+    }
+}
+const db = getFirestore();
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
@@ -7,10 +24,10 @@ exports.handler = async (event) => {
     }
 
     try {
-        const { productId, email, amount, currency, payCurrency } = JSON.parse(event.body);
+        const { productId, email, amount, currency } = JSON.parse(event.body);
         const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
 
-        if (!productId || !email || !amount || !currency ) {
+        if (!productId || !email || !amount || !currency) {
             console.error("Validation Error: Missing required fields.", { productId, email, amount, currency });
             return { 
                 statusCode: 400, 
@@ -26,11 +43,28 @@ exports.handler = async (event) => {
             };
         }
 
+        // --- FIX: Create and save the order to Firestore BEFORE creating the payment ---
+        const orderId = `DIGIWORLD-${productId}-${Date.now()}`;
+        const orderDocRef = db.collection('orders').doc(orderId);
+        await orderDocRef.set({
+            productId: productId,
+            customerEmail: email,
+            amount: parseFloat(amount),
+            currency: currency,
+            paymentGateway: 'nowpayments',
+            status: 'initiated', // Initial status
+            createdAt: new Date().toISOString()
+        });
+        console.log(`NowPayments Order ${orderId} details saved to Firestore.`);
+        // --- End Firestore Save ---
+
         const invoiceData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
-            order_id: `DIGIWORLD-${productId}-${Date.now()}`,
+            order_id: orderId, // Use the same orderId for NowPayments
             order_description: `Purchase of ${productId} for ${email}`,
+            // IMPORTANT: Set your IPN callback URL in your NowPayments account settings
+            // ipn_callback_url: 'https://YOUR_SITE/.netlify/functions/nowpayments-ipn'
         };
 
         const headers = {
@@ -50,6 +84,9 @@ exports.handler = async (event) => {
             console.error("Critical Error: Could not get invoice_url from NowPayments response.", response.data);
             throw new Error("Failed to get redirection URL from NowPayments.");
         }
+
+        // Update the order with the payment ID from NowPayments
+        await orderDocRef.update({ nowPaymentsId: response.data.id });
 
         return {
             statusCode: 200,
