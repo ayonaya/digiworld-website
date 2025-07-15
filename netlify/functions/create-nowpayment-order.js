@@ -40,7 +40,8 @@ exports.handler = async (event, context) => {
         const order_id = `DIGIWORLD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
         // Construct the IPN Callback URL for NowPayments.
-        const ipn_callback_url = `https://${process.env.URL}/.netlify/functions/nowpayments-ipn`; 
+        // FIX: Removed the redundant 'https://' prefix. process.env.URL already includes it.
+        const ipn_callback_url = `${process.env.URL}/.netlify/functions/nowpayments-ipn`; 
 
         // Prepare the payment data payload for NowPayments API
         const paymentData = {
