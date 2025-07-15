@@ -234,7 +234,7 @@ const products = [
     category: "Development",
     isHot: false,
     name: { en: "Microsoft Visio 2021 Key" /*, ... */ },
-    price: { LKR: 3500, USD: 10, EUR: 9, GBP: 8, INR: 800 },
+    price: { LKR: 3500, USD: 0.2, EUR: 9, GBP: 8, INR: 800 },
     image: "https://img.drz.lazcdn.com/static/lk/p/e6fa1180deb98607be4cc772a1af56ca.png_400x400q75.avif",
     delivery: { en: "Instant Delivery" /*, ... */ },
     desc: { en: "Microsoft Visio 2021 key, for 1 PC. Lifetime license. Instant email delivery." /*, ... */ },
