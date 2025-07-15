@@ -334,6 +334,8 @@
                     body: JSON.stringify({
                         price_amount: productData.price,
                         price_currency: 'usd',
+                        // FIX: Added the missing pay_currency field.
+                        pay_currency: 'usdttrc20', // You can change this to your preferred crypto
                         order_id: `${productData.id}-${Date.now()}`,
                         order_description: productData.name,
                         success_url: window.location.href, // Redirect back here on success
