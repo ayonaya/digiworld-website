@@ -1,37 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>DigiWorld | About Us</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>About DigiWorld</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f6f6fa;
+      --card-bg: #ffffff;
+      --primary: #f57224;
+      --primary-dark: #d45703;
+      --text: #333333;
+      --muted: #666666;
+      --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      font-family: 'Nunito Sans', sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-weight: 900;
+      color: var(--primary-dark);
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    p {
+      margin-bottom: 1.5em;
+      font-size: 1.1rem;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 40px;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-<nav style="display:flex;justify-content:center;gap:18px;margin-bottom:30px;">
-  <a href="index.html" style="color:#235bff;text-decoration:none;font-weight:600;">Home</a>
-  <a href="products.html" style="color:#235bff;text-decoration:none;font-weight:600;">Products</a>
-  <a href="how.html" style="color:#235bff;text-decoration:none;font-weight:600;">How It Works</a>
-  <a href="faq.html" style="color:#235bff;text-decoration:none;font-weight:600;">FAQ</a>
-  <a href="contact.html" style="color:#235bff;text-decoration:none;font-weight:600;">Contact</a>
-  <a href="about.html" style="color:#235bff;text-decoration:none;font-weight:600;">About</a>
-  <a href="track.html" style="color:#235bff;text-decoration:none;font-weight:600;">Order Status</a>
-  <a href="terms.html" style="color:#235bff;text-decoration:none;font-weight:600;">Terms</a>
-  <a href="privacy.html" style="color:#235bff;text-decoration:none;font-weight:600;">Privacy</a>
-</nav>
-<div class="container">
-  <h1>About DigiWorld</h1>
-  <div style="max-width:420px;margin:0 auto;text-align:left;">
+
+  <div class="container">
+    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Store</a>
+    <h1>About DigiWorld</h1>
     <p>
-      DigiWorld is dedicated to providing fast, reliable, and genuine Microsoft license keys at affordable prices.<br><br>
-      With instant delivery and 24/7 support, our goal is to make your software activation process seamless and secure. Whether for home or business, we have the right key for you.<br><br>
-      <b>Why choose DigiWorld?</b>
-      <ul>
-        <li>100% Genuine Products</li>
-        <li>Instant Email Delivery</li>
-        <li>Easy and Secure Payments</li>
-        <li>Friendly Customer Support</li>
-      </ul>
+      Welcome to DigiWorld! We are passionate about providing instant, reliable access to the digital tools you need. Our mission is to make software licensing simple, affordable, and secure for everyone, from individual professionals to small businesses.
+    </p>
+    <p>
+      Founded in 2025, we saw a need for a trustworthy source for digital keys without the hassle of physical media or long waiting times. We work directly with a network of authorized distributors to ensure that every key we sell is genuine and ready for activation.
+    </p>
+    <p>
+      Our commitment is to you, our customer. We pride ourselves on our streamlined process, secure payment system, and dedicated customer support. Thank you for choosing DigiWorld for your software needs.
     </p>
   </div>
-</div>
+
 </body>
 </html>
