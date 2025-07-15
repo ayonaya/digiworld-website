@@ -2,155 +2,207 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>FAQ | DigiWorld</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ - DigiWorld</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
+    :root {
+      --primary: #f57224;
+      --primary-dark: #d45703;
+      --accent: #fe724c;
+      --card-bg: #fff;
+      --bg: #f6f6fa;
+      --radius: 18px;
+      --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+    }
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0; padding: 0;
+      background: var(--bg);
+      font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
       color: #333;
-      min-height: 100vh;
-    }
-    nav {
-      background: linear-gradient(90deg, #235bff22 0%, #f0faff 100%);
-      padding: 16px 0;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      font-weight: 600;
-      font-size: 1.1em;
-      border-radius: 0 0 18px 18px;
-      box-shadow: 0 3px 12px #0002;
-      margin-bottom: 24px;
-    }
-    nav a {
-      color: #235bff;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    nav a:hover {
-      color: #228be6;
-      border-bottom: 2px solid #235bff;
     }
     .container {
-      max-width: 800px;
-      margin: 0 auto 48px auto;
-      background: white;
-      padding: 36px 24px;
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(31,38,135,0.15);
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
     }
-    h1 {
-      text-align: center;
-      color: #235bff;
-      margin-bottom: 24px;
-      letter-spacing: 1px;
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .page-header h1 {
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: var(--primary-dark);
+        margin: 0;
+    }
+    .page-header p {
+        font-size: 1.2rem;
+        color: #666;
+        margin-top: 10px;
+    }
+    .faq-accordion {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
     .faq-item {
-      border-bottom: 1px solid #ddd;
-      padding: 16px 0;
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: box-shadow 0.3s;
+    }
+    .faq-item:hover {
+        box-shadow: 0 8px 40px rgba(245, 114, 36, 0.2);
     }
     .faq-question {
-      cursor: pointer;
-      position: relative;
-      font-weight: 600;
-      font-size: 1.12rem;
-      color: #1a2a6c;
-      padding-right: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 20px 25px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        cursor: pointer;
+        text-align: left;
     }
-    .faq-question::after {
-      content: '+';
-      position: absolute;
-      right: 0;
-      top: 0;
-      font-size: 1.5rem;
-      line-height: 1;
-      transition: transform 0.3s ease;
+    .faq-question .icon {
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        font-size: 1.4rem;
     }
-    .faq-question.active::after {
-      content: '-';
-      transform: rotate(180deg);
+    .faq-item.active .faq-question .icon {
+        transform: rotate(45deg);
+        color: var(--accent);
     }
     .faq-answer {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-      color: #444;
-      margin-top: 8px;
-      font-size: 1rem;
-      line-height: 1.5;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1), padding 0.5s ease;
+        padding: 0 25px;
     }
-    .faq-answer.open {
-      max-height: 500px; /* enough to show content */
+    .faq-answer p {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: #555;
+        margin: 0;
+        padding-bottom: 25px;
+    }
+    .faq-answer a {
+        color: var(--primary);
+        font-weight: 700;
+        text-decoration: none;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 1.1rem;
     }
   </style>
 </head>
 <body>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="products.html">Products</a>
-    <a href="faq.html" style="border-bottom:2px solid #235bff; color:#235bff;">FAQ</a>
-    <a href="how.html">How It Works</a>
-    <a href="about.html">About Us</a>
-    <a href="contact.html">Contact</a>
-  </nav>
 
   <div class="container">
-    <h1>Frequently Asked Questions</h1>
-
-    <div class="faq-item">
-      <div class="faq-question">How do I receive my digital key after purchase?</div>
-      <div class="faq-answer">
-        After successful payment, your digital key is sent instantly to the email address you provide during checkout.
-      </div>
+    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Store</a>
+    <div class="page-header">
+        <h1>Frequently Asked Questions</h1>
+        <p>Find answers to common questions about our products and services.</p>
     </div>
 
-    <div class="faq-item">
-      <div class="faq-question">Are these keys genuine and legal?</div>
-      <div class="faq-answer">
-        Yes, all keys sold are 100% genuine, sourced legally, and guaranteed to activate your software without issues.
-      </div>
-    </div>
+    <div class="faq-accordion">
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>How do I receive my product key?</span>
+                <span class="icon">+</span>
+            </button>
+            <div class="faq-answer">
+                <p>Your product key is delivered instantly to the email address you provide during checkout. Please make sure to check your inbox and spam/junk folder right after your payment is completed.</p>
+            </div>
+        </div>
 
-    <div class="faq-item">
-      <div class="faq-question">What payment methods do you accept?</div>
-      <div class="faq-answer">
-        We accept crypto payments through NowPayments and PayPal for your convenience.
-      </div>
-    </div>
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>Is this a one-time payment?</span>
+                <span class="icon">+</span>
+            </button>
+            <div class="faq-answer">
+                <p>Yes, absolutely. All our digital keys are for lifetime licenses. You pay once and own the software forever, with no monthly or annual subscription fees.</p>
+            </div>
+        </div>
 
-    <div class="faq-item">
-      <div class="faq-question">Can I use one key on multiple devices?</div>
-      <div class="faq-answer">
-        Typically, each key is valid for one device only. Please check the product details for specific license terms.
-      </div>
-    </div>
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>What do I do if my key doesn't work?</span>
+                <span class="icon">+</span>
+            </button>
+            <div class="faq-answer">
+                <p>We guarantee every key is valid at the time of sale. In the rare event of an issue, please contact our support team immediately with your order number and a screenshot of the error. We will verify the issue and provide a replacement key. Please see our <a href="refund-policy.html">Refund Policy</a> for more details.</p>
+            </div>
+        </div>
 
-    <div class="faq-item">
-      <div class="faq-question">What if I lose my key?</div>
-      <div class="faq-answer">
-        Contact our support team at support@keyzone.com with your purchase details and we will assist you promptly.
-      </div>
-    </div>
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>Are these keys legitimate?</span>
+                <span class="icon">+</span>
+            </button>
+            <div class="faq-answer">
+                <p>Yes. We source all our digital keys from authorized distributors and verified suppliers. They are 100% genuine and will activate correctly with the official software.</p>
+            </div>
+        </div>
 
+        <div class="faq-item">
+            <button class="faq-question">
+                <span>What payment methods do you accept?</span>
+                <span class="icon">+</span>
+            </button>
+            <div class="faq-answer">
+                <p>We offer secure payment options through both PayPal (which accepts all major credit and debit cards) and NowPayments for a wide variety of cryptocurrencies.</p>
+            </div>
+        </div>
+    </div>
   </div>
 
   <script>
-    // FAQ toggle logic
-    document.querySelectorAll('.faq-question').forEach(question => {
-      question.addEventListener('click', () => {
-        const answer = question.nextElementSibling;
-        const isOpen = answer.classList.contains('open');
-        if (isOpen) {
-          answer.classList.remove('open');
-          question.classList.remove('active');
-        } else {
-          answer.classList.add('open');
-          question.classList.add('active');
-        }
-      });
+    document.addEventListener('DOMContentLoaded', () => {
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            const answer = item.querySelector('.faq-answer');
+            const icon = question.querySelector('.icon');
+
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+
+                // Optional: Close all other items
+                // faqItems.forEach(otherItem => {
+                //     if (otherItem !== item) {
+                //         otherItem.classList.remove('active');
+                //         otherItem.querySelector('.faq-answer').style.maxHeight = 0;
+                //         otherItem.querySelector('.icon').textContent = '+';
+                //     }
+                // });
+
+                item.classList.toggle('active');
+
+                if (item.classList.contains('active')) {
+                    answer.style.maxHeight = answer.scrollHeight + 'px';
+                    icon.textContent = '×';
+                } else {
+                    answer.style.maxHeight = 0;
+                    icon.textContent = '+';
+                }
+            });
+        });
     });
   </script>
+
 </body>
 </html>
