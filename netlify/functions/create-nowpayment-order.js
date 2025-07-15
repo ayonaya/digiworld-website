@@ -26,12 +26,15 @@ exports.handler = async (event) => {
             };
         }
 
-        const paymentData = {
+        // Data for creating an INVOICE, not a payment.
+        const invoiceData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
-            pay_currency: payCurrency,
             order_id: `DIGIWORLD-${productId}-${Date.now()}`,
-            order_description: `Purchase of ${productId}`,
+            order_description: `Purchase of ${productId} for ${email}`,
+            ipn_callback_url: `https://YOUR_SITE_URL/.netlify/functions/nowpayments-ipn`, // Optional but recommended
+            success_url: `https://YOUR_SITE_URL/payment-success.html`, // Optional
+            cancel_url: `https://YOUR_SITE_URL/payment-cancelled.html` // Optional
         };
 
         const headers = {
@@ -39,39 +42,34 @@ exports.handler = async (event) => {
             'Content-Type': 'application/json'
         };
 
-        console.log("Attempting to create NowPayments payment with data:", paymentData);
-        const response = await axios.post('https://api.nowpayments.io/v1/payment', paymentData, { headers });
-        console.log("Successfully received response from NowPayments:", response.data);
+        console.log("Attempting to create NowPayments INVOICE with data:", invoiceData);
 
-        // --- FIX: Handle cases where pay_url is missing ---
-        let redirectionUrl = response.data.pay_url;
+        // FIX: Using the /v1/invoice endpoint to get a hosted payment page
+        const response = await axios.post('https://api.nowpayments.io/v1/invoice', invoiceData, { headers });
 
-        // If pay_url is missing, but we have a purchase_id, construct the URL manually.
-        if (!redirectionUrl && response.data.purchase_id) {
-            console.log("pay_url was missing. Constructing URL from purchase_id.");
-            redirectionUrl = `https://nowpayments.io/payment/${response.data.purchase_id}`;
-        }
+        console.log("Successfully received INVOICE response from NowPayments:", response.data);
 
-        if (!redirectionUrl) {
-            console.error("Critical Error: Could not determine redirection URL from NowPayments response.", response.data);
+        // The response from the invoice endpoint contains an "invoice_url"
+        const invoiceUrl = response.data.invoice_url;
+
+        if (!invoiceUrl) {
+            console.error("Critical Error: Could not get invoice_url from NowPayments response.", response.data);
             throw new Error("Failed to get redirection URL from NowPayments.");
         }
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ payUrl: redirectionUrl }),
+            // Send the correct invoice URL back to the frontend
+            body: JSON.stringify({ invoice_url: invoiceUrl }),
         };
 
     } catch (error) {
-        console.error('Error creating NowPayments order:', error);
-        const errorResponse = error.response ? error.response.data : { message: error.message };
-        console.error('Detailed Error:', errorResponse);
-        
+        console.error('Error creating NowPayments invoice:', error.response ? error.response.data : error.message);
         return {
             statusCode: 500,
             body: JSON.stringify({
-                message: 'Failed to create NowPayments order.',
-                error: errorResponse
+                message: 'Failed to create NowPayments invoice.',
+                error: error.response ? error.response.data : { message: error.message }
             }),
         };
     }
