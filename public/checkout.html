@@ -332,8 +332,8 @@
                                         orderID: data.orderID,
                                         email: emailInput.value,
                                         productId: productId,
-                                        amount: currentProductPrice.toFixed(2), // ADDED FOR PAYPAL
-                                        currency: 'USD' // ADDED FOR PAYPAL
+                                        amount: currentProductPrice.toFixed(2), 
+                                        currency: 'USD' 
                                     })
                                 })
                                 .then(response => response.json())
@@ -418,7 +418,7 @@
                         email: emailInput.value,
                         amount: currentProductPrice.toFixed(2),
                         currency: 'USD',
-                        payCurrency: 'usdt' 
+                        payCurrency: 'usdttrc20' // Changed from 'usdt' to 'usdttrc20'
                     };
                     console.log('NowPayments Request Payload:', requestPayload);
 
