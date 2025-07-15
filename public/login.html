@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DigiWorld - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f6f6;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      max-width: 360px;
+      width: 100%;
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.16);
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 18px;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    #googleSignInBtn {
+      background-color: #db4437;
+      color: white;
+    }
+    #googleSignInBtn:hover {
+      background-color: #c23321;
+    }
+    #appleSignInBtn {
+      background-color: #000;
+      color: white;
+    }
+    #appleSignInBtn:hover {
+      background-color: #222;
+    }
+    #emailSignInBtn {
+      background-color: #f57224;
+      color: white;
+    }
+    #emailSignInBtn:hover {
+      background-color: #d45703;
+    }
+    #logoutBtn {
+      background-color: #555;
+      color: white;
+      margin-top: 20px;
+      display: none;
+    }
+    #logoutBtn:hover {
+      background-color: #333;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: 600;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>DigiWorld Login</h2>
+    <input type="email" id="emailInput" placeholder="Enter your email" />
+    <button id="emailSignInBtn">Sign In with Email Link</button>
+    <button id="googleSignInBtn">Sign In with Google</button>
+    <button id="appleSignInBtn">Sign In with Apple</button>
+    <button id="logoutBtn">Logout</button>
+    <div id="message"></div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithPopup,
+      GoogleAuthProvider,
+      OAuthProvider,
+      sendSignInLinkToEmail,
+      isSignInWithEmailLink,
+      signInWithEmailLink,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
+      authDomain: "digiworld-46a1e.firebaseapp.com",
+      projectId: "digiworld-46a1e",
+      storageBucket: "digiworld-46a1e.appspot.com",
+      messagingSenderId: "242235397710",
+      appId: "1:242235397710:web:a80c15cc285188610cd51f",
+      measurementId: "G-R8C4BWHXBL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const googleBtn = document.getElementById('googleSignInBtn');
+    const appleBtn = document.getElementById('appleSignInBtn');
+    const emailBtn = document.getElementById('emailSignInBtn');
+    const emailInput = document.getElementById('emailInput');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const messageDiv = document.getElementById('message');
+
+    // Google sign-in
+    googleBtn.addEventListener('click', () => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider).catch(error => {
+        messageDiv.textContent = error.message;
+        messageDiv.style.color = 'red';
+      });
+    });
+
+    // Apple sign-in
+    appleBtn.addEventListener('click', () => {
+      const provider = new OAuthProvider('apple.com');
+      signInWithPopup(auth, provider).catch(error => {
+        messageDiv.textContent = error.message;
+        messageDiv.style.color = 'red';
+      });
+    });
+
+    // Email link sign-in
+    emailBtn.addEventListener('click', () => {
+      const email = emailInput.value;
+      if (!email) {
+        messageDiv.textContent = "Please enter your email.";
+        messageDiv.style.color = 'red';
+        return;
+      }
+      const actionCodeSettings = {
+        url: window.location.href,
+        handleCodeInApp: true,
+      };
+      sendSignInLinkToEmail(auth, email, actionCodeSettings)
+        .then(() => {
+          window.localStorage.setItem('emailForSignIn', email);
+          messageDiv.textContent = `Email sent to ${email}. Please check your inbox.`;
+          messageDiv.style.color = 'green';
+        })
+        .catch(error => {
+          messageDiv.textContent = error.message;
+          messageDiv.style.color = 'red';
+        });
+    });
+
+    // Check if returning with email sign-in link
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let email = window.localStorage.getItem('emailForSignIn');
+      if (!email) {
+        email = window.prompt('Please provide your email for confirmation');
+      }
+      signInWithEmailLink(auth, email, window.location.href)
+        .then(result => {
+          window.localStorage.removeItem('emailForSignIn');
+          messageDiv.textContent = `Welcome back, ${result.user.email}!`;
+          messageDiv.style.color = 'green';
+        })
+        .catch(error => {
+          messageDiv.textContent = error.message;
+          messageDiv.style.color = 'red';
+        });
+    }
+
+    // Logout button
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth).then(() => {
+        messageDiv.textContent = 'Logged out successfully.';
+        messageDiv.style.color = 'green';
+      });
+    });
+
+    // Track auth state changes without immediate redirect
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        googleBtn.style.display = 'none';
+        appleBtn.style.display = 'none';
+        emailBtn.style.display = 'none';
+        emailInput.style.display = 'none';
+        logoutBtn.style.display = 'block';
+        messageDiv.textContent = `Hello, ${user.email || user.displayName || 'User'}`;
+        messageDiv.style.color = 'green';
+
+        // Redirect after 1 second delay to allow message display
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000);
+      } else {
+        googleBtn.style.display = 'block';
+        appleBtn.style.display = 'block';
+        emailBtn.style.display = 'block';
+        emailInput.style.display = 'block';
+        logoutBtn.style.display = 'none';
+        messageDiv.textContent = '';
+      }
+    });
+  </script>
+</body>
+</html>

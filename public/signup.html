@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DigiWorld - Sign Up</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f6f6; padding: 40px; display: flex; justify-content: center; }
+    .container {
+      max-width: 360px;
+      width: 100%;
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.16);
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      background: #f57224;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #d45703;
+    }
+    #googleSignUpBtn {
+      background-color: #db4437;
+      color: white;
+      margin-top: 10px;
+    }
+    #googleSignUpBtn:hover {
+      background-color: #c23321;
+    }
+    #appleSignUpBtn {
+      background-color: #000;
+      color: white;
+      margin-top: 10px;
+    }
+    #appleSignUpBtn:hover {
+      background-color: #222;
+    }
+    #message {
+      margin-top: 12px;
+      font-weight: 600;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create your DigiWorld account</h2>
+    <form id="signupForm" autocomplete="off">
+      <input type="email" id="email" placeholder="Email address" required />
+      <input type="password" id="password" placeholder="Password (min 6 chars)" required minlength="6" />
+      <button type="submit">Sign Up</button>
+    </form>
+    <button id="googleSignUpBtn">Sign Up with Google</button>
+    <button id="appleSignUpBtn">Sign Up with Apple</button>
+    <div id="message"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithPopup,
+      GoogleAuthProvider,
+      OAuthProvider,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    // Your actual Firebase config here
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
+      authDomain: "digiworld-46a1e.firebaseapp.com",
+      projectId: "digiworld-46a1e",
+      storageBucket: "digiworld-46a1e.appspot.com",
+      messagingSenderId: "242235397710",
+      appId: "1:242235397710:web:a80c15cc285188610cd51f",
+      measurementId: "G-R8C4BWHXBL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const signupForm = document.getElementById('signupForm');
+    const googleSignUpBtn = document.getElementById('googleSignUpBtn');
+    const appleSignUpBtn = document.getElementById('appleSignUpBtn');
+    const messageDiv = document.getElementById('message');
+
+    signupForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const email = signupForm.email.value;
+      const password = signupForm.password.value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          messageDiv.style.color = 'green';
+          messageDiv.textContent = 'Signup successful! Redirecting to login...';
+          signupForm.reset();
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+        })
+        .catch(error => {
+          messageDiv.style.color = 'red';
+          messageDiv.textContent = error.message;
+        });
+    });
+
+    googleSignUpBtn.addEventListener('click', () => {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider).catch(error => {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = error.message;
+      });
+    });
+
+    appleSignUpBtn.addEventListener('click', () => {
+      const provider = new OAuthProvider('apple.com');
+      signInWithPopup(auth, provider).catch(error => {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = error.message;
+      });
+    });
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = `Already signed in as ${user.email || 'User'}. Redirecting...`;
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      }
+    });
+  </script>
+</body>
+</html>

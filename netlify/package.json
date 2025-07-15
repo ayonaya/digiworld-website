@@ -1,0 +1,22 @@
+{
+  "name": "digiworld-netlify",
+  "version": "1.0.0",
+  "description": "DigiWorld e-commerce site with Netlify Functions backend",
+  "main": "netlify/functions/index.js",
+  "scripts": {
+    "start": "netlify dev",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "nodemailer": "^6.9.14",
+    "crypto": "^1.0.1",
+    "aws-sdk": "^2.1659.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.27.0"
+  }
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopping Cart - DigiWorld</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f9f9f9; margin: 0; }
+    .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 16px; box-shadow: 0 2px 14px #0001; padding: 32px; }
+    h1 { font-size: 2rem; color: #f57224; margin-bottom: 24px; }
+    .cart-list { list-style: none; padding: 0; margin: 0 0 18px 0; }
+    .cart-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #eee; }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item img { width: 68px; height: 54px; object-fit: contain; border-radius: 9px; margin-right: 18px; background: #fafafa;}
+    .cart-item-details { flex: 1; display: flex; align-items: center; }
+    .cart-item-title { font-weight: 600; font-size: 1.06rem; }
+    .cart-item-price { color: #f57224; font-weight: 700; margin-left: 20px;}
+    .remove-btn { background: #fff; border: 1px solid #eee; color: #d52c2c; border-radius: 5px; cursor: pointer; font-weight: 600; padding: 5px 13px; margin-left: 22px; }
+    .remove-btn:hover { background: #fff1f1; }
+    .empty-cart { text-align: center; color: #888; font-size: 1.14rem; margin: 48px 0;}
+    .checkout-btn { margin-top: 32px; background: #f57224; color: #fff; border: none; border-radius: 8px; padding: 13px 38px; font-size: 1.17rem; font-weight: 700; cursor: pointer; box-shadow: 0 2px 8px #f5722410;}
+    .checkout-btn:hover { background: #d45703;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Your Cart</h1>
+    <ul class="cart-list" id="cartList"></ul>
+    <div class="empty-cart" id="emptyCart" style="display:none;">Your cart is empty.</div>
+    <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+  </div>
+  <script>
+    // For static demo: Cart items from localStorage (simulate real storage)
+    let cart = JSON.parse(localStorage.getItem('digiworld_cart') || '[]');
+    const cartList = document.getElementById('cartList');
+    const emptyCart = document.getElementById('emptyCart');
+    function renderCart() {
+      cartList.innerHTML = '';
+      if (!cart.length) {
+        emptyCart.style.display = 'block';
+        document.getElementById('checkoutBtn').style.display = 'none';
+        return;
+      }
+      emptyCart.style.display = 'none';
+      document.getElementById('checkoutBtn').style.display = '';
+      cart.forEach((item, idx) => {
+        const li = document.createElement('li');
+        li.className = 'cart-item';
+        li.innerHTML = `
+          <div class="cart-item-details">
+            <img src="${item.image}" alt="${item.name}">
+            <span class="cart-item-title">${item.name}</span>
+            <span class="cart-item-price">${item.price || '$--'}</span>
+          </div>
+          <button class="remove-btn" data-idx="${idx}">Remove</button>
+        `;
+        cartList.appendChild(li);
+      });
+      document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.onclick = function() {
+          cart.splice(btn.getAttribute('data-idx'), 1);
+          localStorage.setItem('digiworld_cart', JSON.stringify(cart));
+          renderCart();
+        }
+      });
+    }
+    renderCart();
+    document.getElementById('checkoutBtn').onclick = function() {
+      // Redirect to checkout page
+      window.location.href = "checkout.html";
+    }
+  </script>
+</body>
+</html>

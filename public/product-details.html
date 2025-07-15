@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>DigiWorld - Product Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #f57224;
+      --primary-dark: #d45703;
+      --accent: #fe724c;
+      --card-bg: #fff;
+      --bg: #f6f6fa;
+      --radius: 18px;
+      --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      color: #333;
+      opacity: 0;
+      animation: fadeInPage 0.5s forwards ease-in-out;
+    }
+    @keyframes fadeInPage { to { opacity: 1; } }
+
+    /* --- All other CSS is unchanged --- */
+    header {
+      background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
+      color: #fff;
+      box-shadow: 0 2px 16px #f5722433;
+      border-radius: 0 0 18px 18px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding-bottom: 6px;
+    }
+    .header-main-pro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 16px 9px 16px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .logo-pro {
+      font-size: 2.3rem; font-weight: 900; letter-spacing: -2px;
+      color: #fff; text-shadow: 0 3px 12px #0002;
+      cursor: pointer; text-decoration: none;
+    }
+    header nav {
+      display: flex; align-items: center; gap: 10px;
+      flex-grow: 1; justify-content: center;
+    }
+    .nav-link-pro {
+      font-size: 1.05rem; padding: 7px 17px; color: #fff;
+      border-radius: 11px; font-weight: 700; text-decoration: none;
+      background: none; transition: background 0.17s, color 0.13s;
+    }
+    .nav-link-pro:hover, .nav-link-pro.active {
+      background: rgba(255, 255, 255, 0.837); color: #fe724c;
+    }
+    .lang-currency-wrap { display: flex; align-items: center; gap: 10px; }
+    .dropdown { position: relative; }
+    .dropdown-toggle {
+        background: rgba(255, 255, 255, 0.884); border: none; font-size: 0.98em; font-weight: 700;
+        display: flex; align-items: center; gap: 5px; cursor: pointer;
+        color: #fe724c; border-radius: 7px; padding: 3px 10px;
+        transition: background 0.12s; user-select: none;
+    }
+    .dropdown-toggle:hover { background: #fff; }
+    .dropdown-menu {
+      position: absolute; top: 110%; left: 0; min-width: 124px;
+      background: #fff; border-radius: 10px; box-shadow: 0 4px 24px #fe724c26;
+      z-index: 50; display: none; margin-top: 2px; padding: 5px 0;
+    }
+    .dropdown.open .dropdown-menu { display: block; }
+    .dropdown-item {
+      padding: 8px 17px; cursor: pointer; font-weight: 700;
+      display: flex; align-items: center; gap: 7px;
+      color: #fe724c; transition: background 0.12s, color 0.13s;
+      border-radius: 7px; white-space: nowrap;
+    }
+    .dropdown-item:hover { background: #ffe4d1; color: #d45703; }
+    .cart-btn {
+      background: #fff3; color: #fff; border: none; border-radius: 50px;
+      padding: 8px 19px 8px 11px; font-size: 1.1rem; font-weight: 700;
+      display: flex; align-items: center; gap: 7px; cursor: pointer;
+      box-shadow: 0 2px 8px #f5722422; transition: background 0.13s;
+    }
+    .cart-btn:hover { background: #fff5; }
+    .cart-icon-badge {
+      background: #fff; color: var(--primary); border-radius: 50%;
+      font-size: 0.91em; padding: 2px 8px; font-weight: bold;
+      margin-left: 3px; position: relative; top: -5px;
+    }
+    .cart-btn.animated {
+      animation: cart-bounce 0.43s cubic-bezier(.68, -0.6, .32, 1.6);
+    }
+    @keyframes cart-bounce {
+      0% { transform: scale(1); }
+      22% { transform: scale(1.18) rotate(-6deg); }
+      60% { transform: scale(0.95) rotate(2deg); }
+      85% { transform: scale(1.07); }
+      100% { transform: scale(1); }
+    }
+    .search-bar-modern {
+      position: relative; z-index: 9; display: flex; align-items: center;
+      background: #fff; border-radius: 24px; padding: 2px 10px;
+      box-shadow: 0 2px 12px #0001; margin: 12px auto 16px auto;
+      max-width: 600px;
+    }
+    .category-dropdown {
+      border: none; background: none; font-weight: bold; color: #f57224;
+      font-size: 1.1em; margin-right: 10px; border-radius: 14px;
+      padding: 9px 12px; background: #fff7f5; box-shadow: 0 2px 8px #f5722422;
+    }
+    .search-bar-modern input[type="text"] {
+      flex: 1; border: none; outline: none; font-size: 1.13em;
+      padding: 10px 12px; background: transparent; color: #333;
+    }
+    .search-btn-modern {
+      background: #f57224; color: #fff; border: none; border-radius: 25px;
+      padding: 8px 26px; font-size: 1.12em; font-weight: bold;
+      cursor: pointer; transition: background 0.15s; margin-left: 8px;
+    }
+    .search-btn-modern:hover { background: #d45703; }
+    .mini-cart-overlay {
+      position: fixed; z-index: 2100; left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); 
+      backdrop-filter: blur(8px);
+      /* Changed from display: none to this for smoother animation */
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .mini-cart-overlay.active { 
+      opacity: 1;
+      visibility: visible;
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .mini-cart-drawer {
+      position: relative;
+      width: 390px;
+      max-width: 90vw;
+      max-height: 80vh;
+      background: #fff;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      z-index: 2200;
+      border-radius: var(--radius);
+      display: flex; flex-direction: column;
+      transform: scale(0.8);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.4, 1.5, 0.6, 1), opacity 0.3s;
+    }
+    .mini-cart-overlay.active .mini-cart-drawer {
+        transform: scale(1);
+        opacity: 1;
+    }
+    .mini-cart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 25px; border-bottom: 1.6px solid #eee;
+      font-size: 1.25em; font-weight: 900;
+    }
+    .mini-cart-close { cursor: pointer; font-size: 1.5em; color: #aaa; transition: color 0.2s; background:none; border:none; padding:0; }
+    .mini-cart-close:hover { color: var(--primary); }
+    .mini-cart-items { flex: 1; overflow-y: auto; padding: 20px 25px 0 25px; }
+    .mini-cart-item { 
+        display: flex; align-items: center; gap: 15px; margin-bottom: 20px; 
+        animation: cartItemPop 0.4s cubic-bezier(0.49, 2.3, 0.48, 1);
+    }
+    @keyframes cartItemPop {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .mini-cart-item-img { width: 50px; height: 50px; object-fit: contain; border-radius: 8px; border: 1px solid #eee; }
+    .mini-cart-item-details { flex: 1; min-width: 0; text-align: left; }
+    .mini-cart-item-title {
+      font-weight: 700; color: #333; font-size: 1rem; margin-bottom: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mini-cart-item-price { font-weight: 700; color: var(--primary); font-size: 1rem; }
+    .mini-cart-item-remove { cursor: pointer; color: #ff3a5e; font-size: 1.1em; transition: color 0.2s; }
+    .mini-cart-footer { border-top: 1.7px solid #eee; background: #fafafa; padding: 20px 25px; border-radius: 0 0 var(--radius) var(--radius); }
+    .mini-cart-total { font-weight: 900; color: #333; font-size: 1.2em; margin-bottom: 15px; display: flex; justify-content: space-between; }
+    .mini-cart-checkout {
+      background: linear-gradient(90deg,#fe724c,#fd7e1a); color: #fff;
+      padding: 14px; border: none; border-radius: 12px; cursor: pointer;
+      font-weight: 700; font-size: 1.1em; transition: all 0.2s; width: 100%;
+    }
+    .mini-cart-checkout:hover { transform: scale(1.03); box-shadow: 0 4px 15px rgba(245,114,36,0.3); }
+
+    .site-footer {
+        background: #fff; color: #4a4a4a; padding: 50px 20px;
+        margin-top: 40px; border-top: 4px solid var(--primary);
+    }
+    .footer-grid {
+        max-width: 1200px; margin: 0 auto; display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px;
+    }
+    .footer-col h3 { font-size: 1.2rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 15px; }
+    .footer-col ul { list-style: none; padding: 0; margin: 0; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul a { color: #555; text-decoration: none; font-weight: 700; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--primary); }
+    .footer-bottom {
+        max-width: 1200px; margin: 40px auto 0 auto; padding-top: 20px;
+        border-top: 1px solid #eee; text-align: center; font-weight: 700; color: #999;
+    }
+    .dw-bottom-nav {
+        position: fixed; z-index: 1111; left: 0; right: 0; bottom: 0;
+        height: 56px; background: #fff; border-top: 1.5px solid #f2e2d6;
+        box-shadow: 0 -2px 12px #f5722413; display: none;
+        justify-content: space-around; align-items: center;
+    }
+    @media (max-width: 900px) {
+        header nav, .lang-currency-wrap, .search-bar-modern { display: none; }
+        .dw-bottom-nav { display: flex; }
+        body { padding-bottom: 60px; }
+    }
+    .dw-bottom-nav a, .dw-bottom-nav button {
+        flex: 1 1 auto; height: 100%; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; font-size: 0.96em;
+        font-weight: 700; color: #fd7e1a; text-decoration: none;
+        background: none; border: none;
+    }
+    .dw-bottom-nav .dw-nav-cart {
+        flex: 0 0 auto; color: #fff !important;
+        background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
+        border-radius: 50%; width: 44px; height: 44px; margin-top: -6px;
+    }
+    .container { max-width: 1100px; margin: 40px auto; padding: 20px; }
+    .back-link {
+        font-size: 1rem; font-weight: 700; color: var(--primary);
+        text-decoration: none; display: inline-flex; align-items: center;
+        gap: 8px; margin-bottom: 20px; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--primary-dark); }
+    .product-details-grid {
+      display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px;
+      background: var(--card-bg); padding: 40px; border-radius: var(--radius);
+      box-shadow: var(--shadow); align-items: flex-start;
+    }
+    .product-image-container {
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      animation: slideInLeft 0.8s forwards cubic-bezier(0.25, 1, 0.5, 1);
+      opacity: 0;
+    }
+    .product-image-container img {
+      width: 100%; height: auto; display: block;
+      transition: transform 0.4s ease;
+    }
+    .product-image-container:hover img { transform: scale(1.05); }
+    .product-info {
+      display: flex; flex-direction: column;
+      animation: slideInRight 0.8s 0.2s forwards cubic-bezier(0.25, 1, 0.5, 1);
+      opacity: 0;
+    }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+    .product-title {
+      font-size: 2.2rem; font-weight: 900; color: var(--primary-dark);
+      line-height: 1.2; margin: 0 0 10px 0;
+    }
+    .product-delivery {
+      font-weight: 700; color: #32cb89; margin-bottom: 20px;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .product-price { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin-bottom: 20px; }
+    .product-description {
+      font-size: 1rem; line-height: 1.7; color: #555;
+      margin-bottom: 30px; border-left: 4px solid var(--primary);
+      padding-left: 15px;
+    }
+    .product-actions { display: flex; gap: 15px; margin-top: auto; }
+    .action-button {
+      flex-grow: 1; padding: 15px 20px; font-size: 1.1rem;
+      font-weight: 700; border-radius: 12px; border: none;
+      cursor: pointer; text-align: center; text-decoration: none;
+      color: white; transition: all 0.3s ease;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 10px; position: relative; overflow: hidden;
+    }
+    .add-to-cart { background: var(--primary-dark); }
+    .buy-now { background: var(--accent); }
+    .action-button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+    .action-button::before {
+        content: ''; position: absolute; top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s ease;
+    }
+    .action-button:hover::before { left: 100%; }
+    #loadingState, #errorState { text-align: center; padding: 50px; font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); }
+    @media (max-width: 900px) {
+        .product-details-grid { grid-template-columns: 1fr; gap: 30px; padding: 25px; }
+        .product-title { font-size: 1.8rem; }
+        .product-price { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-main-pro">
+      <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
+      <nav>
+        <a href="index.html" class="nav-link-pro">Home</a>
+        <a href="index.html#products" class="nav-link-pro">Products</a>
+        <a href="contact.html" class="nav-link-pro">Contact</a>
+      </nav>
+      <div class="lang-currency-wrap">
+        <div class="dropdown" id="currencyDropdown">
+          <button class="dropdown-toggle" type="button"><span id="currentCurrLabel">USD</span></button>
+          <div class="dropdown-menu" id="currencyMenu">
+            <div class="dropdown-item" data-curr="USD">USD</div>
+            <div class="dropdown-item" data-curr="LKR">LKR</div>
+          </div>
+        </div>
+        <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Cart</span>
+          <span class="cart-icon-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+    <form class="search-bar-modern" autocomplete="off" onsubmit="return false;" role="search">
+        <select class="category-dropdown" aria-label="Select category">
+          <option>All Categories</option> <option>Windows</option> <option>Office</option> <option>Development Tools</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Search for products…"/>
+        <button class="search-btn-modern" type="submit">Search</button>
+    </form>
+  </header>
+  <main class="container" id="product-details-page">
+    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
+    <div id="product-details-container">
+        <div id="loadingState">Loading product...</div>
+        <div id="errorState" style="display: none;">Product not found.</div>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-grid">
+        <div class="footer-col"><h3>Customer Care</h3><ul><li><a href="#">Help Center</a></li><li><a href="#">How to Buy</a></li></ul></div>
+        <div class="footer-col"><h3>About DigiWorld</h3><ul><li><a href="#">About Us</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 DigiWorld. All rights reserved.</div>
+  </footer>
+  
+  <div class="mini-cart-overlay" id="miniCartOverlay">
+    <div class="mini-cart-drawer" id="miniCartDrawer">
+      <div class="mini-cart-header">
+        <span>Your Cart</span>
+        <button class="mini-cart-close" id="miniCartClose" aria-label="Close cart"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="mini-cart-items" id="miniCartItems">
+        </div>
+      <div class="mini-cart-footer">
+        <div class="mini-cart-total" id="miniCartTotal">
+          </div>
+        <button class="mini-cart-checkout" id="checkoutBtn">Checkout</button>
+      </div>
+    </div>
+  </div>
+  
+  <nav class="dw-bottom-nav">
+      <a href="index.html" class="dw-nav-home"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="index.html#products" class="dw-nav-products"><i class="fas fa-th-large"></i><span>Products</span></a>
+      <button type="button" class="dw-nav-cart" id="mobileCartBtn"><i class="fas fa-shopping-cart"></i></button>
+      <a href="account.html" class="dw-nav-account"><i class="fas fa-user"></i><span>Account</span></a>
+  </nav>
+
+  <script>
+    const products = [
+      { id: "office365lifetime", name: { en: "Office 365 Lifetime Genuine Account (Up to 5 Devices)" }, price: { LKR: 7700, USD: 23 }, image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg", delivery: { en: "Instant Delivery" }, desc: { en: "Lifetime activation for up to 5 devices. Full Microsoft Office 365 suite including Word, Excel, PowerPoint and more. No monthly/annual fees. Instant delivery to your email after payment." } },
+      { id: "win10pro", name: { en: "Windows 10 Pro Key" }, price: { LKR: 3000, USD: 9 }, image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif", delivery: { en: "Instant Delivery" }, desc: { en: "Genuine Windows 10 Pro lifetime license key for 1 PC. Instant email delivery. Activate and use worldwide." } },
+      { id: "win11pro", name: { en: "Windows 11 Pro Key" }, price: { LKR: 3700, USD: 11 }, image: "https://img.drz.lazcdn.com/static/lk/p/4ac77c5340b852dcfe5d0f0ba66fb1ed.png_400x400q75.avif", delivery: { en: "Instant Delivery" }, desc: { en: "Genuine Windows 11 Pro lifetime license key for 1 PC. Instant email delivery. Use worldwide." } },
+      { id: "office2021", name: { en: "Office 2021 Pro Plus Key" }, price: { LKR: 4500, USD: 13 }, image: "https://img.drz.lazcdn.com/g/kf/Sb9bc8d1802a04d8394d16f951736c65a2.jpg_400x400q75.avif", delivery: { en: "Instant Delivery" }, desc: { en: "Office 2021 Pro Plus lifetime key for 1 PC. Instant delivery. Supports all Office apps. One-time payment." } },
+      { id: "office2024", name: { en: "Office 2024 Pro Plus Key" }, price: { LKR: 5600, USD: 15 }, image: "https://img.drz.lazcdn.com/g/kf/S5d7015c8fb0f4693ac06c2df71e1dadbA.jpg_400x400q75.avif", delivery: { en: "Instant Delivery" }, desc: { en: "Office 2024 Pro Plus key, lifetime for 1 PC. Full Office suite. Instant digital delivery." } },
+      { id: "project2021", name: { en: "Microsoft Project Pro 2021 Key" }, price: { LKR: 5200, USD: 15 }, image: "https://img.drz.lazcdn.com/g/kf/S418dd45f61604ef8a7be51cd7190ffec3.jpg_400x400q75.avif", delivery: { en: "Instant Delivery" }, desc: { en: "Microsoft Project Pro 2021 genuine key. Lifetime activation for 1 PC. Instant digital delivery." } },
+      { id: "visio2021", name: { en: "Microsoft Visio 2021 Key" }, price: { LKR: 3500, USD: 10 }, image: "https://img.drz.lazcdn.com/static/lk/p/e6fa1180deb98607be4cc772a1af56ca.png_400x400q75.avif", delivery: { en: "Instant Delivery" }, desc: { en: "Microsoft Visio 2021 key, for 1 PC. Lifetime license. Instant email delivery." } }
+    ];
+    document.addEventListener('DOMContentLoaded', () => {
+        let currentProduct = null;
+        let currentCurr = 'USD';
+        const currencySymbols = { USD: '$', LKR: 'Rs ' };
+        const detailsContainer = document.getElementById('product-details-container');
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const cartBtn = document.getElementById('cartBtn');
+        const cartCountBadge = document.getElementById('cartCount');
+        const miniCartOverlay = document.getElementById('miniCartOverlay');
+        const miniCartCloseBtn = document.getElementById('miniCartClose');
+        const miniCartItemsContainer = document.getElementById('miniCartItems');
+        const miniCartTotalEl = document.getElementById('miniCartTotal');
+        const currencyDropdown = document.getElementById('currencyDropdown');
+        const mobileCartBtn = document.getElementById('mobileCartBtn');
+        let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+
+        const updateCartBadge = () => {
+            const count = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
+            cartCountBadge.textContent = count;
+        };
+        const saveCart = () => {
+            localStorage.setItem('digiworldCart', JSON.stringify(cart));
+            updateCartBadge(); 
+        };
+        const updateMiniCartContent = () => {
+            let total = 0;
+            const currencySymbol = currencySymbols[currentCurr];
+            if (Object.keys(cart).length === 0) {
+                miniCartItemsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Your cart is empty.</p>';
+            } else {
+                miniCartItemsContainer.innerHTML = Object.entries(cart).map(([id, quantity]) => {
+                    const product = products.find(p => p.id === id);
+                    if (!product) return '';
+                    const price = product.price[currentCurr] || product.price.USD;
+                    total += price * quantity;
+                    return `
+                        <div class="mini-cart-item" data-id="${id}">
+                            <img src="${product.image}" class="mini-cart-item-img" alt="${product.name.en}">
+                            <div class="mini-cart-item-details">
+                                <div class="mini-cart-item-title">${product.name.en}</div>
+                                <div class="mini-cart-item-price">${quantity} x ${currencySymbol}${price.toFixed(2)}</div>
+                            </div>
+                            <span class="mini-cart-item-remove">&times;</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+            miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
+        };
+        const openMiniCart = () => {
+            updateMiniCartContent();
+            miniCartOverlay.classList.add('active');
+        };
+        const closeMiniCart = () => {
+            miniCartOverlay.classList.remove('active');
+        };
+        const addToCart = (productId) => {
+            cart[productId] = (cart[productId] || 0) + 1;
+            saveCart();
+            cartBtn.classList.add('animated');
+            setTimeout(() => cartBtn.classList.remove('animated'), 500);
+        };
+        const renderProduct = (product) => {
+            currentProduct = product;
+            const name = product.name.en || 'Product Name';
+            const image = product.image || 'https://placehold.co/600x400?text=No+Image';
+            const delivery = product.delivery.en || 'Standard Delivery';
+            const price = product.price[currentCurr] || product.price.USD;
+            const description = product.desc.en || 'No description available.';
+            const currencySymbol = currencySymbols[currentCurr];
+            document.title = `DigiWorld - ${name}`;
+            detailsContainer.innerHTML = `
+                <div class="product-details-grid">
+                    <div class="product-image-container"><img src="${image}" alt="${name}"></div>
+                    <div class="product-info">
+                        <h1 class="product-title">${name}</h1>
+                        <p class="product-delivery"><i class="fas fa-check-circle"></i> ${delivery}</p>
+                        <p class="product-price">${currencySymbol}${price.toFixed(2)}</p>
+                        <div class="product-description">${description}</div>
+                        <div class="product-actions">
+                            <button class="action-button add-to-cart"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                            <a href="checkout.html?product=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            loadingState.style.display = 'none';
+            detailsContainer.querySelector('.add-to-cart').addEventListener('click', (e) => {
+                addToCart(product.id);
+                const btn = e.currentTarget;
+                btn.innerHTML = `<i class="fas fa-check"></i> Added!`;
+                setTimeout(() => { btn.innerHTML = `<i class="fas fa-shopping-cart"></i> Add to Cart`; }, 1500);
+            });
+        };
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+        const product = products.find(p => p.id === productId);
+        if (product) { renderProduct(product); } 
+        else { loadingState.style.display = 'none'; errorState.style.display = 'block'; }
+        
+        cartBtn.addEventListener('click', openMiniCart);
+        mobileCartBtn.addEventListener('click', openMiniCart);
+        miniCartCloseBtn.addEventListener('click', closeMiniCart);
+        miniCartOverlay.addEventListener('click', (event) => {
+            if (event.target === miniCartOverlay) {
+                closeMiniCart();
+            }
+        });
+        document.getElementById('checkoutBtn').addEventListener('click', () => { window.location.href = 'checkout.html'; });
+        miniCartItemsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('mini-cart-item-remove')) {
+                const itemId = e.target.closest('.mini-cart-item').dataset.id;
+                if (cart[itemId]) {
+                    delete cart[itemId];
+                    saveCart();
+                    updateMiniCartContent();
+                }
+            }
+        });
+        currencyDropdown.addEventListener('click', (e) => {
+            if (e.target.closest('.dropdown-toggle')) { currencyDropdown.classList.toggle('open'); }
+            if (e.target.matches('.dropdown-item')) {
+                currentCurr = e.target.dataset.curr;
+                document.getElementById('currentCurrLabel').textContent = currentCurr;
+                if (product) { renderProduct(product); }
+                updateMiniCartContent();
+            }
+        });
+        document.addEventListener('click', (e) => {
+            if (currencyDropdown && !currencyDropdown.contains(e.target)) {
+                currencyDropdown.classList.remove('open');
+            }
+        });
+        updateCartBadge(); 
+    });
+  </script>
+</body>
+</html>
