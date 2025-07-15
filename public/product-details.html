@@ -62,6 +62,47 @@
     .nav-link-pro:hover, .nav-link-pro.active {
       background: rgba(255, 255, 255, 0.837); color: #fe724c;
     }
+    .search-bar-modern {
+      position: relative;
+      z-index: 9;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 24px;
+      padding: 2px 10px;
+      box-shadow: 0 2px 12px #0001;
+      margin: 12px auto 16px auto;
+      max-width: 600px;
+    }
+    .search-suggestions {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 6px 24px #f5722414;
+      z-index: 99;
+      max-height: 260px;
+      overflow-y: auto;
+      border-top: 1px solid #f5722433;
+      font-size: 1.08rem;
+      padding-top: 6px;
+      padding-bottom: 4px;
+      display: none;
+    }
+    .suggestion-item {
+      padding: 13px 22px;
+      cursor: pointer;
+      color: #222;
+      border-radius: 7px;
+      font-weight: 600;
+      transition: background 0.13s, color 0.12s;
+    }
+    .suggestion-item:hover {
+      background: #ffe4d1;
+      color: #d45703;
+    }
     .dropdown { position: relative; }
     .dropdown-toggle {
         background: rgba(255, 255, 255, 0.884); border: none; font-size: 0.98em; font-weight: 700;
@@ -179,13 +220,16 @@
     .dw-bottom-nav {
         position: fixed; z-index: 1111; left: 0; right: 0; bottom: 0;
         height: 56px; background: #fff; border-top: 1.5px solid #f2e2d6;
-        box-shadow: 0 -2px 12px #f5722413; display: none;
+        box-shadow: 0 -2px 12px #f5722413;
         justify-content: space-around; align-items: center;
     }
     @media (max-width: 900px) {
-        header nav, .lang-currency-wrap { display: none; }
+        .header-main-pro nav, .header-main-pro .lang-currency-wrap, .header-main-pro .search-bar-modern { display: none; }
         .dw-bottom-nav { display: flex; }
         body { padding-bottom: 60px; }
+    }
+    @media (min-width: 901px) {
+        .dw-bottom-nav { display: none; }
     }
     .dw-bottom-nav a, .dw-bottom-nav button {
         flex: 1 1 auto; height: 100%; display: flex; flex-direction: column;
@@ -324,7 +368,121 @@
         position: absolute;
         left: 0;
     }
-    /* ... (all your other review styles) ... */
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--primary-dark);
+        border-bottom: 3px solid var(--primary);
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+    }
+    .review-card {
+        border-bottom: 1px solid #eee;
+        padding: 25px 0;
+    }
+    .review-card:last-child { border-bottom: none; }
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+    .review-author-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .review-author-info i {
+        font-size: 1.5rem;
+        color: var(--primary);
+        background-color: #fef4f0;
+        padding: 8px;
+        border-radius: 50%;
+    }
+    .review-author {
+        font-weight: 900;
+        font-size: 1.1rem;
+    }
+    .review-date {
+        font-size: 0.85rem;
+        color: #888;
+    }
+    .star-rating {
+        color: var(--star-color);
+        font-size: 1.2rem;
+    }
+    .review-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #555;
+        padding-left: 54px;
+    }
+    #review-form {
+        background: #fdfdfd;
+        border: 1px solid #eee;
+        border-radius: var(--radius);
+        padding: 30px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 700; margin-bottom: 8px; }
+    .form-group input, .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(245, 114, 36, 0.2);
+    }
+    .form-group textarea { min-height: 120px; resize: vertical; }
+    .star-rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+    .star-rating-input input { display: none; }
+    .star-rating-input label {
+        font-size: 2rem;
+        color: var(--star-color-inactive);
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .star-rating-input input:checked ~ label,
+    .star-rating-input label:hover,
+    .star-rating-input label:hover ~ label {
+        color: var(--star-color);
+    }
+    .submit-button {
+        background-color: var(--primary-dark);
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .submit-button:hover { background-color: var(--primary); }
+    #form-message {
+        margin-top: 15px;
+        font-weight: 700;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 900px) {
+        .product-details-grid { grid-template-columns: 1fr; gap: 30px; padding: 25px; }
+        .product-title { font-size: 1.8rem; }
+        .product-price { font-size: 2rem; }
+    }
   </style>
 </head>
 <body>
@@ -377,7 +535,26 @@
         <div id="review-form-section">
             <h3 class="section-title" style="font-size: 1.5rem; margin-top: 40px;">Leave a Review</h3>
             <form id="review-form">
-                <!-- ... (your review form) ... -->
+                <div class="form-group">
+                    <label for="authorName">Your Name</label>
+                    <input type="text" id="authorName" name="authorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="rating">Your Rating</label>
+                    <div class="star-rating-input">
+                        <input type="radio" id="star5" name="rating" value="5" required><label for="star5" title="5 stars">★</label>
+                        <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+                        <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+                        <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+                        <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reviewText">Your Review</label>
+                    <textarea id="reviewText" name="reviewText" required></textarea>
+                </div>
+                <button type="submit" class="submit-button">Submit Review</button>
+                <div id="form-message"></div>
             </form>
         </div>
     </div>
@@ -501,13 +678,13 @@
             miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
         };
 
-        cartBtn.addEventListener('click', openMiniCart);
-        mobileCartBtn.addEventListener('click', openMiniCart);
-        miniCartClose.addEventListener('click', closeMiniCart);
-        miniCartOverlay.addEventListener('click', (e) => {
+        if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
+        if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
+        if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
+        if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => {
             if(e.target === miniCartOverlay) closeMiniCart();
         });
-        miniCartItemsContainer.addEventListener('click', (e) => {
+        if (miniCartItemsContainer) miniCartItemsContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('mini-cart-item-remove')) {
                 const itemId = e.target.dataset.id;
                 delete cart[itemId];
@@ -580,10 +757,39 @@
         });
         
         const reviewForm = document.getElementById('review-form');
-        reviewForm.addEventListener('submit', async (e) => {
-            // ... review submission logic ...
-        });
-
+        const formMessage = document.getElementById('form-message');
+        if(reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                formMessage.textContent = 'Submitting...';
+                const ratingValue = document.querySelector('input[name="rating"]:checked')?.value;
+                if (!ratingValue) {
+                    formMessage.textContent = 'Please select a star rating.';
+                    return;
+                }
+                const formData = {
+                    productId: productId,
+                    authorName: document.getElementById('authorName').value,
+                    rating: parseInt(ratingValue, 10),
+                    reviewText: document.getElementById('reviewText').value
+                };
+                try {
+                    const response = await fetch('/.netlify/functions/submit-review', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+                    formMessage.style.color = 'green';
+                    formMessage.textContent = result.message;
+                    reviewForm.reset();
+                } catch (error) {
+                    formMessage.style.color = 'red';
+                    formMessage.textContent = `Error: ${error.message}`;
+                }
+            });
+        }
         updateCartBadge();
     });
 
@@ -592,14 +798,44 @@
         const features = product.features?.[lang] || ['No features listed.'];
         const requirements = product.requirements?.[lang] || ['No requirements listed.'];
         const activation = product.activation?.[lang] || ['No activation steps listed.'];
-
         document.getElementById('features').innerHTML = `<ul>${features.map(f => `<li>${f}</li>`).join('')}</ul>`;
         document.getElementById('requirements').innerHTML = `<ul>${requirements.map(r => `<li>${r}</li>`).join('')}</ul>`;
         document.getElementById('activation').innerHTML = `<ul>${activation.map(a => `<li>${a}</li>`).join('')}</ul>`;
     }
 
     async function fetchAndRenderReviews(productId) {
-        // ... review fetching logic ...
+        const reviewsList = document.getElementById('reviews-list');
+        reviewsList.innerHTML = '<p>Loading reviews...</p>';
+        try {
+            const response = await fetch(`/.netlify/functions/get-reviews?productId=${productId}`);
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message);
+            if (result.reviews.length === 0) {
+                reviewsList.innerHTML = '<p>Be the first to review this product!</p>';
+                return;
+            }
+            reviewsList.innerHTML = result.reviews.map(review => {
+                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                const reviewDate = new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                return `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-author-info">
+                                <i class="fas fa-user-circle"></i>
+                                <div>
+                                    <div class="review-author">${review.authorName}</div>
+                                    <div class="review-date">${reviewDate}</div>
+                                </div>
+                            </div>
+                            <div class="star-rating">${stars}</div>
+                        </div>
+                        <p class="review-text">${review.reviewText}</p>
+                    </div>
+                `;
+            }).join('');
+        } catch (error) {
+            reviewsList.innerHTML = `<p style="color: red;">Could not load reviews: ${error.message}</p>`;
+        }
     }
   </script>
 </body>
