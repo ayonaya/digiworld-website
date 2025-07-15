@@ -50,18 +50,19 @@ exports.handler = async (event, context) => {
     try {
         const order_id = `DIGIWORLD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         
+        // Corrected ipn_callback_url (removed double https://)
         const ipn_callback_url = `${process.env.URL}/.netlify/functions/nowpayments-ipn`; 
 
         const paymentData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
-            pay_currency: payCurrency,
+            pay_currency: payCurrency, // Dynamic payCurrency (e.g., 'usdt', 'eth')
             order_id: order_id,
             order_description: `Digital License for Product ID: ${productId}`,
             ipn_callback_url: ipn_callback_url,
             success_url: `https://${process.env.URL}/payment-success.html?order_id=${order_id}`,
             cancel_url: `https://${process.env.URL}/payment-cancelled.html?order_id=${order_id}`,
-            // REMOVED: ipn_extra_data as it's not allowed by NowPayments
+            // Removed ipn_extra_data as NowPayments does not allow it in this endpoint.
         };
 
         const headers = {
@@ -73,21 +74,20 @@ exports.handler = async (event, context) => {
 
         console.log('Full NowPayments API response data:', response.data); 
 
-        // Check if pay_url is present in the response
+        // IMPORTANT: Check if pay_url is present in the response before proceeding
         if (!response.data.pay_url) {
             console.error('NowPayments did not return pay_url in response:', response.data);
-            // Return an error to the frontend if pay_url is missing
             return {
-                statusCode: 500,
+                statusCode: 500, // Return 500 to indicate an issue to the frontend
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: 'Failed to get redirection URL from NowPayments. PayURL missing.',
-                    details: response.data
+                    details: response.data // Include details for debugging
                 }),
             };
         }
 
-        // --- Store order details in Firestore ---
+        // --- Store initial order details in Firestore ---
         const ordersRef = db.collection('orders');
         await ordersRef.doc(order_id).set({
             productId: productId,
@@ -96,6 +96,7 @@ exports.handler = async (event, context) => {
             currency: currency,
             payCurrency: payCurrency,
             paymentId: response.data.payment_id,
+            payAddress: response.data.pay_address, // Store the crypto address
             payUrl: response.data.pay_url, // Store the payUrl for reference
             status: 'initiated', // Initial status
             createdAt: new Date().toISOString()

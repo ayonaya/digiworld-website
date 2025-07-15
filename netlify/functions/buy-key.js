@@ -35,7 +35,7 @@ exports.handler = async (event, context) => {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const { email, productId, amount, currency } = JSON.parse(event.body); // Added productId, amount, currency for order record
+    const { email, productId, amount, currency } = JSON.parse(event.body); 
 
     if (!email || !productId || !amount || !currency) {
         return { 
@@ -56,7 +56,7 @@ exports.handler = async (event, context) => {
             amount: parseFloat(amount),
             currency: currency,
             paymentGateway: 'direct',
-            status: 'completed', // Direct purchase is immediately completed
+            status: 'completed', 
             createdAt: new Date().toISOString(),
             fulfilledAt: new Date().toISOString()
         });
@@ -72,7 +72,6 @@ exports.handler = async (event, context) => {
                 subject: `ALERT: No Key Available for Direct Purchase`,
                 text: `A direct key purchase attempt was made by ${email}, but no digital key could be retrieved from inventory. Manual fulfillment required.`
             });
-            // Update order status to 'key_unavailable'
             await ordersRef.doc(orderId).update({ status: 'key_unavailable', updatedAt: new Date().toISOString() });
             return { 
                 statusCode: 200, 
@@ -98,7 +97,6 @@ exports.handler = async (event, context) => {
 
     } catch (err) {
         console.error('Error in buy-key function:', err);
-        // Attempt to update order status to error
         const orderId = JSON.parse(event.body).orderId || `DIRECT-ERROR-${Date.now()}`;
         const ordersRef = db.collection('orders');
         await ordersRef.doc(orderId).update({ status: 'error', errorDetails: err.message, updatedAt: new Date().toISOString() }).catch(e => console.error("Failed to update order status on error:", e));

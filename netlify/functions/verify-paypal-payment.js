@@ -40,9 +40,9 @@ exports.handler = async (event, context) => {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const { orderID, email, productId, amount, currency } = JSON.parse(event.body); // Added amount, currency for initial save
+    const { orderID, email, productId, amount, currency } = JSON.parse(event.body); 
 
-    if (!orderID || !email || !productId) {
+    if (!orderID || !email || !productId || !amount || !currency) { // Added amount, currency validation
         return { 
             statusCode: 400, 
             headers: { 'Content-Type': 'application/json' }, 
@@ -60,14 +60,13 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        // --- Store initial order details in Firestore (if not already present from a previous step) ---
-        // This is a good place to ensure the order is recorded before capture.
+        // --- Store initial order details in Firestore ---
         const ordersRef = db.collection('orders');
         const orderDocRef = ordersRef.doc(orderID);
         await orderDocRef.set({
             productId: productId,
             customerEmail: email,
-            amount: amount, // Assuming amount and currency are passed from frontend for PayPal too
+            amount: parseFloat(amount),
             currency: currency,
             paymentGateway: 'paypal',
             status: 'initiated', // Initial status
@@ -109,6 +108,8 @@ exports.handler = async (event, context) => {
                     subject: `ALERT: No Key Available for PayPal Order ${orderID}`,
                     text: `Payment finished for PayPal order ${orderID}, but no digital key could be retrieved from inventory for email ${email}. Manual fulfillment required.`
                 });
+                // Update order status to 'key_unavailable'
+                await orderDocRef.update({ status: 'key_unavailable', paymentStatusPaypal: paypalStatus, updatedAt: new Date().toISOString() });
                 return { 
                     statusCode: 200, 
                     headers: { 'Content-Type': 'application/json' }, 
@@ -148,7 +149,7 @@ exports.handler = async (event, context) => {
 
     } catch (error) {
         console.error('Error verifying PayPal payment:', error.response ? error.response.data : error.message);
-        // Attempt to update order status to failed in Firestore even on error
+        // Attempt to update order status to error
         const orderDocRef = db.collection('orders').doc(orderID);
         await orderDocRef.update({ status: 'error', errorDetails: error.response ? error.response.data : error.message, updatedAt: new Date().toISOString() }).catch(e => console.error("Failed to update order status on error:", e));
 

@@ -79,15 +79,15 @@ exports.handler = async (event, context) => {
 
         if (!orderDoc.exists) {
             console.error(`Order ID ${order_id} not found in Firestore. Cannot fulfill.`);
-            return { statusCode: 200, body: 'Order not found for fulfillment.' }; // Return 200 to avoid NowPayments retries
+            // It's important to return 200 here so NowPayments doesn't keep retrying the webhook.
+            return { statusCode: 200, body: 'Order not found for fulfillment (acknowledged).' }; 
         }
 
         const orderDetails = orderDoc.data();
         const customerEmail = orderDetails.customerEmail;
-        const productId = orderDetails.productId; // You might use this for specific key logic
+        const productId = orderDetails.productId; 
 
         console.log(`Retrieved order details from Firestore: Customer: ${customerEmail}, Product: ${productId}`);
-        // --- End Firestore retrieval ---
 
         if (payment_status === 'finished') {
             console.log(`Payment FINISHED for Order ID: ${order_id}, Payment ID: ${payment_id}`);
@@ -102,6 +102,8 @@ exports.handler = async (event, context) => {
                     subject: `ALERT: No Key Available for Crypto Order ${order_id}`,
                     text: `Payment finished for order ${order_id} (Payment ID: ${payment_id}), but no digital key could be retrieved from inventory for email ${customerEmail}. Manual fulfillment required.`
                 });
+                // Update order status to 'key_unavailable'
+                await orderDocRef.update({ status: 'key_unavailable', paymentStatusNowPayments: payment_status, updatedAt: new Date().toISOString() });
                 return { statusCode: 200, body: 'IPN processed, but no key available for delivery.' }; 
             }
 
@@ -133,6 +135,12 @@ exports.handler = async (event, context) => {
 
     } catch (error) {
         console.error('Error processing NowPayments IPN:', error);
-        return { statusCode: 200, body: 'Server Error: Failed to process IPN internally' };
+        // Attempt to update order status to error in Firestore
+        // Note: orderDocRef might not be defined if orderDoc.exists was false, so add a check or use a transaction.
+        // For simplicity here, we'll just log if update fails.
+        const orderDocRef = db.collection('orders').doc(order_id);
+        await orderDocRef.update({ status: 'error_ipn_processing', errorDetails: error.message, updatedAt: new Date().toISOString() }).catch(e => console.error("Failed to update order status on IPN error:", e));
+        
+        return { statusCode: 200, body: 'Server Error: Failed to process IPN internally (acknowledged).' };
     }
 };
