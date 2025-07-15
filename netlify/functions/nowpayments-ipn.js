@@ -1,14 +1,30 @@
 // netlify/functions/nowpayments-ipn.js
 // This function handles Instant Payment Notifications (IPN) from NowPayments.
-// It is triggered by NowPayments when a payment status changes.
 
 const crypto = require('crypto');
-const nodemailer = require('nodemailer'); // For sending emails
-const { getNextAvailableKey } = require('./keys'); // Your temporary key management module
+const nodemailer = require('nodemailer');
+const { getAndMarkKeyAsUsed } = require('./firestore-key-manager'); 
+const { initializeApp, getApps, getApp } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { credential } = require('firebase-admin');
 
-// Nodemailer Transporter Configuration (using environment variables)
+// Initialize Firebase Admin SDK (same as in firestore-key-manager.js)
+if (!getApps().length) {
+    try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        initializeApp({
+            credential: credential.cert(serviceAccount),
+        });
+        console.log("Firebase Admin SDK initialized in nowpayments-ipn.");
+    } catch (e) {
+        console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize Firebase Admin SDK in nowpayments-ipn:", e);
+    }
+}
+const db = getFirestore();
+
+// Nodemailer Transporter Configuration
 let transporter = nodemailer.createTransport({
-    service: 'gmail', // Or 'smtp' for other providers
+    service: 'gmail',
     auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_PASS,
@@ -16,19 +32,15 @@ let transporter = nodemailer.createTransport({
 });
 
 exports.handler = async (event, context) => {
-    // Ensure the request is a POST request
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
     const signature = event.headers['x-nowpayments-sig'];
-    // In Netlify Functions, event.body for POST requests with application/json
-    // is usually the raw string, which is required for signature verification.
     const rawBody = event.body; 
 
     const NOWPAYMENTS_IPN_SECRET = process.env.NOWPAYMENTS_IPN_SECRET;
 
-    // Validate presence of signature and secret
     if (!signature) {
         console.warn('IPN received without x-nowpayments-sig header.');
         return { statusCode: 400, body: 'Bad Request: Missing signature' };
@@ -39,9 +51,8 @@ exports.handler = async (event, context) => {
         return { statusCode: 500, body: 'Server Error: IPN secret not configured' };
     }
 
-    // Verify the webhook signature using SHA512 HMAC
     const hash = crypto.createHmac('sha512', NOWPAYMENTS_IPN_SECRET)
-                       .update(rawBody) // Use the raw body for hash calculation
+                       .update(rawBody)
                        .digest('hex');
 
     if (signature !== hash) {
@@ -51,7 +62,7 @@ exports.handler = async (event, context) => {
 
     let ipnData;
     try {
-        ipnData = JSON.parse(rawBody); // Parse the raw body into JSON after verification
+        ipnData = JSON.parse(rawBody);
     } catch (e) {
         console.error('Error parsing IPN body as JSON:', e);
         return { statusCode: 400, body: 'Bad Request: Invalid JSON body' };
@@ -62,43 +73,38 @@ exports.handler = async (event, context) => {
     const { payment_status, order_id, actually_paid, pay_currency, price_amount, price_currency, payment_id } = ipnData;
 
     try {
-        // Check if the payment status is 'finished' (or 'partially_paid' if you handle that)
+        // --- Retrieve order details from Firestore using order_id ---
+        const orderDocRef = db.collection('orders').doc(order_id);
+        const orderDoc = await orderDocRef.get();
+
+        if (!orderDoc.exists) {
+            console.error(`Order ID ${order_id} not found in Firestore. Cannot fulfill.`);
+            return { statusCode: 200, body: 'Order not found for fulfillment.' }; // Return 200 to avoid NowPayments retries
+        }
+
+        const orderDetails = orderDoc.data();
+        const customerEmail = orderDetails.customerEmail;
+        const productId = orderDetails.productId; // You might use this for specific key logic
+
+        console.log(`Retrieved order details from Firestore: Customer: ${customerEmail}, Product: ${productId}`);
+        // --- End Firestore retrieval ---
+
         if (payment_status === 'finished') {
             console.log(`Payment FINISHED for Order ID: ${order_id}, Payment ID: ${payment_id}`);
 
-            // !!! IMPORTANT: Replace this with proper database key retrieval !!!
-            // In a production app, you would typically:
-            // 1. Look up the order in your database using `order_id`.
-            // 2. Retrieve the `customerEmail` and `productId` associated with this order.
-            // 3. Fetch an unused digital key from your key inventory database.
-            // 4. Mark the key as used and update the order status to 'completed'.
-            
-            // For this temporary example, we'll use a placeholder email
-            // and the simulated key retrieval from './keys.js'.
-            const customerEmail = ipnData.ipn_extra_data?.customerEmail || 'customer@example.com'; // Try to get from extra data if sent
-            // Fallback if not in extra data: If you stored order_id to email mapping in a DB when creating order
-            // you'd retrieve it here. For now, using a generic placeholder.
-            if (customerEmail === 'customer@example.com') {
-                console.warn(`Could not retrieve actual customer email for order ${order_id}. Using placeholder.`);
-                // In a real app, this would be a lookup or an error.
-            }
-
-            const key = await getNextAvailableKey(); // Get key from your temporary module (or real DB)
+            const key = await getAndMarkKeyAsUsed(customerEmail, order_id); 
 
             if (!key) {
                 console.error(`No digital key available for order ${order_id}. Manual intervention needed.`);
-                // Send an alert email to your admin for manual fulfillment
                 await transporter.sendMail({
                     from: `"DigiWorld Alert" <${process.env.GMAIL_USER}>`,
-                    to: process.env.GMAIL_USER, // Send alert to your admin email
+                    to: process.env.GMAIL_USER, 
                     subject: `ALERT: No Key Available for Crypto Order ${order_id}`,
                     text: `Payment finished for order ${order_id} (Payment ID: ${payment_id}), but no digital key could be retrieved from inventory for email ${customerEmail}. Manual fulfillment required.`
                 });
-                // Return 200 to NowPayments to acknowledge the webhook, but indicate internal issue
                 return { statusCode: 200, body: 'IPN processed, but no key available for delivery.' }; 
             }
 
-            // Send the digital key to the customer via email
             await transporter.sendMail({
                 from: `"DigiWorld" <${process.env.GMAIL_USER}>`,
                 to: customerEmail,
@@ -108,26 +114,25 @@ exports.handler = async (event, context) => {
 
             console.log(`Digital key for order ${order_id} sent to ${customerEmail} via crypto payment.`);
 
-            // In a real system, you'd also update the order status in your database to 'completed'
-            // and mark the key as 'used'.
+            // Update order status in Firestore to 'completed'
+            await orderDocRef.update({ status: 'completed', paymentStatusNowPayments: payment_status, fulfilledAt: new Date().toISOString() });
+            console.log(`Order ${order_id} status updated to completed in Firestore.`);
 
         } else if (payment_status === 'partially_paid') {
             console.warn(`Payment PARTIALLY PAID for Order ID: ${order_id}. Amount paid: ${actually_paid} ${pay_currency}.`);
-            // You might want to email the customer/admin about partial payment here.
+            await orderDocRef.update({ status: 'partially_paid', paymentStatusNowPayments: payment_status, updatedAt: new Date().toISOString() });
         } else if (payment_status === 'waiting' || payment_status === 'confirming') {
             console.log(`Payment status for Order ID: ${order_id} is ${payment_status}. Waiting for completion.`);
+            await orderDocRef.update({ status: 'pending', paymentStatusNowPayments: payment_status, updatedAt: new Date().toISOString() });
         } else {
             console.log(`Payment status for Order ID: ${order_id} is ${payment_status}. No action taken.`);
+            await orderDocRef.update({ status: payment_status, paymentStatusNowPayments: payment_status, updatedAt: new Date().toISOString() });
         }
 
-        // Always return 200 OK to NowPayments to acknowledge receipt of the IPN.
-        // This prevents NowPayments from retrying the webhook.
         return { statusCode: 200, body: 'IPN received and processed' };
 
     } catch (error) {
         console.error('Error processing NowPayments IPN:', error);
-        // Even on internal errors, return 200 to NowPayments to avoid repeated retries.
-        // Ensure you have robust internal logging/alerting for these failures.
         return { statusCode: 200, body: 'Server Error: Failed to process IPN internally' };
     }
 };

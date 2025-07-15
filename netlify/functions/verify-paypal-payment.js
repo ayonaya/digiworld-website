@@ -3,9 +3,26 @@
 
 const axios = require('axios');
 const nodemailer = require('nodemailer');
-const { getNextAvailableKey } = require('./keys'); // Your temporary key management module
+const { getAndMarkKeyAsUsed } = require('./firestore-key-manager'); 
+const { initializeApp, getApps, getApp } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { credential } = require('firebase-admin');
 
-// Nodemailer Transporter Configuration (using environment variables)
+// Initialize Firebase Admin SDK (same as in firestore-key-manager.js)
+if (!getApps().length) {
+    try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        initializeApp({
+            credential: credential.cert(serviceAccount),
+        });
+        console.log("Firebase Admin SDK initialized in verify-paypal-payment.");
+    } catch (e) {
+        console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize Firebase Admin SDK in verify-paypal-payment:", e);
+    }
+}
+const db = getFirestore();
+
+// Nodemailer Transporter Configuration
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -19,15 +36,12 @@ const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
 const PAYPAL_API_BASE_URL = 'https://api-m.paypal.com'; // IMPORTANT: Use LIVE API for production
 
 exports.handler = async (event, context) => {
-    // Ensure the request is a POST request
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    // Parse the request body
-    const { orderID, email, productId } = JSON.parse(event.body);
+    const { orderID, email, productId, amount, currency } = JSON.parse(event.body); // Added amount, currency for initial save
 
-    // Validate required fields
     if (!orderID || !email || !productId) {
         return { 
             statusCode: 400, 
@@ -36,7 +50,6 @@ exports.handler = async (event, context) => {
         };
     }
 
-    // Check if PayPal API keys are configured
     if (!PAYPAL_CLIENT_ID || !PAYPAL_SECRET) {
         console.error("PayPal API keys are not set. Please check your Netlify environment variables.");
         return { 
@@ -47,6 +60,22 @@ exports.handler = async (event, context) => {
     }
 
     try {
+        // --- Store initial order details in Firestore (if not already present from a previous step) ---
+        // This is a good place to ensure the order is recorded before capture.
+        const ordersRef = db.collection('orders');
+        const orderDocRef = ordersRef.doc(orderID);
+        await orderDocRef.set({
+            productId: productId,
+            customerEmail: email,
+            amount: amount, // Assuming amount and currency are passed from frontend for PayPal too
+            currency: currency,
+            paymentGateway: 'paypal',
+            status: 'initiated', // Initial status
+            createdAt: new Date().toISOString()
+        }, { merge: true }); // Use merge: true to avoid overwriting if doc exists
+        console.log(`PayPal Order ${orderID} details saved/updated in Firestore.`);
+        // --- End Firestore save ---
+
         // 1. Get PayPal Access Token
         const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
         const tokenResponse = await axios.post(`${PAYPAL_API_BASE_URL}/v1/oauth2/token`, 'grant_type=client_credentials', {
@@ -70,23 +99,16 @@ exports.handler = async (event, context) => {
         if (paypalStatus === 'COMPLETED') {
             console.log(`PayPal payment COMPLETED for Order ID: ${orderID}`);
 
-            // --- Digital Key Delivery Logic ---
-            // !!! IMPORTANT: Replace this with proper database key retrieval !!!
-            // In a production app, you would:
-            // 1. Fetch an unused digital key from your key inventory database.
-            // 2. Mark the key as used and update the order status in your database.
-            const key = await getNextAvailableKey(); // Get key from your temporary module (or real DB)
+            const key = await getAndMarkKeyAsUsed(email, orderID); 
 
             if (!key) {
                 console.error(`No digital key available for PayPal order ${orderID}. Manual intervention needed.`);
-                // Send an alert email to your admin for manual fulfillment
                 await transporter.sendMail({
                     from: `"DigiWorld Alert" <${process.env.GMAIL_USER}>`,
-                    to: process.env.GMAIL_USER, // Send alert to your admin email
+                    to: process.env.GMAIL_USER, 
                     subject: `ALERT: No Key Available for PayPal Order ${orderID}`,
                     text: `Payment finished for PayPal order ${orderID}, but no digital key could be retrieved from inventory for email ${email}. Manual fulfillment required.`
                 });
-                // Return success to frontend, but indicate key issue
                 return { 
                     statusCode: 200, 
                     headers: { 'Content-Type': 'application/json' }, 
@@ -94,7 +116,6 @@ exports.handler = async (event, context) => {
                 };
             }
 
-            // Send the digital key to the customer via email
             await transporter.sendMail({
                 from: `"DigiWorld" <${process.env.GMAIL_USER}>`,
                 to: email,
@@ -104,6 +125,10 @@ exports.handler = async (event, context) => {
 
             console.log(`Digital key for PayPal order ${orderID} sent to ${email}.`);
 
+            // Update order status in Firestore to 'completed'
+            await orderDocRef.update({ status: 'completed', paymentStatusPaypal: paypalStatus, fulfilledAt: new Date().toISOString() });
+            console.log(`Order ${orderID} status updated to completed in Firestore.`);
+
             return { 
                 statusCode: 200, 
                 headers: { 'Content-Type': 'application/json' }, 
@@ -112,6 +137,8 @@ exports.handler = async (event, context) => {
 
         } else {
             console.warn(`PayPal payment status for Order ID ${orderID}: ${paypalStatus}`);
+            // Update order status in Firestore to reflect non-completion
+            await orderDocRef.update({ status: 'failed', paymentStatusPaypal: paypalStatus, updatedAt: new Date().toISOString() });
             return { 
                 statusCode: 400, 
                 headers: { 'Content-Type': 'application/json' }, 
@@ -121,6 +148,10 @@ exports.handler = async (event, context) => {
 
     } catch (error) {
         console.error('Error verifying PayPal payment:', error.response ? error.response.data : error.message);
+        // Attempt to update order status to failed in Firestore even on error
+        const orderDocRef = db.collection('orders').doc(orderID);
+        await orderDocRef.update({ status: 'error', errorDetails: error.response ? error.response.data : error.message, updatedAt: new Date().toISOString() }).catch(e => console.error("Failed to update order status on error:", e));
+
         return {
             statusCode: error.response && error.response.status ? error.response.status : 500,
             headers: { 'Content-Type': 'application/json' },

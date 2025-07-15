@@ -2,9 +2,26 @@
 // This function handles direct digital key purchases (not tied to a specific payment gateway flow).
 
 const nodemailer = require('nodemailer');
-const { getNextAvailableKey } = require('./keys'); // Your temporary key management module
+const { getAndMarkKeyAsUsed } = require('./firestore-key-manager'); 
+const { initializeApp, getApps, getApp } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
+const { credential } = require('firebase-admin');
 
-// Nodemailer Transporter Configuration (using environment variables)
+// Initialize Firebase Admin SDK (same as in firestore-key-manager.js)
+if (!getApps().length) {
+    try {
+        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+        initializeApp({
+            credential: credential.cert(serviceAccount),
+        });
+        console.log("Firebase Admin SDK initialized in buy-key.");
+    } catch (e) {
+        console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize Firebase Admin SDK in buy-key:", e);
+    }
+}
+const db = getFirestore(); // Get Firestore instance
+
+// Nodemailer Transporter Configuration
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -14,44 +31,56 @@ let transporter = nodemailer.createTransport({
 });
 
 exports.handler = async (event, context) => {
-    // Ensure the request is a POST request
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    // Parse the request body
-    const { email } = JSON.parse(event.body);
+    const { email, productId, amount, currency } = JSON.parse(event.body); // Added productId, amount, currency for order record
 
-    // Validate email
-    if (!email) {
+    if (!email || !productId || !amount || !currency) {
         return { 
             statusCode: 400, 
             headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ error: "No email provided" }) 
+            body: JSON.stringify({ error: "Missing required fields for direct purchase." }) 
         };
     }
 
     try {
-        // !!! IMPORTANT: Replace this with proper database key retrieval !!!
-        const key = await getNextAvailableKey(); // Get key from your temporary module (or real DB)
+        const orderId = `DIRECT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`; 
+
+        // Save order details to Firestore
+        const ordersRef = db.collection('orders');
+        await ordersRef.doc(orderId).set({
+            productId: productId,
+            customerEmail: email,
+            amount: parseFloat(amount),
+            currency: currency,
+            paymentGateway: 'direct',
+            status: 'completed', // Direct purchase is immediately completed
+            createdAt: new Date().toISOString(),
+            fulfilledAt: new Date().toISOString()
+        });
+        console.log(`Direct Order ${orderId} details saved to Firestore.`);
+
+        const key = await getAndMarkKeyAsUsed(email, orderId); 
 
         if (key === null) {
             console.error("No digital keys available for direct purchase. Manual intervention needed.");
-            // Send an alert email to your admin for manual fulfillment
             await transporter.sendMail({
                 from: `"DigiWorld Alert" <${process.env.GMAIL_USER}>`,
-                to: process.env.GMAIL_USER, // Send alert to your admin email
+                to: process.env.GMAIL_USER, 
                 subject: `ALERT: No Key Available for Direct Purchase`,
                 text: `A direct key purchase attempt was made by ${email}, but no digital key could be retrieved from inventory. Manual fulfillment required.`
             });
+            // Update order status to 'key_unavailable'
+            await ordersRef.doc(orderId).update({ status: 'key_unavailable', updatedAt: new Date().toISOString() });
             return { 
-                statusCode: 200, // Return 200 so the frontend doesn't show a hard error
+                statusCode: 200, 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify({ key: "Sorry, no keys available right now. Admin has been notified." }) 
             };
         }
 
-        // Send the digital key to the customer via email
         await transporter.sendMail({
             from: `"KeyZone" <${process.env.GMAIL_USER}>`,
             to: email,
@@ -69,6 +98,11 @@ exports.handler = async (event, context) => {
 
     } catch (err) {
         console.error('Error in buy-key function:', err);
+        // Attempt to update order status to error
+        const orderId = JSON.parse(event.body).orderId || `DIRECT-ERROR-${Date.now()}`;
+        const ordersRef = db.collection('orders');
+        await ordersRef.doc(orderId).update({ status: 'error', errorDetails: err.message, updatedAt: new Date().toISOString() }).catch(e => console.error("Failed to update order status on error:", e));
+
         return { 
             statusCode: 500, 
             headers: { 'Content-Type': 'application/json' }, 

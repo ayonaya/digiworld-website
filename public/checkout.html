@@ -266,7 +266,7 @@
         const totalPriceEl = document.getElementById('total-price');
         const resultMessageEl = document.getElementById('result-message');
         const emailInput = document.getElementById('email');
-        const nowpaymentsButton = document.getElementById('nowpayments-button'); // This line was the issue
+        const nowpaymentsButton = document.getElementById('nowpayments-button'); 
         const paypalButtonContainer = document.getElementById('paypal-button-container');
         const paymentSeparator = document.querySelector('.payment-separator');
 
@@ -325,29 +325,30 @@
                                 });
                             },
                             onApprove: function(data, actions) {
-                                // Client-side capture. Now, send to your server for verification and key delivery.
-                                fetch('/.netlify/functions/verify-paypal-payment', { // UPDATED URL
+                                fetch('/.netlify/functions/verify-paypal-payment', { 
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
                                         orderID: data.orderID,
                                         email: emailInput.value,
-                                        productId: productId // Pass the product ID
+                                        productId: productId,
+                                        amount: currentProductPrice.toFixed(2), // ADDED FOR PAYPAL
+                                        currency: 'USD' // ADDED FOR PAYPAL
                                     })
                                 })
                                 .then(response => response.json())
                                 .then(serverData => {
                                     if (serverData.success) {
-                                        resultMessageEl.style.color = '#155724'; // Green for success
+                                        resultMessageEl.style.color = '#155724'; 
                                         resultMessageEl.innerHTML = `
                                             <i class="fas fa-check-circle"></i> 
                                             Payment successful! Your product key will be sent to <strong>${emailInput.value}</strong> shortly.
                                         `;
-                                        paypalButtonContainer.innerHTML = ''; // Hide button after success
-                                        nowpaymentsButton.style.display = 'none'; // Hide NowPayments button too
-                                        paymentSeparator.style.display = 'none'; // Hide separator
+                                        paypalButtonContainer.innerHTML = ''; 
+                                        if (nowpaymentsButton) nowpaymentsButton.style.display = 'none'; 
+                                        paymentSeparator.style.display = 'none'; 
                                     } else {
-                                        resultMessageEl.style.color = '#c0392b'; // Red for error
+                                        resultMessageEl.style.color = '#c0392b'; 
                                         resultMessageEl.innerHTML = `<i class="fas fa-times-circle"></i> Payment verification failed: ${serverData.message}. Please contact support.`;
                                     }
                                 })
@@ -358,18 +359,17 @@
                                 });
                                 return actions.order.capture().then(function(details) {
                                     console.log('PayPal client-side capture successful:', details);
-                                    resultMessageEl.textContent = 'Payment completed via PayPal!'; // This line might be redundant now
+                                    resultMessageEl.textContent = 'Payment completed via PayPal!'; 
                                 });
                             },
                             onError: function(err) {
                                 console.error('PayPal error:', err);
                                 resultMessageEl.textContent = 'An error occurred with your payment.';
                                 resultMessageEl.style.color = '#c0392b';
-                                // If PayPal rendering fails, hide its container and separator
-                                paypalButtonContainer.innerHTML = ''; // Clear container
-                                paypalButtonContainer.style.display = 'none'; // Hide container
-                                paymentSeparator.style.display = 'none'; // Hide separator
-                                paypalButtonContainer.dataset.paypalAvailable = 'false'; // Mark as unavailable
+                                paypalButtonContainer.innerHTML = ''; 
+                                paypalButtonContainer.style.display = 'none'; 
+                                paymentSeparator.style.display = 'none'; 
+                                paypalButtonContainer.dataset.paypalAvailable = 'false'; 
                             },
                             onCancel: function(data) {
                                 console.log('PayPal payment cancelled:', data);
@@ -377,30 +377,28 @@
                                 resultMessageEl.style.color = getComputedStyle(document.documentElement).getPropertyValue('--muted');
                             }
                         }).render('#paypal-button-container');
-                        // If PayPal button renders successfully, mark it as available
                         paypalButtonContainer.dataset.paypalAvailable = 'true';
                     } catch (e) {
                         console.error('Error rendering PayPal Buttons:', e);
                         resultMessageEl.textContent = 'PayPal payment option is currently unavailable. Please try another method.';
                         resultMessageEl.style.color = '#c0392b';
-                        paypalButtonContainer.innerHTML = ''; // Clear container
-                        paypalButtonContainer.style.display = 'none'; // Hide container
-                        paymentSeparator.style.display = 'none'; // Hide separator
-                        paypalButtonContainer.dataset.paypalAvailable = 'false'; // Mark as unavailable
+                        paypalButtonContainer.innerHTML = ''; 
+                        paypalButtonContainer.style.display = 'none'; 
+                        paymentSeparator.style.display = 'none'; 
+                        paypalButtonContainer.dataset.paypalAvailable = 'false'; 
                     }
                 } else {
                     console.warn('PayPal SDK not loaded or paypal.Buttons is not available.');
                     resultMessageEl.textContent = 'PayPal payment option is currently unavailable. Please try another method.';
                     resultMessageEl.style.color = '#c0392b';
-                    paypalButtonContainer.innerHTML = ''; // Clear container
-                    paypalButtonContainer.style.display = 'none'; // Hide container
-                    paymentSeparator.style.display = 'none'; // Hide separator
-                    paypalButtonContainer.dataset.paypalAvailable = 'false'; // Mark as unavailable
+                    paypalButtonContainer.innerHTML = ''; 
+                    paypalButtonContainer.style.display = 'none'; 
+                    paymentSeparator.style.display = 'none'; 
+                    paypalButtonContainer.dataset.paypalAvailable = 'false'; 
                 }
-            }, 500); // Small delay to ensure SDK is fully loaded
+            }, 500); 
 
             // --- NowPayments Button Click Handler ---
-            // Ensure nowpaymentsButton is defined before adding event listener
             if (nowpaymentsButton) { 
                 nowpaymentsButton.addEventListener('click', async () => {
                     if (!emailInput.value || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
@@ -410,10 +408,10 @@
                     }
                     
                     resultMessageEl.textContent = 'Initiating crypto payment... Please wait.';
-                    resultMessageEl.style.color = '#3498db'; // Blue for crypto pending
-                    nowpaymentsButton.disabled = true; // Disable button to prevent multiple clicks
-                    paypalButtonContainer.style.display = 'none'; // Hide PayPal button when crypto is initiated
-                    paymentSeparator.style.display = 'none'; // Hide separator
+                    resultMessageEl.style.color = '#3498db'; 
+                    nowpaymentsButton.disabled = true; 
+                    paypalButtonContainer.style.display = 'none'; 
+                    paymentSeparator.style.display = 'none'; 
 
                     const requestPayload = {
                         productId: productId,
