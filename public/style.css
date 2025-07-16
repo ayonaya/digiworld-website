@@ -49,29 +49,25 @@ body {
 .nav-link-pro:hover, .nav-link-pro.active { background: rgba(255, 255, 255, 0.837); color: #fe724c; }
 .header-actions-wrap { display: flex; align-items: center; gap: 15px; }
 
-/* --- 6. NEW LANGUAGE/CURRENCY SWITCHER --- */
-.lang-curr-switcher { position: relative; }
-.lang-curr-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background-color 0.2s;
+/* --- 4. NEW LANGUAGE/CURRENCY SWITCHER (ALIEXPRESS STYLE) --- */
+.lang-curr-switcher, .account-dropdown { position: relative; }
+
+.lang-curr-btn, .account-btn {
+    background: none; border: none; color: #fff; font-weight: 700;
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    border-radius: var(--radius); cursor: pointer; transition: background-color 0.2s;
+    text-decoration: none; font-size: 0.9rem;
 }
-.lang-curr-btn:hover { background-color: rgba(255,255,255,0.15); }
+.account-btn { font-size: 1rem; }
+.lang-curr-btn:hover, .account-btn:hover { background-color: rgba(255,255,255,0.15); }
 .lang-curr-btn .flag { font-size: 1.5rem; line-height: 1; }
 .lang-curr-btn .codes { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
-.lang-curr-dropdown {
-    display: none;
+.account-btn i { font-size: 1.4rem; }
+
+/* Dropdown Menu Styling & Fix */
+.lang-curr-dropdown, .account-menu {
     position: absolute;
-    top: 120%;
+    top: 100%; /* Position right below the parent */
     right: 0;
     background: #fff;
     color: #333;
@@ -80,39 +76,37 @@ body {
     padding: 20px;
     width: 280px;
     z-index: 1100;
+    margin-top: 10px; /* Visual gap */
+    
+    /* Animation and Interaction Fix */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none; /* Can't be interacted with when hidden */
 }
-.lang-curr-switcher:hover .lang-curr-dropdown { display: block; }
-.lang-curr-dropdown h4 { margin: 0 0 10px 0; font-size: 1rem; color: #888; }
-.lang-curr-dropdown select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-bottom: 15px;
-    font-weight: 700;
-    background-color: #f9f9f9;
+.account-menu {
+    padding: 8px;
+    min-width: 180px;
+    width: auto;
 }
-.lang-curr-dropdown .save-btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    background-color: var(--primary);
-    color: #fff;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
+/* Show on hover of the PARENT element */
+.lang-curr-switcher:hover .lang-curr-dropdown,
+.account-dropdown:hover .account-menu {
+    display: block; /* or flex for account-menu */
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto; /* Allow interaction when visible */
 }
-
-/* --- Account & Cart Buttons --- */
-.account-btn { background: none; color: #fff; border: none; padding: 8px 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; text-decoration: none; border-radius: var(--radius); }
-.account-btn:hover { background-color: rgba(255,255,255,0.15); }
-.account-btn i { font-size: 1.4rem; }
-.account-dropdown { position: relative; }
-.account-menu { display: none; position: absolute; top: 120%; right: 0; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 8px; min-width: 180px; z-index: 1500; flex-direction: column; }
 .account-dropdown:hover .account-menu { display: flex; }
+
+.lang-curr-dropdown h4 { margin: 0 0 10px 0; font-size: 1rem; color: #888; }
+.lang-curr-dropdown select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; font-weight: 700; background-color: #f9f9f9; }
+.lang-curr-dropdown .save-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: var(--primary); color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; }
+
 .account-menu a, .account-menu button { padding: 10px 15px; font-weight: 700; color: var(--primary-dark); text-decoration: none; background: none; border: none; text-align: left; cursor: pointer; transition: background-color 0.2s; border-radius: 8px; white-space: nowrap; }
 .account-menu a:hover, .account-menu button:hover { background-color: #fef4f0; }
+
+/* --- Cart Button --- */
 .cart-btn { background: none; border: 2px solid #fff; color: #fff; border-radius: 50px; padding: 8px 19px; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 7px; cursor: pointer; transition: background 0.13s, color 0.13s; }
 .cart-btn:hover { background: #fff; color: var(--primary); }
 .cart-icon-badge { background: var(--accent); color: #fff; border-radius: 50%; font-size: 0.8em; padding: 2px 7px; font-weight: bold; margin-left: 5px; }
@@ -231,6 +225,7 @@ body {
     .main-section { padding: 15px; }
 }
 @media (max-width: 480px) {
+    .product-grid { grid-template-columns: 1fr; } /* Single column on very small screens */
     .product-card .product-name { font-size: 1rem; min-height: auto; }
     .card-btn { font-size: 0.9rem; padding: 10px; }
     .card-content-wrapper { padding: 15px; }
