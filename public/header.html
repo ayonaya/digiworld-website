@@ -7,28 +7,41 @@
         <a href="index.html#products" class="nav-link-pro">Products</a>
         <a href="#" class="nav-link-pro">Contact</a>
       </nav>
-      <div class="lang-currency-wrap">
-        <!-- Currency Dropdown -->
-        <div class="dropdown" id="currencyDropdown">
-            <button class="dropdown-toggle">
-                <span id="currentCurrSymbol">$</span><span id="currentCurrLabel">USD</span>
+      <div class="header-actions-wrap">
+        <!-- 6. NEW Language/Currency Switcher -->
+        <div class="lang-curr-switcher">
+            <button class="lang-curr-btn" id="lang-curr-btn" aria-label="Open language and currency switcher">
+                <span class="flag" id="current-flag">🇱🇰</span>
+                <div class="codes">
+                    <span id="current-lang">EN</span>
+                    <span id="current-curr">LKR</span>
+                </div>
+                <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
             </button>
-            <div class="dropdown-menu" id="currencyMenu"></div>
+            <div class="lang-curr-dropdown">
+                <h4>Language</h4>
+                <select id="lang-select"></select>
+                <h4>Currency</h4>
+                <select id="curr-select"></select>
+                <button class="save-btn" id="lang-curr-save-btn">Save</button>
+            </div>
         </div>
 
         <!-- Account Buttons & Dropdown -->
-        <a href="login.html" id="loginBtn" class="auth-btn" style="display: none;">Login</a>
-        <a href="signup.html" id="signupBtn" class="auth-btn" style="display: none;">Signup</a>
-        <div class="account-dropdown" id="accountDropdown" style="display: none;">
-          <button id="accountBtn" class="account-btn">Account</button>
-          <div id="accountMenu" class="account-menu">
-            <!-- Menu items will be added by JS -->
-          </div>
+        <div class="account-dropdown">
+            <button id="accountBtn" class="account-btn" aria-label="Account options">
+                <i class="fas fa-user-circle"></i>
+                <span id="account-text">Sign In</span>
+            </button>
+            <div id="accountMenu" class="account-menu">
+                <!-- Menu items will be added by JS -->
+            </div>
         </div>
         
         <!-- Cart Button -->
         <button class="cart-btn" id="cartBtn">
-            Cart <span class="cart-icon-badge" id="cartCount">0</span>
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-icon-badge" id="cartCount">0</span>
         </button>
       </div>
     </div>
