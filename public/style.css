@@ -13,6 +13,8 @@
     --badge-green: #28a745;
     --badge-green-light: #e9f7ec;
     --badge-red: #ff3a5e;
+    --hot-badge-bg: #ff3a5e; /* Red for hot */
+    --instant-badge-bg: #28a745; /* Green for instant */
 }
 
 html { scroll-behavior: smooth; }
@@ -63,34 +65,37 @@ body {
 
 .site-header nav {
     display: flex;
-    gap: 25px;
-    margin: 0 20px; /* Adjust margin for spacing */
+    gap: 15px; /* Reduced gap for more compact buttons */
+    margin: 0 20px;
 }
 
 .nav-link-pro {
     color: #fff;
     text-decoration: none;
     font-weight: 600;
-    padding: 8px 0;
+    padding: 10px 18px; /* Button-like padding */
+    border-radius: 10px; /* Rounded corners for button look */
+    transition: background 0.3s ease, transform 0.2s ease; /* Smooth transitions */
     position: relative;
-    transition: color 0.2s ease;
+    overflow: hidden; /* For shining animation */
+    z-index: 1; /* Ensure shining is within bounds */
 }
 
+.nav-link-pro:hover {
+    background: rgba(255, 255, 255, 0.2); /* Slight background on hover */
+    transform: translateY(-2px); /* Lift effect */
+}
+
+.nav-link-pro.active {
+    background: rgba(255, 255, 255, 0.3); /* More prominent for active */
+    transform: translateY(-1px);
+}
+
+/* Remove the ::after pseudo-element for the new button style */
 .nav-link-pro::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -5px;
-    width: 0;
-    height: 3px;
-    background: #fff;
-    transition: width 0.3s ease;
+    display: none;
 }
 
-.nav-link-pro:hover::after,
-.nav-link-pro.active::after {
-    width: 100%;
-}
 
 .header-actions-wrap {
     display: flex;
@@ -402,10 +407,9 @@ body {
 
 /* --- 4. PRODUCT GRID & CARDS --- */
 .product-grid {
-    /* UPDATED: Grid layout for products */
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive columns */
-    gap: 25px; /* Space between products */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
     padding: 20px 0;
 }
 
@@ -417,7 +421,8 @@ body {
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    text-align: center; /* Center content within card */
+    text-align: center;
+    position: relative; /* For badges */
 }
 
 .product-card:hover {
@@ -425,19 +430,63 @@ body {
     box-shadow: 0 8px 30px rgba(0,0,0,0.15);
 }
 
+/* Badges */
+.product-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--badge-green); /* Default for instant */
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 0.8em;
+    font-weight: 700;
+    z-index: 10;
+}
+
+.product-badge.hot {
+    background: var(--hot-badge-bg);
+}
+
+.product-badge.instant {
+    background: var(--instant-badge-bg);
+}
+
+/* Shining animation for badges */
+@keyframes shine {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.product-badge.shine {
+    background-image: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 20%,
+        transparent 40%
+    );
+    background-size: 200% 100%;
+    animation: shine 2s infinite linear;
+}
+
+
 .product-image {
     width: 100%;
-    height: 200px; /* Fixed height for product images */
-    object-fit: cover; /* Ensure images cover the area */
+    height: 200px;
+    object-fit: cover;
     border-bottom: 1px solid var(--border);
 }
 
 .product-info {
     padding: 15px;
-    flex-grow: 1; /* Allows info section to take available space */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Pushes actions to bottom */
+    justify-content: space-between;
 }
 
 .product-name {
@@ -446,11 +495,11 @@ body {
     color: #333;
     margin-top: 0;
     margin-bottom: 10px;
-    min-height: 2.2em; /* Ensure consistent height for names */
+    min-height: 2.2em;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2; /* Limit to 2 lines */
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -463,13 +512,13 @@ body {
 
 .product-actions {
     display: flex;
-    flex-direction: column; /* Stack buttons vertically */
+    flex-direction: column;
     gap: 10px;
-    margin-top: auto; /* Push to the bottom of the card */
+    margin-top: auto;
 }
 
-.btn-primary, .btn-secondary {
-    display: block; /* Make buttons take full width */
+.btn-primary, .btn-secondary, .btn-buy-now { /* Added .btn-buy-now */
+    display: block;
     padding: 12px 15px;
     border-radius: 12px;
     text-decoration: none;
@@ -478,7 +527,10 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: center;
-    border: none; /* Ensure no default button border */
+    border: none;
+    position: relative; /* For hover animation */
+    overflow: hidden; /* For hover animation */
+    z-index: 1;
 }
 
 .btn-primary {
@@ -505,20 +557,55 @@ body {
     box-shadow: 0 4px 15px rgba(245,114,36,0.3);
 }
 
+.btn-buy-now { /* New style for Buy Now button */
+    background: linear-gradient(90deg, #28a745 0%, #218838 100%); /* Green gradient */
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(40,167,69,0.2);
+}
+
+.btn-buy-now:hover {
+    background: linear-gradient(90deg, #218838 0%, #1e7e34 100%); /* Darker green on hover */
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(40,167,69,0.4);
+}
+
+/* Hover animation for buttons */
+.btn-primary::before,
+.btn-secondary::before,
+.btn-buy-now::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: skewX(-20deg);
+    transition: all 0.4s ease;
+    z-index: -1;
+}
+
+.btn-primary:hover::before,
+.btn-secondary:hover::before,
+.btn-buy-now:hover::before {
+    left: 100%;
+}
+
+
 /* --- 5. MINI CART STYLES (FIXED POSITIONING) --- */
 .mini-cart {
-    position: fixed; /* Fixes it relative to the viewport */
+    position: fixed;
     top: 0;
     right: 0;
-    width: 100%; /* Full width on small screens */
-    max-width: 380px; /* Max width on larger screens */
+    width: 100%;
+    max-width: 380px;
     height: 100%;
     background: var(--card-bg);
     box-shadow: -4px 0 20px rgba(0,0,0,0.1);
-    z-index: 1001; /* Higher than header */
+    z-index: 1001;
     transform: translateX(100%); /* Start off-screen to the right */
     transition: transform 0.3s ease-in-out;
-    display: flex; /* Use flexbox for internal layout */
+    display: flex;
     flex-direction: column;
 }
 
@@ -557,9 +644,9 @@ body {
 }
 
 .mini-cart-items {
-    flex-grow: 1; /* Allows items list to take available space */
+    flex-grow: 1;
     padding: 20px;
-    overflow-y: auto; /* Enable scrolling for many items */
+    overflow-y: auto;
 }
 
 .mini-cart-item {

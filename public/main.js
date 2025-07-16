@@ -298,8 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         updateCartDisplay();
         console.log(`Added ${name} to cart.`);
-        // Replaced alert with a more user-friendly message or modal if preferred
-        // alert(`${name} added to cart!`);
         showNotification(`${name} added to cart!`);
     };
 
@@ -342,7 +340,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/.netlify/functions/get-products');
             const data = await response.json();
             if (!response.ok || !data.success) {
-                // Log the full response for debugging
                 console.error('API Response for products:', data);
                 throw new Error(data.message || 'Failed to fetch products');
             }
@@ -351,13 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (productGrid) {
                 productGrid.innerHTML = products.map(product => `
                     <div class="product-card">
+                        ${product.isHot ? '<span class="product-badge hot shine">🔥 Hot</span>' : ''}
+                        ${product.delivery && product.delivery.en === 'Instant Delivery' ? '<span class="product-badge instant shine">⚡ Instant</span>' : ''}
                         <img src="${product.image}" alt="${product.name.en}" class="product-image">
                         <div class="product-info">
                             <h3 class="product-name">${product.name.en}</h3>
                             <p class="product-price">${product.price[localStorage.getItem('siteCurr') || 'LKR']} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
                             <div class="product-actions">
                                 <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
-                                <a href="product-details.html?id=${product.id}" class="btn-secondary">View Details</a>
+                                <button class="btn-buy-now" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Buy Now</button>
                             </div>
                         </div>
                     </div>
@@ -369,6 +368,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         addToCart(id, name, parseFloat(price));
                     });
                 });
+
+                document.querySelectorAll('.btn-buy-now').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const { id, name, price } = event.target.dataset;
+                        // For "Buy Now", you might want to immediately redirect to checkout or a specific payment flow
+                        // For now, let's just add to cart and redirect to cart page
+                        addToCart(id, name, parseFloat(price));
+                        window.location.href = 'cart.html'; // Redirect to cart for immediate checkout
+                    });
+                });
+
             } else if (productDetailsContainer) {
                 const urlParams = new URLSearchParams(window.location.search);
                 const productId = urlParams.get('id');
@@ -406,12 +416,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h1>${product.name.en}</h1>
                 <p class="product-details-price">${product.price[localStorage.getItem('siteCurr') || 'LKR']} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
                 <p>${product.desc.en}</p>
-                <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
+                <div class="product-actions">
+                    <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
+                    <button class="btn-buy-now" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Buy Now</button>
+                </div>
             </div>
         `;
         document.querySelector('.product-details-info .add-to-cart-btn').addEventListener('click', (event) => {
             const { id, name, price } = event.target.dataset;
             addToCart(id, name, parseFloat(price));
+        });
+        document.querySelector('.product-details-info .btn-buy-now').addEventListener('click', (event) => {
+            const { id, name, price } = event.target.dataset;
+            addToCart(id, name, parseFloat(price));
+            window.location.href = 'cart.html';
         });
     };
 
