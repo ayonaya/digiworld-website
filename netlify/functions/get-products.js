@@ -98,12 +98,14 @@ const products = [
 
 exports.handler = async (event, context) => {
   // This function simply returns the entire list of products as JSON.
+  // Ensure the 'products' array is correctly defined and accessible within this scope.
+  // No changes needed here, as the array is already defined globally in this file.
   return {
     statusCode: 200,
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*' // Allows any website to request this data
     },
-    body: JSON.stringify(products),
+    body: JSON.stringify({ success: true, products: products }), // Wrap products in a 'success' object
   };
 };
