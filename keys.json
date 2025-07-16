@@ -1,1 +1,5 @@
-[555,555,555,555,555]
+{
+  "win10pro": ["WIN10-KEY-1", "WIN10-KEY-2"],
+  "win11pro": ["WIN11-KEY-1", "WIN11-KEY-2"],
+  "office2019": ["OFF19-KEY-1", "OFF19-KEY-2"]
+}
