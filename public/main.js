@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'LKR': { name: 'Sri Lankan Rupee', symbol: 'Rs' },
         'RUB': { name: 'Russian Ruble', symbol: '₽' },
         'CNY': { name: 'Chinese Yuan', symbol: '¥' },
-        'EUR': { name: 'Euro', symbol: '€' }, // For Spain, Italy, Germany
+        'EUR': { name: 'Euro', symbol: '€' },
         'GBP': { name: 'British Pound', symbol: '£' }
     };
     let currentLang = localStorage.getItem('digiworld_lang') || 'EN';
@@ -100,29 +100,40 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartBadge();
     };
     
-    // --- ALL FEATURE IMPLEMENTATIONS ---
-
-    // 5. HIDING HEADER WITH BOUNCE (FIXED)
+    // --- 5. HIDING HEADER WITH BOUNCE (RE-ENGINEERED) ---
     const initializeScrollHeader = () => {
         const header = document.querySelector('.site-header');
         if (!header) return;
+
         let lastScrollY = window.scrollY;
-        let isTicking = false;
-        const updateHeaderVisibility = () => {
-            const currentScrollY = window.scrollY;
-            if (currentScrollY < lastScrollY || currentScrollY < 100) {
-                header.classList.remove('header--hidden');
-            } else if (currentScrollY > lastScrollY && currentScrollY > 150) {
-                header.classList.add('header--hidden');
-            }
-            lastScrollY = currentScrollY;
-            isTicking = false;
-        };
+        let scrollTimeout = null;
+
         window.addEventListener('scroll', () => {
-            if (!isTicking) {
-                window.requestAnimationFrame(updateHeaderVisibility);
-                isTicking = true;
+            const currentScrollY = window.scrollY;
+
+            // Hide header if scrolling down
+            if (currentScrollY > lastScrollY && currentScrollY > 150) {
+                header.classList.add('header--hidden');
+            } 
+            // Show header if scrolling up
+            else if (currentScrollY < lastScrollY) {
+                header.classList.remove('header--hidden');
             }
+
+            lastScrollY = currentScrollY;
+
+            // Clear previous timeout to detect when scrolling stops
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+
+            // Set a new timeout. If it runs, it means scrolling has paused.
+            scrollTimeout = setTimeout(() => {
+                // Show the header when scrolling stops, unless we're at the very top of the page.
+                if (window.scrollY > 0) {
+                    header.classList.remove('header--hidden');
+                }
+            }, 250); // A 250ms pause in scrolling will trigger this
         });
     };
 
@@ -150,10 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('digiworld_lang', currentLang);
             localStorage.setItem('digiworld_curr', currentCurr);
             updateDisplay();
-            // Hide dropdown after saving
             const dropdown = document.querySelector('.lang-curr-dropdown');
             if (dropdown) dropdown.style.display = 'none';
-            setTimeout(() => { if(dropdown) dropdown.style.display = ''; }, 100); // Reset for hover
+            setTimeout(() => { if(dropdown) dropdown.style.display = ''; }, 100);
         });
         
         updateDisplay();
