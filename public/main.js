@@ -100,42 +100,40 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartBadge();
     };
     
-    // --- 5. HIDING HEADER WITH BOUNCE (RE-ENGINEERED) ---
+    // --- 5. HIDING HEADER WITH BOUNCE (RE-ENGINEERED & FINAL) ---
     const initializeScrollHeader = () => {
         const header = document.querySelector('.site-header');
         if (!header) return;
 
         let lastScrollY = window.scrollY;
-        let scrollTimeout = null;
+        let scrollTimeout;
 
         window.addEventListener('scroll', () => {
+            // Clear any existing timeout to reset the "stop" detection
+            clearTimeout(scrollTimeout);
+
             const currentScrollY = window.scrollY;
 
-            // Hide header if scrolling down
-            if (currentScrollY > lastScrollY && currentScrollY > 150) {
+            if (currentScrollY > lastScrollY) {
+                // Scrolling Down
                 header.classList.add('header--hidden');
-            } 
-            // Show header if scrolling up
-            else if (currentScrollY < lastScrollY) {
+            } else {
+                // Scrolling Up
                 header.classList.remove('header--hidden');
             }
 
             lastScrollY = currentScrollY;
 
-            // Clear previous timeout to detect when scrolling stops
-            if (scrollTimeout) {
-                clearTimeout(scrollTimeout);
-            }
-
-            // Set a new timeout. If it runs, it means scrolling has paused.
+            // Set a timeout to run after scrolling has stopped
             scrollTimeout = setTimeout(() => {
-                // Show the header when scrolling stops, unless we're at the very top of the page.
-                if (window.scrollY > 0) {
+                // When scrolling stops, always show the header, unless at the very top
+                if (window.scrollY > 50) {
                     header.classList.remove('header--hidden');
                 }
-            }, 250); // A 250ms pause in scrolling will trigger this
+            }, 150); // A 150ms pause will trigger this
         });
     };
+
 
     // 6. LANGUAGE/CURRENCY SWITCHER
     const initializeLangCurrSwitcher = () => {
