@@ -168,8 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (query.length > 0) {
                     const filteredProducts = products.filter(product =>
-                        product.name.toLowerCase().includes(query) ||
-                        product.description.toLowerCase().includes(query)
+                        product.name.en.toLowerCase().includes(query) || // Corrected to product.name.en
+                        product.desc.en.toLowerCase().includes(query) // Corrected to product.desc.en
                     );
 
                     if (filteredProducts.length > 0) {
@@ -178,10 +178,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             resultItem.href = `product-details.html?id=${product.id}`;
                             resultItem.className = 'search-result-item';
                             resultItem.innerHTML = `
-                                <img src="${product.imageUrl}" alt="${product.name}">
+                                <img src="${product.image}" alt="${product.name.en}">
                                 <div>
-                                    <h4>${product.name}</h4>
-                                    <p>${product.price} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                                    <h4>${product.name.en}</h4>
+                                    <p>${product.price[localStorage.getItem('siteCurr') || 'LKR']} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
                                 </div>
                             `;
                             searchResultsDiv.appendChild(resultItem);
