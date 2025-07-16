@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Search functionality
+        // Search functionality with live suggestions and animation
         const searchInput = document.getElementById('searchInput');
         const searchResultsDiv = document.getElementById('searchResults');
 
@@ -194,13 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             `;
                             searchResultsDiv.appendChild(resultItem);
                         });
-                        searchResultsDiv.classList.add('active');
+                        searchResultsDiv.classList.add('active'); // Show with animation
                     } else {
                         searchResultsDiv.innerHTML = '<p>No products found.</p>';
-                        searchResultsDiv.classList.add('active');
+                        searchResultsDiv.classList.add('active'); // Still show, but with no results message
                     }
                 } else {
-                    searchResultsDiv.classList.remove('active');
+                    searchResultsDiv.classList.remove('active'); // Hide when query is empty
                 }
             });
 
@@ -350,12 +350,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (productGrid) {
                 productGrid.innerHTML = products.map(product => `
-                    <div class="product-card">
+                    <div class="product-card" data-id="${product.id}">
                         ${product.isHot ? '<span class="product-badge hot shine">HOT</span>' : ''}
-                        ${product.delivery && product.delivery.en === 'Instant Delivery' ? '<span class="product-badge instant shine">INSTANT</span>' : ''}
                         <img src="${product.image}" alt="${product.name.en}" class="product-image">
                         <div class="product-info">
                             <h3 class="product-name">${product.name.en}</h3>
+                            ${product.delivery && product.delivery.en === 'Instant Delivery' ? '<span class="product-badge instant shine">INSTANT DELIVERY</span>' : ''}
                             <p class="product-price">${localStorage.getItem('siteCurr') || 'LKR'}${product.price[localStorage.getItem('siteCurr') || 'LKR']}</p>
                             <div class="product-actions">
                                 <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
@@ -365,8 +365,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `).join('');
 
+                // Event listener for clicking anywhere on the product card
+                document.querySelectorAll('.product-card').forEach(card => {
+                    card.addEventListener('click', (event) => {
+                        // Only redirect if the click was not on an "Add to Cart" or "Buy Now" button
+                        if (!event.target.closest('.add-to-cart-btn') && !event.target.closest('.btn-buy-now')) {
+                            const productId = card.dataset.id;
+                            window.location.href = `product-details.html?id=${productId}`;
+                        }
+                    });
+                });
+
                 document.querySelectorAll('.add-to-cart-btn').forEach(button => {
                     button.addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent card click from triggering
                         const { id, name, price } = event.target.dataset;
                         addToCart(id, name, parseFloat(price));
                     });
@@ -374,9 +386,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.querySelectorAll('.btn-buy-now').forEach(button => {
                     button.addEventListener('click', (event) => {
+                        event.stopPropagation(); // Prevent card click from triggering
                         const { id, name, price } = event.target.dataset;
                         addToCart(id, name, parseFloat(price));
-                        window.location.href = 'checkout.html'; // Redirect to checkout for immediate purchase
+                        window.location.href = 'checkout.html';
                     });
                 });
 

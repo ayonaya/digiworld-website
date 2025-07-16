@@ -65,7 +65,7 @@ body {
 
 .site-header nav {
     display: flex;
-    gap: 25px; /* Reverted gap */
+    gap: 15px; /* Adjusted gap for button-like nav */
     margin: 0 20px;
 }
 
@@ -73,37 +73,30 @@ body {
     color: #fff;
     text-decoration: none;
     font-weight: 600;
-    padding: 8px 0; /* Reverted padding */
+    padding: 8px 15px; /* Button-like padding */
+    border-radius: 10px; /* Rounded corners for button look */
+    transition: background 0.3s ease, transform 0.2s ease;
     position: relative;
-    transition: color 0.2s ease;
+    overflow: hidden;
+    z-index: 1;
+    display: flex; /* Ensure padding applies correctly */
+    align-items: center; /* Vertically center text */
+    justify-content: center; /* Horizontally center text */
 }
 
-.nav-link-pro::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -5px;
-    width: 0;
-    height: 3px;
-    background: #fff;
-    transition: width 0.3s ease;
-    display: block; /* Ensure it's displayed */
-}
-
-.nav-link-pro:hover::after,
-.nav-link-pro.active::after {
-    width: 100%;
-}
-
-/* Remove button-like styles from nav links */
 .nav-link-pro:hover {
-    background: transparent; /* No background on hover */
-    transform: none; /* No lift effect */
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 .nav-link-pro.active {
-    background: transparent; /* No background for active */
-    transform: none;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Remove the ::after pseudo-element for the new button style */
+.nav-link-pro::after {
+    display: none;
 }
 
 
@@ -313,12 +306,13 @@ body {
     z-index: 99;
     max-height: 300px;
     overflow-y: auto;
-    display: none;
+    display: none; /* Hidden by default */
     border-top: 1px solid var(--border);
+    animation: fadeIn 0.3s ease-out; /* Fade in animation */
 }
 
 .search-results-dropdown.active {
-    display: block;
+    display: block; /* Show when active */
 }
 
 .search-result-item {
@@ -356,6 +350,12 @@ body {
     margin: 0;
     font-size: 0.9em;
     color: #777;
+}
+
+/* Keyframe for search dropdown fade-in */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 
@@ -415,13 +415,13 @@ body {
     transform: scale(1.2);
 }
 
-/* --- 4. PRODUCT GRID & CARDS (Reverted to previous layout) --- */
+/* --- 4. PRODUCT GRID & CARDS (Restored previous layout and enhanced) --- */
 .product-grid {
-    display: flex; /* Use flexbox for the previous layout */
-    flex-wrap: wrap; /* Allow items to wrap */
-    justify-content: center; /* Center items in the grid */
+    display: grid; /* Use grid for better control */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Auto-fit columns with min-width */
     gap: 30px; /* Space between products */
     padding: 20px 0;
+    justify-content: center; /* Center items if they don't fill the row */
 }
 
 .product-card {
@@ -434,8 +434,7 @@ body {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     text-align: center;
     position: relative;
-    width: 280px; /* Fixed width for consistent sizing */
-    flex-shrink: 0; /* Prevent shrinking */
+    cursor: pointer; /* Indicate clickable card */
 }
 
 .product-card:hover {
@@ -444,11 +443,11 @@ body {
 }
 
 /* Badges */
-.product-badge {
+.product-badge.hot {
     position: absolute;
     top: 15px;
     right: 15px;
-    background: var(--badge-green); /* Default for instant */
+    background: var(--hot-badge-bg);
     color: #fff;
     padding: 5px 10px;
     border-radius: 8px;
@@ -457,12 +456,17 @@ body {
     z-index: 10;
 }
 
-.product-badge.hot {
-    background: var(--hot-badge-bg);
-}
-
 .product-badge.instant {
+    /* Instant badge below product name, within product-info */
+    display: inline-block; /* Allows padding and margin */
     background: var(--instant-badge-bg);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75em;
+    font-weight: 600;
+    margin-top: 5px; /* Space from product name */
+    margin-bottom: 10px; /* Space before price */
 }
 
 /* Shining animation for badges */
@@ -507,7 +511,7 @@ body {
     font-weight: 700;
     color: #333;
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 5px; /* Adjusted for badge */
     min-height: 2.2em;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -525,19 +529,19 @@ body {
 
 .product-actions {
     display: flex;
-    flex-direction: row; /* Buttons side-by-side */
+    flex-direction: row;
     justify-content: center;
     gap: 10px;
     margin-top: auto;
 }
 
-.btn-primary, .btn-buy-now { /* Adjusted for side-by-side buttons */
-    flex: 1; /* Distribute space evenly */
-    padding: 10px 15px; /* Slightly smaller padding */
-    border-radius: 10px; /* Slightly smaller radius */
+.btn-primary, .btn-buy-now {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 10px;
     text-decoration: none;
     font-weight: 700;
-    font-size: 0.9em; /* Slightly smaller font size */
+    font-size: 0.9em;
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: center;
@@ -558,16 +562,16 @@ body {
     box-shadow: 0 4px 15px rgba(245,114,36,0.3);
 }
 
-.btn-buy-now {
-    background: linear-gradient(90deg, #28a745 0%, #218838 100%);
+.btn-buy-now { /* Themed color for Buy Now */
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
     color: #fff;
-    box-shadow: 0 4px 15px rgba(40,167,69,0.2);
+    box-shadow: 0 4px 15px rgba(245,114,36,0.2);
 }
 
 .btn-buy-now:hover {
-    background: linear-gradient(90deg, #218838 0%, #1e7e34 100%);
+    background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
     transform: scale(1.03);
-    box-shadow: 0 6px 20px rgba(40,167,69,0.4);
+    box-shadow: 0 6px 20px rgba(245,114,36,0.4);
 }
 
 /* Hover animation for buttons */
@@ -641,7 +645,7 @@ body {
     border-bottom: 1px solid var(--border);
     background: linear-gradient(90deg, #fd7e1a, #ff3a5e);
     color: #fff;
-    border-radius: var(--radius) var(--radius) 0 0; /* Rounded top corners */
+    border-radius: var(--radius) var(--radius) 0 0;
 }
 
 .mini-cart-header h3 {
@@ -688,7 +692,7 @@ body {
     padding: 20px;
     border-top: 1px solid var(--border);
     background: #fafafa;
-    border-radius: 0 0 var(--radius) var(--radius); /* Rounded bottom corners */
+    border-radius: 0 0 var(--radius) var(--radius);
 }
 
 .mini-cart-total {
