@@ -67,7 +67,7 @@ body {
 /* Dropdown Menu Styling & Fix */
 .lang-curr-dropdown, .account-menu {
     position: absolute;
-    top: 100%; /* Position right below the parent */
+    top: calc(100% + 10px); /* Position below parent with a gap */
     right: 0;
     background: #fff;
     color: #333;
@@ -76,34 +76,33 @@ body {
     padding: 20px;
     width: 280px;
     z-index: 1100;
-    margin-top: 10px; /* Visual gap */
     
-    /* Animation and Interaction Fix */
+    /* Animation Properties */
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(0.98);
     transition: opacity 0.2s ease, transform 0.2s ease;
-    pointer-events: none; /* Can't be interacted with when hidden */
+    pointer-events: none;
+    visibility: hidden;
 }
 .account-menu {
     padding: 8px;
     min-width: 180px;
     width: auto;
 }
-/* Show on hover of the PARENT element */
-.lang-curr-switcher:hover .lang-curr-dropdown,
-.account-dropdown:hover .account-menu {
-    display: block; /* or flex for account-menu */
+/* Active state for dropdowns controlled by JS */
+.lang-curr-dropdown.active, .account-menu.active {
     opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto; /* Allow interaction when visible */
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    visibility: visible;
 }
-.account-dropdown:hover .account-menu { display: flex; }
+.account-menu.active { display: flex; }
 
 .lang-curr-dropdown h4 { margin: 0 0 10px 0; font-size: 1rem; color: #888; }
 .lang-curr-dropdown select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; font-weight: 700; background-color: #f9f9f9; }
 .lang-curr-dropdown .save-btn { width: 100%; padding: 12px; border: none; border-radius: 8px; background-color: var(--primary); color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer; }
 
-.account-menu a, .account-menu button { padding: 10px 15px; font-weight: 700; color: var(--primary-dark); text-decoration: none; background: none; border: none; text-align: left; cursor: pointer; transition: background-color 0.2s; border-radius: 8px; white-space: nowrap; }
+.account-menu a, .account-menu button { display: flex; align-items: center; gap: 10px; padding: 10px 15px; font-weight: 700; color: var(--primary-dark); text-decoration: none; background: none; border: none; text-align: left; cursor: pointer; transition: background-color 0.2s; border-radius: 8px; white-space: nowrap; }
 .account-menu a:hover, .account-menu button:hover { background-color: #fef4f0; }
 
 /* --- Cart Button --- */
@@ -212,20 +211,22 @@ body {
 .dw-bottom-nav a i { font-size: 1.5rem; }
 .dw-bottom-nav a span { font-size: 0.7rem; font-weight: 700; display: none; } /* Hide text labels */
 
+.desktop-only { display: flex; } /* Show by default on desktop */
+
 @media (max-width: 900px) {
     .header-main-pro nav, .header-actions-wrap { display: none; }
     .dw-bottom-nav { display: flex; }
+    .desktop-only { display: none; } /* Hide on mobile */
 }
 @media (max-width: 768px) {
     .product-details-grid { grid-template-columns: 1fr; gap: 30px; padding: 25px; }
     .product-title { font-size: 1.8rem; }
     .product-price { font-size: 2rem; }
     /* 1. Homepage Grid Fix */
-    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+    .product-grid { grid-template-columns: 1fr; gap: 20px; }
     .main-section { padding: 15px; }
 }
 @media (max-width: 480px) {
-    .product-grid { grid-template-columns: 1fr; } /* Single column on very small screens */
     .product-card .product-name { font-size: 1rem; min-height: auto; }
     .card-btn { font-size: 0.9rem; padding: 10px; }
     .card-content-wrapper { padding: 15px; }
