@@ -66,7 +66,7 @@ body {
     transition: background-color 0.2s;
 }
 .lang-curr-btn:hover { background-color: rgba(255,255,255,0.15); }
-.lang-curr-btn .flag { font-size: 1.5rem; }
+.lang-curr-btn .flag { font-size: 1.5rem; line-height: 1; }
 .lang-curr-btn .codes { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
 .lang-curr-dropdown {
     display: none;
@@ -105,9 +105,9 @@ body {
 }
 
 /* --- Account & Cart Buttons --- */
-.auth-btn, .account-btn { background: none; color: #fff; border: none; padding: 8px 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; text-decoration: none; border-radius: var(--radius); }
-.auth-btn:hover, .account-btn:hover { background-color: rgba(255,255,255,0.15); }
-.auth-btn i, .account-btn i { font-size: 1.4rem; }
+.account-btn { background: none; color: #fff; border: none; padding: 8px 12px; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; text-decoration: none; border-radius: var(--radius); }
+.account-btn:hover { background-color: rgba(255,255,255,0.15); }
+.account-btn i { font-size: 1.4rem; }
 .account-dropdown { position: relative; }
 .account-menu { display: none; position: absolute; top: 120%; right: 0; background: #fff; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 8px; min-width: 180px; z-index: 1500; flex-direction: column; }
 .account-dropdown:hover .account-menu { display: flex; }
@@ -208,7 +208,7 @@ body {
     position: fixed; z-index: 1111; left: 0; right: 0; bottom: 0; height: 60px;
     background: #ffffff; border-top: 1.5px solid #f2e2d6;
     box-shadow: 0 -2px 12px #f5722413; justify-content: space-around;
-    align-items: center; display: none;
+    align-items: center; display: none; /* Hidden by default */
 }
 .dw-bottom-nav a { flex: 1 1 auto; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #888; text-decoration: none; background: none; border: none; gap: 4px; transition: color 0.2s; }
 .dw-bottom-nav a.active, .dw-bottom-nav a:hover { color: var(--primary); }
@@ -231,6 +231,7 @@ body {
     .product-card .product-name { font-size: 1rem; min-height: auto; }
     .card-btn { font-size: 0.9rem; padding: 10px; }
     .card-content-wrapper { padding: 15px; }
+    .product-description { font-size: 0.9rem; }
 }
 
 /* Mini-cart, Footer, etc. (no changes) */

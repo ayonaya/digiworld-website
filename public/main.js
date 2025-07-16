@@ -134,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!langSelect || !currSelect || !saveBtn) return;
 
-        // Populate selects
         langSelect.innerHTML = Object.entries(languages).map(([code, {name}]) => `<option value="${code}" ${code === currentLang ? 'selected' : ''}>${name}</option>`).join('');
         currSelect.innerHTML = Object.entries(currencies).map(([code, {name, symbol}]) => `<option value="${code}" ${code === currentCurr ? 'selected' : ''}>${code} (${name})</option>`).join('');
 
@@ -151,9 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('digiworld_lang', currentLang);
             localStorage.setItem('digiworld_curr', currentCurr);
             updateDisplay();
+            // Hide dropdown after saving
+            const dropdown = document.querySelector('.lang-curr-dropdown');
+            if (dropdown) dropdown.style.display = 'none';
+            setTimeout(() => { if(dropdown) dropdown.style.display = ''; }, 100); // Reset for hover
         });
         
-        updateDisplay(); // Initial display
+        updateDisplay();
     };
 
     // --- PAGE-SPECIFIC RENDER FUNCTIONS ---
@@ -308,14 +311,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             localStorage.setItem('digiworldWishlist', JSON.stringify(wishlist));
         }
-        if (!e.target.closest('.lang-curr-switcher, .account-dropdown')) {
-            document.querySelectorAll('.lang-curr-dropdown, .account-menu').forEach(el => el.style.display = 'none');
-        }
     });
 
     const animateImageToCart=e=>{const t=document.getElementById("cartBtn"),n=e.closest(".product-card")||e.closest(".product-details-grid");if(!n||!t)return;const o=n.querySelector("img");if(!o)return;const a=o.getBoundingClientRect(),c=t.getBoundingClientRect(),r=o.cloneNode(!0);r.classList.add("flying-image"),Object.assign(r.style,{left:`${a.left}px`,top:`${a.top}px`,width:`${a.width}px`,height:`${a.height}px`}),document.body.appendChild(r),requestAnimationFrame(()=>{Object.assign(r.style,{left:`${c.left+c.width/2}px`,top:`${c.top+c.height/2}px`,width:"20px",height:"20px",transform:"scale(0.1)",opacity:"0"})}),r.addEventListener("transitionend",()=>{r.remove(),t.classList.add("animated"),setTimeout(()=>t.classList.remove("animated"),430)})};const handleSearch=()=>{const e=document.getElementById("searchInput"),t=document.getElementById("searchSuggestions");if(!e||!t)return;const n=e.value.trim().toLowerCase();if(n.length<2)return void(t.style.display="none");const o=products.filter(e=>e.name.en.toLowerCase().includes(n));o.length>0?(t.innerHTML=o.map(e=>`<div class="suggestion-item" onclick="window.location.href='product-details.html?id=${e.id}'">${e.name.en}</div>`).join(""),t.style.display="block"):t.style.display="none"};const renderInfoTabs=e=>{const t=e.features.en||[],n=e.requirements.en||[],o=e.activation.en||[];document.getElementById("features").innerHTML=`<ul>${t.map(e=>`<li>${e}</li>`).join("")}</ul>`,document.getElementById("requirements").innerHTML=`<ul>${n.map(e=>`<li>${e}</li>`).join("")}</ul>`,document.getElementById("activation").innerHTML=`<ul>${o.map(e=>`<li>${e}</li>`).join("")}</ul>`};const setupTabs=()=>{document.querySelectorAll(".tab-button").forEach(e=>{e.addEventListener("click",()=>{const t=e.dataset.tab;document.querySelectorAll(".tab-button").forEach(e=>e.classList.remove("active")),document.querySelectorAll(".tab-content").forEach(e=>e.classList.remove("active")),e.classList.add("active"),document.getElementById(t).classList.add("active")})})};const fetchAndRenderReviews=async e=>{const t=document.getElementById("reviews-list");try{const n=await fetch(`/.netlify/functions/get-reviews?productId=${e}`),o=await n.json();if(!n.ok||!o.success)throw new Error(o.message);if(0===o.reviews.length)return void(t.innerHTML="<p>Be the first to review this product!</p>");t.innerHTML=o.reviews.map(e=>{const t="★".repeat(e.rating)+"☆".repeat(5-e.rating);return`<div class="review-card"><div class="star-rating">${t}</div><p><strong>${e.authorName}</strong></p><p>${e.reviewText}</p></div>`}).join("")}catch(n){t.innerHTML=`<p style="color: red;">Could not load reviews.</p>`}};
     
-    // 3. Review Form with Star Rating
     const setupReviewForm=e=>{const t=document.getElementById("review-form"),n=document.getElementById("rating-input"),o=document.getElementById("form-message");if(t&&n){n.innerHTML=[5,4,3,2,1].map(e=>`<input type="radio" id="star${e}" name="rating" value="${e}" required><label for="star${e}">★</label>`).join(""),t.addEventListener("submit",async a=>{a.preventDefault(),o.textContent="Submitting...";const c=new FormData(t),r={productId:e,authorName:c.get("authorName"),reviewText:c.get("reviewText"),rating:parseInt(c.get("rating"))};try{const e=await fetch("/.netlify/functions/submit-review",{method:"POST",body:JSON.stringify(r)}),a=await e.json();if(!e.ok)throw new Error(a.message);o.textContent="Review submitted for approval!",t.reset(),fetchAndRenderReviews(r.productId)}catch(e){o.textContent=`Error: ${e.message}`}})}};
 
 });
