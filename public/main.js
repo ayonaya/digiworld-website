@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartDisplay();
         console.log(`Added ${name} to cart.`);
         // Replaced alert with a more user-friendly message or modal if preferred
-        // alert(`${name} added to cart!`); 
+        // alert(`${name} added to cart!`);
         showNotification(`${name} added to cart!`);
     };
 
@@ -342,6 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/.netlify/functions/get-products');
             const data = await response.json();
             if (!response.ok || !data.success) {
+                // Log the full response for debugging
+                console.error('API Response for products:', data);
                 throw new Error(data.message || 'Failed to fetch products');
             }
             products = data.products; // Store fetched products globally
@@ -349,12 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (productGrid) {
                 productGrid.innerHTML = products.map(product => `
                     <div class="product-card">
-                        <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
+                        <img src="${product.image}" alt="${product.name.en}" class="product-image">
                         <div class="product-info">
-                            <h3 class="product-name">${product.name}</h3>
-                            <p class="product-price">${product.price} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                            <h3 class="product-name">${product.name.en}</h3>
+                            <p class="product-price">${product.price[localStorage.getItem('siteCurr') || 'LKR']} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
                             <div class="product-actions">
-                                <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Add to Cart</button>
+                                <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
                                 <a href="product-details.html?id=${product.id}" class="btn-secondary">View Details</a>
                             </div>
                         </div>
@@ -398,13 +400,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         productDetailsContainer.innerHTML = `
             <div class="product-details-image">
-                <img src="${product.imageUrl}" alt="${product.name}">
+                <img src="${product.image}" alt="${product.name.en}">
             </div>
             <div class="product-details-info">
-                <h1>${product.name}</h1>
-                <p class="product-details-price">${product.price} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
-                <p>${product.description}</p>
-                <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Add to Cart</button>
+                <h1>${product.name.en}</h1>
+                <p class="product-details-price">${product.price[localStorage.getItem('siteCurr') || 'LKR']} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                <p>${product.desc.en}</p>
+                <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
             </div>
         `;
         document.querySelector('.product-details-info .add-to-cart-btn').addEventListener('click', (event) => {
