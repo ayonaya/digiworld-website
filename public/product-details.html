@@ -25,8 +25,8 @@
       margin: 0;
       color: #333;
     }
-    /* --- HEADER, CART, AND FOOTER STYLES FROM INDEX.HTML --- */
-    header {
+    /* --- HEADER, CART, AND FOOTER STYLES (EXPORTED FROM INDEX.HTML) --- */
+    header.site-header {
       background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
       color: #fff;
       box-shadow: 0 2px 16px #f5722433;
@@ -62,47 +62,7 @@
     .nav-link-pro:hover, .nav-link-pro.active {
       background: rgba(255, 255, 255, 0.837); color: #fe724c;
     }
-    .search-bar-modern {
-      position: relative;
-      z-index: 9;
-      display: flex;
-      align-items: center;
-      background: #fff;
-      border-radius: 24px;
-      padding: 2px 10px;
-      box-shadow: 0 2px 12px #0001;
-      margin: 12px auto 16px auto;
-      max-width: 600px;
-    }
-    .search-suggestions {
-      position: absolute;
-      top: 110%;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-radius: 0 0 24px 24px;
-      box-shadow: 0 6px 24px #f5722414;
-      z-index: 99;
-      max-height: 260px;
-      overflow-y: auto;
-      border-top: 1px solid #f5722433;
-      font-size: 1.08rem;
-      padding-top: 6px;
-      padding-bottom: 4px;
-      display: none;
-    }
-    .suggestion-item {
-      padding: 13px 22px;
-      cursor: pointer;
-      color: #222;
-      border-radius: 7px;
-      font-weight: 600;
-      transition: background 0.13s, color 0.12s;
-    }
-    .suggestion-item:hover {
-      background: #ffe4d1;
-      color: #d45703;
-    }
+    .lang-currency-wrap { display: flex; align-items: center; gap: 15px; }
     .dropdown { position: relative; }
     .dropdown-toggle {
         background: rgba(255, 255, 255, 0.884); border: none; font-size: 0.98em; font-weight: 700;
@@ -112,7 +72,7 @@
     }
     .dropdown-toggle:hover { background: #fff; }
     .dropdown-menu {
-      position: absolute; top: 110%; left: 0; min-width: 124px;
+      position: absolute; top: 110%; right: 0; min-width: 124px;
       background: #fff; border-radius: 10px; box-shadow: 0 4px 24px #fe724c26;
       z-index: 50; display: none; margin-top: 2px; padding: 5px 0;
     }
@@ -194,6 +154,41 @@
       font-weight: 700; font-size: 1.1em; transition: all 0.2s; width: 100%;
     }
     .mini-cart-checkout:hover { transform: scale(1.03); box-shadow: 0 4px 15px rgba(245,114,36,0.3); }
+        .search-bar-modern {
+      position: relative;
+      z-index: 9;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 24px;
+      padding: 2px 10px;
+      box-shadow: 0 2px 12px #0001;
+      margin: 12px auto 16px auto;
+      max-width: 600px;
+      top: 0;
+      transition: top 0.3s ease;
+    }
+    .search-bar-modern.sticky-search {
+      position: fixed;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 580px;
+      box-shadow: 0 4px 24px rgba(255, 114, 76, 0.6);
+      animation: popIn 0.3s forwards;
+      z-index: 1050;
+    }
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
 
     .site-footer {
         background: #fff;
@@ -224,7 +219,7 @@
         justify-content: space-around; align-items: center;
     }
     @media (max-width: 900px) {
-        .header-main-pro nav, .header-main-pro .lang-currency-wrap, .header-main-pro .search-bar-modern { display: none; }
+        .header-main-pro nav, .header-main-pro .lang-currency-wrap { display: none; }
         .dw-bottom-nav { display: flex; }
         body { padding-bottom: 60px; }
     }
@@ -487,28 +482,234 @@
 </head>
 <body>
 
-  <!-- ADDED: Header from index.html -->
-  <header class="site-header">
-    <div class="header-main-pro">
-      <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
-      <nav>
-        <a href="index.html" class="nav-link-pro">Home</a>
-        <a href="index.html#products" class="nav-link-pro">Products</a>
-        <a href="contact.html" class="nav-link-pro">Contact</a>
-      </nav>
-      <div class="lang-currency-wrap">
-        <div class="dropdown" id="currencyDropdown">
-          <button class="dropdown-toggle" type="button"><span id="currentCurrLabel">USD</span></button>
-          <div class="dropdown-menu" id="currencyMenu"></div>
+  <!-- NEW: Header from index.html for consistency -->
+<header class="site-header">
+  <div class="header-main-pro header-desktop">
+    <span class="logo-pro">DigiWorld</span>
+
+    <nav>
+      <a href="#" class="nav-link-pro active" data-page="home">Home</a>
+      <a href="#" class="nav-link-pro" data-page="products">Products</a>
+      <a href="#" class="nav-link-pro" data-page="contact">Contact</a>
+      <a href="#" class="nav-link-pro" data-page="checkout">Checkout</a>
+    </nav>
+
+    <div class="lang-currency-wrap">
+      <div class="lang-currency-switcher">
+        <div class="dropdown" id="langDropdown">
+          <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="langMenu" aria-label="Select Language">
+            <span class="flag" id="currentLangFlag">🇺🇸</span>
+            <span id="currentLangLabel">English</span>
+            <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
+          </button>
+          <div class="dropdown-menu" id="langMenu" role="menu" aria-labelledby="langDropdown">
+            <div class="dropdown-item" data-lang="en">🇺🇸 English</div>
+            <div class="dropdown-item" data-lang="si">🇱🇰 සිංහල</div>
+            <div class="dropdown-item" data-lang="ta">🇮🇳 தமிழ்</div>
+            <div class="dropdown-item" data-lang="ru">🇷🇺 Русский</div>
+            <div class="dropdown-item" data-lang="zh">🇨🇳 中文</div>
+            <div class="dropdown-item" data-lang="es">🇪🇸 Español</div>
+          </div>
         </div>
-        <button class="cart-btn" id="cartBtn" aria-label="Open cart">
-          <i class="fas fa-shopping-cart"></i>
-          <span>Cart</span>
-          <span class="cart-icon-badge" id="cartCount">0</span>
-        </button>
+        <div class="dropdown" id="currencyDropdown">
+          <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="currencyMenu" aria-label="Select Currency">
+            <span id="currentCurrSymbol">$</span><span id="currentCurrLabel">USD</span>
+            <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
+          </button>
+          <div class="dropdown-menu" id="currencyMenu" role="menu" aria-labelledby="currencyDropdown">
+            <div class="dropdown-item" data-curr="USD">$ USD</div>
+            <div class="dropdown-item" data-curr="LKR">🇱🇰 LKR</div>
+            <div class="dropdown-item" data-curr="INR">₹ INR</div>
+            <div class="dropdown-item" data-curr="EUR">€ EUR</div>
+            <div class="dropdown-item" data-curr="GBP">£ GBP</div>
+          </div>
+        </div>
       </div>
+
+      <button id="loginBtn" class="auth-btn" style="display:none;">Login</button>
+      <button id="signupBtn" class="auth-btn" style="display:none;">Signup</button>
+
+      <div class="account-dropdown" style="display:none; position: relative;">
+        <button id="accountBtn" aria-haspopup="true" aria-expanded="false" aria-controls="accountMenu" class="account-btn" aria-label="User Account">
+          Account
+          <svg width="12" height="7" style="margin-left:4px;" viewBox="0 0 12 7" fill="none" stroke="#fe724c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 1l5 5 5-5" />
+          </svg>
+        </button>
+        <div id="accountMenu" role="menu" aria-labelledby="accountBtn" hidden class="account-menu" tabindex="-1">
+          </div>
+      </div>
+
+      <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10" cy="20" r="1.5"/>
+          <circle cx="18" cy="20" r="1.5"/>
+          <path d="M2 2h2l2.6 12.59a2 2 0 0 0 2 1.41h9.68a2 2 0 0 0 2-1.41l1.72-7.59H6"/>
+        </svg>
+        <span>Cart</span>
+        <span class="cart-icon-badge" id="cartCount">0</span>
+      </button>
     </div>
-  </header>
+  </div>
+
+<div class="ali-header">
+  <div class="ali-header-row">
+    <span class="ali-logo">DigiWorld</span>
+    <button
+      id="mobileSwitcherBtn"
+      class="ali-lang-btn"
+      aria-label="Switch language/currency"
+      type="button"
+    >
+      <span class="flag" id="mobileLangFlag">🇺🇸</span>
+      <span id="mobileLangLabel">EN</span> / 
+      <span id="mobileCurrSymbol">$</span><span id="mobileCurrLabel">USD</span>
+      <svg width="12" height="7" viewBox="0 0 12 7" aria-hidden="true" style="margin-left:4px;">
+        <path d="M1 1l5 5 5-5" stroke="#fe724c" stroke-width="1.5" fill="none"/>
+      </svg>
+    </button>
+  </div>
+  <form class="ali-search-row" autocomplete="off" onsubmit="return false;">
+    <input
+      type="search"
+      id="mobileSearch"
+      class="ali-search-input"
+      placeholder="Search for products…"
+      aria-label="Search products"
+      autocomplete="off"
+      aria-autocomplete="list"
+      aria-controls="searchSuggestionsMobile"
+      aria-expanded="false"
+    />
+    <button class="ali-search-btn" type="submit" aria-label="Search">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+        stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </button>
+  </form>
+  <div class="search-suggestions" id="searchSuggestionsMobile" role="listbox"></div>
+</div>
+
+<div id="langCurrModal" class="ali-modal" role="dialog" aria-modal="true" aria-labelledby="langCurrTitle">
+  <div class="ali-modal-content">
+    <h3 id="langCurrTitle">Choose Language & Currency</h3>
+    <div>
+      <label for="langSelect">Language:</label>
+      <select id="langSelect">
+        <option value="en" data-flag="🇺🇸">EN</option>
+        <option value="es" data-flag="🇪">ES</option>
+        <option value="fr" data-flag="🇫🇷">FR</option>
+        </select>
+    </div>
+    <div>
+      <label for="currSelect">Currency:</label>
+      <select id="currSelect">
+        <option value="USD" data-symbol="$">USD</option>
+        <option value="EUR" data-symbol="€">EUR</option>
+        <option value="LKR" data-symbol="₨">LKR</option>
+        </select>
+    </div>
+    <button id="langCurrSaveBtn" class="ali-modal-save">Save</button>
+    <button id="langCurrCloseBtn" class="ali-modal-close">Cancel</button>
+  </div>
+</div>
+    <nav class="mobile-bottom-nav">
+      </nav>
+  </div>
+  
+
+  <form class="search-bar-modern" autocomplete="off" onsubmit="return false;" role="search">
+    <select class="category-dropdown" aria-label="Select category">
+      <option>All Categories</option>
+      <option>Windows</option>
+      <option>Office</option>
+      <option>Development Tools</option>
+    </select>
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search for products…"
+      aria-autocomplete="list"
+      aria-controls="searchSuggestionsDesktop"
+      aria-expanded="false"
+      aria-label="Search products"
+    />
+    <button class="search-btn-modern" type="submit">Search</button>
+    <div class="search-suggestions" id="searchSuggestionsDesktop" role="listbox"></div>
+  </form>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
+    authDomain: "digiworld-46a1e.firebaseapp.com",
+    projectId: "digiworld-46a1e",
+    storageBucket: "digiworld-46a1e.appspot.com",
+    messagingSenderId: "242235397710",
+    appId: "1:242235397710:web:a80c15cc285188610cd51f",
+    measurementId: "G-R8C4BWHXBL"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  const loginBtn = document.getElementById('loginBtn');
+  const signupBtn = document.getElementById('signupBtn');
+  const accountDropdown = document.querySelector('.account-dropdown');
+  const accountBtn = document.getElementById('accountBtn');
+  const accountMenu = document.getElementById('accountMenu');
+
+  function renderLoggedInMenu() {
+    accountMenu.innerHTML = `
+      <a href="profile.html" role="menuitem" tabindex="0">Profile</a>
+      <a href="orders.html" role="menuitem" tabindex="0">Orders</a>
+      <a href="downloads.html" role="menuitem" tabindex="0">Downloads</a>
+      <button id="logoutBtn" role="menuitem" tabindex="0">Logout</button>
+    `;
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.signOut();
+    });
+  }
+
+accountBtn.addEventListener('click', () => {
+  accountMenu.classList.toggle('show');
+  const expanded = accountBtn.getAttribute('aria-expanded') === 'true';
+  accountBtn.setAttribute('aria-expanded', !expanded);
+});
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loginBtn.style.display = 'none';
+    signupBtn.style.display = 'none';
+    accountDropdown.style.display = 'inline-block';
+    renderLoggedInMenu();
+  } else {
+    loginBtn.style.display = 'inline-block';
+    signupBtn.style.display = 'inline-block';
+    accountDropdown.style.display = 'none';
+    accountMenu.classList.remove('show');
+    accountBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+
+loginBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
+signupBtn.addEventListener('click', () => { window.location.href = 'signup.html'; });
+
+const mobileAccountBtn = document.getElementById('mobileAccountBtn');
+if (mobileAccountBtn) {
+  console.log('Mobile Account Button found');
+  mobileAccountBtn.addEventListener('click', () => {
+    console.log('Mobile Account Button clicked');
+    window.location.href = 'account.html';
+  });
+} else {
+  console.log('Mobile Account Button NOT found');
+}
+
+  </script>
+</header>
 
   <main class="container" id="product-details-page">
     <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
@@ -560,7 +761,7 @@
     </div>
   </main>
 
-  <!-- ADDED: Footer from index.html -->
+  <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-grid">
         <div class="footer-col">
@@ -592,7 +793,7 @@
     </div>
   </footer>
   
-  <!-- ADDED: Mini-cart and mobile nav from index.html -->
+  <!-- Mini-cart and mobile nav -->
   <div class="mini-cart-overlay" id="miniCartOverlay">
     <div class="mini-cart-drawer" id="miniCartDrawer">
       <div class="mini-cart-header">
@@ -613,18 +814,28 @@
     <a href="account.html"><i class="fas fa-user"></i><span>Account</span></a>
   </nav>
 
-  <script src="products.js"></script>
-
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        let allProducts = [];
         let currentProduct = null;
-        let currentCurr = 'USD';
-        const currencySymbols = { USD: '$', LKR: 'Rs ' };
+        let currentLang = localStorage.getItem('digiworld_lang') || 'en';
+        let currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
+        
+        const currencySymbols = { USD: '$', LKR: 'Rs', EUR: '€', GBP: '£', INR: '₹' };
+        const languages = {
+            en: { name: 'English', flag: '🇬🇧' },
+            si: { name: 'Sinhala', flag: '🇱🇰' },
+            ta: { name: 'Tamil', flag: '🇮🇳' },
+            ru: { name: 'Russian', flag: '🇷🇺' },
+            zh: { name: 'Chinese', flag: '🇨🇳' },
+            es: { name: 'Spanish', flag: '🇪🇸' }
+        };
+
         const detailsContainer = document.getElementById('product-details-container');
         const loadingState = document.getElementById('loadingState');
         const errorState = document.getElementById('errorState');
         
-        // --- MERGED JAVASCRIPT LOGIC ---
+        // --- UI & INTERACTIVITY LOGIC ---
         const cartBtn = document.getElementById('cartBtn');
         const cartCountBadge = document.getElementById('cartCount');
         const mobileCartBtn = document.getElementById('mobileCartBtn');
@@ -633,49 +844,132 @@
         const miniCartClose = document.getElementById('miniCartClose');
         const miniCartItemsContainer = document.getElementById('miniCartItems');
         const miniCartTotalEl = document.getElementById('miniCartTotal');
+        const currencyDropdown = document.getElementById('currencyDropdown');
+        const languageDropdown = document.getElementById('languageDropdown');
         let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+
+        function setupDropdown(dropdownId, onSelect) {
+            const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) return;
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            
+            toggle.addEventListener('click', () => dropdown.classList.toggle('open'));
+            menu.addEventListener('click', (e) => {
+                if (e.target.classList.contains('dropdown-item')) {
+                    onSelect(e.target.dataset.value);
+                    dropdown.classList.remove('open');
+                }
+            });
+            // Close dropdown if clicking outside
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+        }
+
+        function populateDropdowns() {
+            const currencyMenu = document.getElementById('currencyMenu');
+            const languageMenu = document.getElementById('languageMenu');
+            if (currencyMenu) {
+                currencyMenu.innerHTML = Object.keys(currencySymbols).map(curr => 
+                    `<div class="dropdown-item" data-value="${curr}">${currencySymbols[curr]} ${curr}</div>`
+                ).join('');
+            }
+            if (languageMenu) {
+                languageMenu.innerHTML = Object.keys(languages).map(lang => 
+                    `<div class="dropdown-item" data-value="${lang}">${languages[lang].flag} ${languages[lang].name}</div>`
+                ).join('');
+            }
+        }
+
+        function updateUI() {
+            // Update currency display
+            const currLabel = document.getElementById('currentCurrLabel');
+            const currSymbol = document.getElementById('currentCurrSymbol');
+            if (currLabel) currLabel.textContent = currentCurr;
+            if (currSymbol) currSymbol.textContent = currencySymbols[currentCurr] || '$';
+
+            // Update language display
+            const langLabel = document.getElementById('currentLangLabel');
+            const langFlag = document.getElementById('currentLangFlag');
+            if (langLabel) langLabel.textContent = currentLang.toUpperCase();
+            if (langFlag) langFlag.textContent = languages[currentLang].flag;
+
+            if (currentProduct) {
+                renderProduct(currentProduct);
+            }
+            updateMiniCartContent();
+        }
+
+        setupDropdown('currencyDropdown', (newCurr) => {
+            currentCurr = newCurr;
+            localStorage.setItem('digiworld_curr', newCurr);
+            updateUI();
+        });
+
+        setupDropdown('languageDropdown', (newLang) => {
+            currentLang = newLang;
+            localStorage.setItem('digiworld_lang', newLang);
+            updateUI();
+        });
         
         const updateCartBadge = () => {
-            const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
+            const count = Object.keys(cart).length;
             cartCountBadge.textContent = count;
         };
+
         const saveCart = () => {
             localStorage.setItem('digiworldCart', JSON.stringify(cart));
             updateCartBadge(); 
         };
-        const openMiniCart = () => {
-            updateMiniCartContent();
+
+        const openMiniCart = async () => {
+            await updateMiniCartContent();
             miniCartOverlay.classList.add('active');
-            miniCartDrawer.classList.add('active');
         };
+
         const closeMiniCart = () => {
             miniCartOverlay.classList.remove('active');
-            miniCartDrawer.classList.remove('active');
         };
-        const updateMiniCartContent = () => {
+
+        const updateMiniCartContent = async () => {
             let total = 0;
-            const currencySymbol = currencySymbols[currentCurr];
+            const currencySymbol = currencySymbols[currentCurr] || '$';
+            
             if (Object.keys(cart).length === 0) {
                 miniCartItemsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Your cart is empty.</p>';
-            } else {
+                miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}0.00</span>`;
+                return;
+            }
+            
+            try {
+                if (allProducts.length === 0) { // Fetch if not already loaded
+                    const response = await fetch('/.netlify/functions/get-products');
+                    allProducts = await response.json();
+                }
+                
                 miniCartItemsContainer.innerHTML = Object.entries(cart).map(([id, quantity]) => {
-                    const product = products.find(p => p.id === id);
+                    const product = allProducts.find(p => p.id === id);
                     if (!product) return '';
                     const price = product.price[currentCurr] || product.price.USD;
                     total += price * quantity;
                     return `
                         <div class="mini-cart-item" data-id="${id}">
-                            <img src="${product.image}" class="mini-cart-item-img" alt="${product.name.en}">
+                            <img src="${product.image}" class="mini-cart-item-img" alt="${product.name[currentLang] || product.name.en}">
                             <div class="mini-cart-item-details">
-                                <div class="mini-cart-item-title">${product.name.en}</div>
+                                <div class="mini-cart-item-title">${product.name[currentLang] || product.name.en}</div>
                                 <div class="mini-cart-item-price">${quantity} x ${currencySymbol}${price.toFixed(2)}</div>
                             </div>
                             <span class="mini-cart-item-remove" data-id="${id}">&times;</span>
                         </div>
                     `;
                 }).join('');
+                miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
+            } catch (error) {
+                miniCartItemsContainer.innerHTML = '<p style="padding: 20px; text-align: center; color: red;">Could not load cart items.</p>';
             }
-            miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
         };
 
         if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
@@ -695,12 +989,12 @@
         
         const renderProduct = (product) => {
             currentProduct = product;
-            const name = product.name.en || 'Product Name';
+            const name = product.name[currentLang] || product.name.en;
             const image = product.image || 'https://placehold.co/600x400?text=No+Image';
-            const delivery = product.delivery.en || 'Standard Delivery';
+            const delivery = product.delivery[currentLang] || product.delivery.en;
             const price = product.price[currentCurr] || product.price.USD;
-            const description = product.desc.en || 'No description available.';
-            const currencySymbol = currencySymbols[currentCurr];
+            const description = product.desc[currentLang] || product.desc.en;
+            const currencySymbol = currencySymbols[currentCurr] || '$';
             document.title = `DigiWorld - ${name}`;
             detailsContainer.innerHTML = `
                 <div class="product-details-grid">
@@ -712,7 +1006,7 @@
                         <div class="product-description">${description}</div>
                         <div class="product-actions">
                             <button class="action-button add-to-cart" data-id="${product.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
-                            <a href="checkout.html?product=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
+                            <a href="checkout.html?id=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
                         </div>
                     </div>
                 </div>
@@ -726,12 +1020,18 @@
                 openMiniCart();
             });
         };
-
+        
+        // --- PRODUCT LOADING LOGIC ---
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('id');
-        
-        if (typeof products !== 'undefined') {
-            const product = products.find(p => p.id === productId);
+
+        try {
+            const response = await fetch('/.netlify/functions/get-products');
+            if (!response.ok) throw new Error('Could not load product data.');
+            allProducts = await response.json();
+            
+            const product = allProducts.find(p => p.id === productId);
+
             if (product) { 
                 renderProduct(product); 
                 fetchAndRenderReviews(productId);
@@ -739,8 +1039,14 @@
                 loadingState.style.display = 'none'; 
                 errorState.style.display = 'block'; 
             }
+        } catch (error) {
+            console.error("Failed to load product:", error);
+            loadingState.style.display = 'none';
+            errorState.textContent = 'Could not load product details. Please try again.';
+            errorState.style.display = 'block';
         }
         
+        // --- TABS & REVIEWS LOGIC ---
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
         tabButtons.forEach(button => {
@@ -759,6 +1065,7 @@
         const reviewForm = document.getElementById('review-form');
         const formMessage = document.getElementById('form-message');
         if(reviewForm) {
+            reviewForm.dataset.productId = productId;
             reviewForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 formMessage.textContent = 'Submitting...';
@@ -790,14 +1097,17 @@
                 }
             });
         }
-        updateCartBadge();
+        
+        // Initial UI setup
+        populateDropdowns();
+        updateUI();
     });
 
     function renderInfoTabs(product) {
-        const lang = 'en';
-        const features = product.features?.[lang] || ['No features listed.'];
-        const requirements = product.requirements?.[lang] || ['No requirements listed.'];
-        const activation = product.activation?.[lang] || ['No activation steps listed.'];
+        const lang = localStorage.getItem('digiworld_lang') || 'en';
+        const features = product.features?.[lang] || product.features?.en || ['No features listed.'];
+        const requirements = product.requirements?.[lang] || product.requirements?.en || ['No requirements listed.'];
+        const activation = product.activation?.[lang] || product.activation?.en || ['No activation steps listed.'];
         document.getElementById('features').innerHTML = `<ul>${features.map(f => `<li>${f}</li>`).join('')}</ul>`;
         document.getElementById('requirements').innerHTML = `<ul>${requirements.map(r => `<li>${r}</li>`).join('')}</ul>`;
         document.getElementById('activation').innerHTML = `<ul>${activation.map(a => `<li>${a}</li>`).join('')}</ul>`;

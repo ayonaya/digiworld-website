@@ -559,6 +559,20 @@
     const productGrid = document.getElementById("productGrid");
     const pagination = document.getElementById("pagination");
     const searchInput = document.getElementById("productSearch");
+    // --- THIS IS THE NEW PART ---
+    try {
+        const response = await fetch('/.netlify/functions/get-products');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        allProducts = await response.json();
+        filteredProducts = [...allProducts];
+        renderProducts();
+      } catch (error) {
+        console.error("Could not fetch products:", error);
+        productGrid.innerHTML = "<p>Error loading products. Please try again later.</p>";
+      }
+      // --- END OF NEW PART ---
 
     function renderProducts() {
       productGrid.innerHTML = "";
