@@ -2,7 +2,7 @@
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const { getAndMarkKeyAsUsed } = require('./firestore-key-manager'); 
-const { initializeApp, getApps, getApp } = require('firebase-admin/app');
+const { initializeApp, getApps } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { credential } = require('firebase-admin');
 
@@ -89,7 +89,7 @@ exports.handler = async (event, context) => {
         if (paypalStatus === 'COMPLETED') {
             console.log(`PayPal payment COMPLETED for Order ID: ${orderID}`);
 
-            // FIX: Correctly pass the productId to the key manager function.
+            // THIS IS THE LINE THAT WAS FIXED
             const key = await getAndMarkKeyAsUsed(productId, email, orderID); 
 
             if (!key) {
