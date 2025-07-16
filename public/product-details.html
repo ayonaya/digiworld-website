@@ -11,61 +11,14 @@
 
     <div id="header-placeholder"></div>
 
-    <main id="product-details-container">
-        <div id="loadingState">Loading product...</div>
+    <main id="product-details-page">
+        <!-- Content will be rendered here by JavaScript -->
     </main>
-
+    
     <div id="footer-placeholder"></div>
 
-    <script src="main.js"></script>
+    <!-- UPDATED: Load main.js as a module -->
+    <script type="module" src="main.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('product-details-container');
-
-            const renderProductDetails = () => {
-                const params = new URLSearchParams(window.location.search);
-                const productId = params.get('id');
-                const product = products.find(p => p.id === productId);
-                const currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
-                const currencySymbols = { USD: '$', LKR: 'Rs' };
-
-                if (!product) {
-                    container.innerHTML = '<div id="errorState">Product not found.</div>';
-                    return;
-                }
-
-                const price = product.price[currentCurr] || product.price.USD;
-                document.title = `DigiWorld - ${product.name.en}`;
-                
-                container.innerHTML = `
-                    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
-                    <div class="product-details-grid">
-                        <div class="product-image-container">
-                            <img src="${product.image}" alt="${product.name.en}">
-                        </div>
-                        <div class="product-info">
-                            <h1 class="product-title">${product.name.en}</h1>
-                            <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
-                            <div class="product-description">
-                                A high-quality digital product key for instant activation. Full support provided.
-                            </div>
-                            <div class="product-actions">
-                                <button class="action-button add-to-cart" data-id="${product.id}">
-                                    <i class="fas fa-shopping-cart"></i> Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            };
-
-            // Initial render
-            renderProductDetails();
-
-            // Listen for the currency change event from main.js to update the price
-            document.addEventListener('currencyChanged', renderProductDetails);
-        });
-    </script>
 </body>
 </html>

@@ -20,61 +20,31 @@
     <main>
       <section class="main-section">
         <div class="product-grid" id="productGrid">
-            </div>
+        </div>
       </section>
     </main>
 
     <div id="footer-placeholder"></div>
 
-    <script src="main.js"></script>
+    <script type="module" src="main.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const grid = document.getElementById('productGrid');
             const bannerSlides = document.querySelectorAll('.banner-slide');
             const bannerControls = document.querySelector('.banner-slider-controls');
-            let currentSlide = 0;
-            let slideInterval;
             
-            // --- PRODUCT RENDERING ---
-            const renderProducts = () => {
-                const currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
-                const currencySymbols = { USD: '$', LKR: 'Rs' };
-                grid.innerHTML = products.map((prod) => {
-                    const price = prod.price[currentCurr] || prod.price.USD;
-                    return `
-                        <div class="product-card">
-                            <a href="product-details.html?id=${prod.id}" class="card-image-container">
-                                <img class="card-image" src="${prod.image}" alt="${prod.name.en}">
-                            </a>
-                            <div class="card-content-wrapper">
-                                <h3 class="product-name">${prod.name.en}</h3>
-                                <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
-                                <div class="card-buttons">
-                                    <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            };
+            if (bannerSlides.length > 1 && bannerControls) {
+                let currentSlide = 0;
+                let slideInterval;
 
-            // Initial render
-            renderProducts();
+                const showSlide = (index) => {
+                    bannerSlides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+                    Array.from(bannerControls.children).forEach((dot, i) => dot.classList.toggle('active', i === index));
+                    currentSlide = index;
+                };
 
-            // Listen for the currency change event from main.js
-            document.addEventListener('currencyChanged', renderProducts);
-
-            // --- BANNER SLIDER LOGIC ---
-            const showSlide = (index) => {
-                bannerSlides.forEach((slide, i) => slide.classList.toggle('active', i === index));
-                Array.from(bannerControls.children).forEach((dot, i) => dot.classList.toggle('active', i === index));
-                currentSlide = index;
-            };
-
-            const nextSlide = () => showSlide((currentSlide + 1) % bannerSlides.length);
-            
-            if (bannerSlides.length > 1) {
+                const nextSlide = () => showSlide((currentSlide + 1) % bannerSlides.length);
+                
                 bannerSlides.forEach((_, i) => {
                     const dot = document.createElement('div');
                     dot.className = 'banner-slider-dot';
@@ -85,6 +55,7 @@
                     };
                     bannerControls.appendChild(dot);
                 });
+                
                 showSlide(0);
                 slideInterval = setInterval(nextSlide, 5000);
             }
