@@ -9,10 +9,8 @@
 </head>
 <body>
     
-    <!-- This div will be automatically filled with your header.html content -->
     <div id="header-placeholder"></div>
 
-    <!-- Banner Slider Structure -->
     <div class="banner-slider" id="bannerSlider">
       <div class="banner-slide active"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1100&q=80" alt="Banner 1"></div>
       <div class="banner-slide"><img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1100&q=80" alt="Banner 2"></div>
@@ -21,19 +19,15 @@
 
     <main>
       <section class="main-section">
-        <!-- The product grid will be rendered here by main.js after fetching data -->
         <div class="product-grid" id="productGrid">
         </div>
       </section>
     </main>
 
-    <!-- This div will be automatically filled with your footer.html content -->
     <div id="footer-placeholder"></div>
 
-    <!-- This loads all your shared JavaScript logic, including Firebase -->
     <script type="module" src="main.js"></script>
     
-    <!-- Page-specific logic just for the banner slider -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const bannerSlides = document.querySelectorAll('.banner-slide');
