@@ -23,7 +23,7 @@ const auth = getAuth(app);
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- GLOBAL APP STATE & UTILS ---
-    let products = []; // This will be filled by fetching from your function
+    let products = [];
     let currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
     const currencySymbols = { USD: '$', LKR: 'Rs' };
     let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
@@ -31,20 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Central Function to Fetch Data and Initialize the App ---
     const fetchAndInitializeApp = async () => {
         try {
-            // Fetch products from your Netlify function
             const response = await fetch('/.netlify/functions/get-products');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             products = await response.json();
             
-            // Now that we have the products, render the correct page content
-            if (document.getElementById('productGrid')) {
-                renderProductGrid();
-            }
-            if (document.getElementById('product-details-page')) {
-                renderProductDetailsPage();
-            }
+            if (document.getElementById('productGrid')) renderProductGrid();
+            if (document.getElementById('product-details-page')) renderProductDetailsPage();
 
         } catch (error) {
             console.error("Could not load product data:", error);
@@ -66,21 +58,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // --- APP START SEQUENCE ---
-    // 1. Load header
     loadComponent('#header-placeholder', 'header.html', () => {
-        // 2. Load footer
         loadComponent('#footer-placeholder', 'footer.html', () => {
-            // 3. Initialize all shared components (auth, cart, etc.)
             initializeSharedComponents();
-            // 4. Fetch product data and render the page content
             fetchAndInitializeApp();
         });
     });
 
 
-    // --- SHARED INITIALIZATION (runs before product data is fetched) ---
+    // --- SHARED INITIALIZATION ---
     const initializeSharedComponents = () => {
         initializeAuth();
+        initializeScrollHeader(); // NEW: Initialize the hiding header effect
         setupDropdown('currencyDropdown', (newCurr) => {
             currentCurr = newCurr;
             localStorage.setItem('digiworld_curr', newCurr);
@@ -104,6 +93,28 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUICurrency();
         updateCartBadge();
     };
+    
+    // --- NEW: HIDING HEADER ON SCROLL ---
+    const initializeScrollHeader = () => {
+        // Find the header element after it has been loaded
+        const header = document.querySelector('.site-header');
+        if (!header) return;
+
+        let lastScrollY = window.scrollY;
+        
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            if (currentScrollY > lastScrollY && currentScrollY > header.offsetHeight) {
+                // Scrolling down and past the header
+                header.classList.add('header--hidden');
+            } else {
+                // Scrolling up
+                header.classList.remove('header--hidden');
+            }
+            lastScrollY = currentScrollY;
+        });
+    };
+
 
     // --- PAGE-SPECIFIC RENDER FUNCTIONS (Called AFTER data is fetched) ---
     const renderProductGrid = () => {

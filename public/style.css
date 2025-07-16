@@ -34,7 +34,15 @@ body {
     top: 0;
     z-index: 1000;
     padding-bottom: 6px;
+    /* UPDATED: Added transition for smooth sliding animation */
+    transition: transform 0.4s cubic-bezier(0.2, 0, 0, 1);
 }
+
+/* NEW: This class hides the header by moving it up */
+.site-header.header--hidden {
+    transform: translateY(-100%);
+}
+
 .header-main-pro {
     display: flex;
     align-items: center;
