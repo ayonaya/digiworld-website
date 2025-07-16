@@ -26,303 +26,539 @@ document.addEventListener('DOMContentLoaded', () => {
     let products = [];
     const languages = {
         'EN': { name: 'English', flag: '🇬🇧' },
-        'SI': { name: 'Sinhala', flag: '🇱🇰' },
-        'RU': { name: 'Russian', flag: '🇷🇺' },
-        'CN': { name: 'Chinese', flag: '🇨🇳' },
-        'ES': { name: 'Spanish', flag: '🇪🇸' },
-        'IT': { name: 'Italian', flag: '🇮🇹' },
-        'DE': { name: 'German', flag: '🇩🇪' }
+        'SI': { name: 'සිංහල', flag: '🇱🇰' }
+        // Add more languages as needed
     };
-    const currencies = {
-        'USD': { name: 'US Dollar', symbol: '$' },
-        'LKR': { name: 'Sri Lankan Rupee', symbol: 'Rs' },
-        'RUB': { name: 'Russian Ruble', symbol: '₽' },
-        'CNY': { name: 'Chinese Yuan', symbol: '¥' },
-        'EUR': { name: 'Euro', symbol: '€' },
-        'GBP': { name: 'British Pound', symbol: '£' }
-    };
-    let currentLang = localStorage.getItem('digiworld_lang') || 'EN';
-    let currentCurr = localStorage.getItem('digiworld_curr') || 'LKR';
-    let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
-    let wishlist = JSON.parse(localStorage.getItem('digiworldWishlist')) || [];
+    const currencies = ['LKR', 'USD', 'EUR', 'GBP']; // Add more currencies as needed
 
-    // --- APP INITIALIZATION ---
-    const fetchAndInitializeApp = async () => {
+    // --- DOM ELEMENTS ---
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    const footerPlaceholder = document.getElementById('footer-placeholder');
+
+    // Load header and footer
+    if (headerPlaceholder) {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(html => {
+                headerPlaceholder.innerHTML = html;
+                initializeHeaderElements();
+                setupSmoothScrolling(); // Call the smooth scrolling setup after header is loaded
+            })
+            .catch(error => console.error('Error loading header:', error));
+    }
+
+    if (footerPlaceholder) {
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(html => {
+                footerPlaceholder.innerHTML = html;
+            })
+            .catch(error => console.error('Error loading footer:', error));
+    }
+
+    // Language and Currency Switcher (EXISTING CODE - ANIMATION IS ALREADY IN CSS)
+    let langCurrBtn;
+    let langCurrDropdown;
+    let langSelect;
+    let currSelect;
+    let langCurrSaveBtn;
+    let currentLangSpan;
+    let currentCurrSpan;
+    let currentFlagSpan;
+
+    function initializeHeaderElements() {
+        langCurrBtn = document.getElementById('lang-curr-btn');
+        langCurrDropdown = document.getElementById('lang-curr-dropdown');
+        langSelect = document.getElementById('lang-select');
+        currSelect = document.getElementById('curr-select');
+        langCurrSaveBtn = document.getElementById('lang-curr-save-btn');
+        currentLangSpan = document.getElementById('current-lang');
+        currentCurrSpan = document.getElementById('current-curr');
+        currentFlagSpan = document.getElementById('current-flag');
+
+        if (langCurrBtn && langCurrDropdown) {
+            langCurrBtn.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent document click from closing immediately
+                langCurrDropdown.classList.toggle('active');
+            });
+        }
+
+        // Account Dropdown (EXISTING CODE - ANIMATION IS ALREADY IN CSS)
+        const accountBtn = document.getElementById('accountBtn');
+        const accountMenu = document.getElementById('accountMenu');
+
+        if (accountBtn && accountMenu) {
+            accountBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                accountMenu.classList.toggle('active');
+            });
+        }
+
+        // Mini Cart Toggle
+        const cartBtn = document.getElementById('cartBtn');
+        const miniCart = document.getElementById('miniCart');
+        const closeMiniCart = document.getElementById('closeMiniCart');
+
+        if (cartBtn && miniCart && closeMiniCart) {
+            cartBtn.addEventListener('click', (event) => {
+                event.stopPropagation(); // Prevent document click from closing immediately
+                miniCart.classList.toggle('active');
+            });
+
+            closeMiniCart.addEventListener('click', () => {
+                miniCart.classList.remove('active');
+            });
+        }
+
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (event) => {
+            if (langCurrDropdown && !langCurrDropdown.contains(event.target) && langCurrDropdown.classList.contains('active')) {
+                langCurrDropdown.classList.remove('active');
+            }
+            if (accountMenu && !accountMenu.contains(event.target) && accountMenu.classList.contains('active')) {
+                accountMenu.classList.remove('active');
+            }
+            if (miniCart && !miniCart.contains(event.target) && miniCart.classList.contains('active')) {
+                miniCart.classList.remove('active');
+            }
+        });
+
+        // Populate language and currency selectors
+        if (langSelect && currSelect) {
+            Object.keys(languages).forEach(langCode => {
+                const option = document.createElement('option');
+                option.value = langCode;
+                option.textContent = languages[langCode].name;
+                langSelect.appendChild(option);
+            });
+
+            currencies.forEach(currencyCode => {
+                const option = document.createElement('option');
+                option.value = currencyCode;
+                option.textContent = currencyCode;
+                currSelect.appendChild(option);
+            });
+
+            // Set initial values from localStorage or defaults
+            currentLangSpan.textContent = localStorage.getItem('siteLang') || 'EN';
+            currentCurrSpan.textContent = localStorage.getItem('siteCurr') || 'LKR';
+            currentFlagSpan.textContent = languages[currentLangSpan.textContent]?.flag || '🇬🇧';
+            langSelect.value = currentLangSpan.textContent;
+            currSelect.value = currentCurrSpan.textContent;
+
+            langCurrSaveBtn.addEventListener('click', () => {
+                localStorage.setItem('siteLang', langSelect.value);
+                localStorage.setItem('siteCurr', currSelect.value);
+                currentLangSpan.textContent = langSelect.value;
+                currentCurrSpan.textContent = currSelect.value;
+                currentFlagSpan.textContent = languages[langSelect.value]?.flag || '🇬🇧';
+                langCurrDropdown.classList.remove('active');
+            });
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchResultsDiv = document.getElementById('searchResults');
+
+        if (searchInput && searchResultsDiv) {
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.toLowerCase();
+                searchResultsDiv.innerHTML = ''; // Clear previous results
+
+                if (query.length > 0) {
+                    const filteredProducts = products.filter(product =>
+                        product.name.toLowerCase().includes(query) ||
+                        product.description.toLowerCase().includes(query)
+                    );
+
+                    if (filteredProducts.length > 0) {
+                        filteredProducts.forEach(product => {
+                            const resultItem = document.createElement('a');
+                            resultItem.href = `product-details.html?id=${product.id}`;
+                            resultItem.className = 'search-result-item';
+                            resultItem.innerHTML = `
+                                <img src="${product.imageUrl}" alt="${product.name}">
+                                <div>
+                                    <h4>${product.name}</h4>
+                                    <p>${product.price} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                                </div>
+                            `;
+                            searchResultsDiv.appendChild(resultItem);
+                        });
+                        searchResultsDiv.classList.add('active');
+                    } else {
+                        searchResultsDiv.innerHTML = '<p>No products found.</p>';
+                        searchResultsDiv.classList.add('active');
+                    }
+                } else {
+                    searchResultsDiv.classList.remove('active');
+                }
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', (event) => {
+                if (!searchInput.contains(event.target) && !searchResultsDiv.contains(event.target)) {
+                    searchResultsDiv.classList.remove('active');
+                }
+            });
+        }
+    }
+
+
+    // Firebase Auth State Listener
+    onAuthStateChanged(auth, (user) => {
+        const accountText = document.getElementById('account-text');
+        const authLinks = document.getElementById('auth-links');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminLink = document.getElementById('adminLink'); // Get the admin link element
+
+        if (user) {
+            accountText.textContent = user.displayName || user.email;
+            if (authLinks) authLinks.style.display = 'none';
+            if (logoutBtn) logoutBtn.style.display = 'block';
+
+            // Check if user is admin (example: by UIDs or custom claims)
+            // This is a basic client-side check, proper authorization must be server-side
+            // IMPORTANT: Replace 'YOUR_ADMIN_UID_1' and 'YOUR_ADMIN_UID_2' with actual admin UIDs
+            if (user.uid === 'YOUR_ADMIN_UID_1' || user.uid === 'YOUR_ADMIN_UID_2') {
+                if (adminLink) adminLink.style.display = 'block';
+            } else {
+                if (adminLink) adminLink.style.display = 'none';
+            }
+        } else {
+            accountText.textContent = 'Sign In';
+            if (authLinks) authLinks.style.display = 'flex';
+            if (logoutBtn) logoutBtn.style.display = 'none';
+            if (adminLink) adminLink.style.display = 'none'; // Hide admin link if not logged in
+        }
+    });
+
+    // Logout Functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                console.log('User signed out');
+                // Redirect to homepage or login page
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
+        });
+    }
+
+    // Shopping Cart Functionality
+    let cart = JSON.parse(localStorage.getItem('cart')) || {};
+
+    const updateCartDisplay = () => {
+        const cartCount = document.getElementById('cartCount');
+        const miniCartItems = document.getElementById('miniCartItems');
+        const miniCartTotal = document.getElementById('miniCartTotal');
+        let totalItems = 0;
+        let totalPrice = 0;
+
+        if (miniCartItems) {
+            miniCartItems.innerHTML = ''; // Clear existing items
+
+            for (const productId in cart) {
+                const item = cart[productId];
+                totalItems += item.quantity;
+                totalPrice += item.quantity * item.price;
+
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.className = 'mini-cart-item';
+                cartItemDiv.innerHTML = `
+                    <span>${item.name} x ${item.quantity}</span>
+                    <span>${item.quantity * item.price} ${localStorage.getItem('siteCurr') || 'LKR'}</span>
+                `;
+                miniCartItems.appendChild(cartItemDiv);
+            }
+
+            if (Object.keys(cart).length === 0) {
+                miniCartItems.innerHTML = '<p>Your cart is empty.</p>';
+            }
+
+            if (miniCartTotal) {
+                miniCartTotal.innerHTML = `Total: <span>${totalPrice} ${localStorage.getItem('siteCurr') || 'LKR'}</span>`;
+            }
+        }
+
+        if (cartCount) {
+            cartCount.textContent = totalItems;
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+    };
+
+    const addToCart = (productId, name, price) => {
+        if (cart[productId]) {
+            cart[productId].quantity++;
+        } else {
+            cart[productId] = { productId, name, price, quantity: 1 };
+        }
+        updateCartDisplay();
+        console.log(`Added ${name} to cart.`);
+        // Replaced alert with a more user-friendly message or modal if preferred
+        // alert(`${name} added to cart!`); 
+        showNotification(`${name} added to cart!`);
+    };
+
+    // Simple notification function (can be expanded into a custom modal)
+    function showNotification(message) {
+        const notificationDiv = document.createElement('div');
+        notificationDiv.textContent = message;
+        notificationDiv.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        `;
+        document.body.appendChild(notificationDiv);
+
+        setTimeout(() => {
+            notificationDiv.style.opacity = 1;
+        }, 10); // Small delay to trigger transition
+
+        setTimeout(() => {
+            notificationDiv.style.opacity = 0;
+            notificationDiv.addEventListener('transitionend', () => notificationDiv.remove());
+        }, 3000); // Hide after 3 seconds
+    }
+
+
+    // Render products on homepage and product page
+    const productGrid = document.getElementById('productGrid');
+    const productDetailsContainer = document.getElementById('product-details-container');
+
+    const fetchAndRenderProducts = async () => {
         try {
             const response = await fetch('/.netlify/functions/get-products');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            products = await response.json();
-            
-            if (document.getElementById('productGrid')) renderProductGrid();
-            if (document.getElementById('product-details-page')) renderProductDetailsPage();
-
-        } catch (error) {
-            console.error("Could not load product data:", error);
-            const mainContent = document.querySelector('main');
-            if(mainContent) mainContent.innerHTML = `<p style="text-align:center; color:red; padding: 40px;">Error: Could not load products. Please try again later.</p>`;
-        }
-    };
-    
-    const loadComponent = (selector, url, callback) => {
-        fetch(url)
-            .then(response => response.ok ? response.text() : Promise.reject('File not found'))
-            .then(data => {
-                const element = document.querySelector(selector);
-                if(element) element.innerHTML = data;
-                if(callback) callback();
-            })
-            .catch(error => console.error(`Failed to load ${url}:`, error));
-    };
-    
-    loadComponent('#header-placeholder', 'header.html', () => {
-        loadComponent('#footer-placeholder', 'footer.html', () => {
-            initializeSharedComponents();
-            fetchAndInitializeApp();
-        });
-    });
-
-    const initializeSharedComponents = () => {
-        initializeAuth();
-        initializeScrollHeader();
-        initializeLangCurrSwitcher();
-        const cartBtn = document.getElementById('cartBtn');
-        const mobileCartBtn = document.getElementById('mobileCartBtn');
-        if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
-        if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
-        const miniCartClose = document.getElementById('miniCartClose');
-        const miniCartOverlay = document.getElementById('miniCartOverlay');
-        if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
-        if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => {
-            if (e.target === miniCartOverlay) closeMiniCart();
-        });
-        const searchInput = document.getElementById('searchInput');
-        if(searchInput) searchInput.addEventListener('input', handleSearch);
-        updateCartBadge();
-    };
-    
-    // --- 5. HIDING HEADER WITH BOUNCE (RE-ENGINEERED & FINAL) ---
-    const initializeScrollHeader = () => {
-        const header = document.querySelector('.site-header');
-        if (!header) return;
-
-        let lastScrollY = window.scrollY;
-        let scrollTimeout;
-
-        window.addEventListener('scroll', () => {
-            // Clear any existing timeout to reset the "stop" detection
-            clearTimeout(scrollTimeout);
-
-            const currentScrollY = window.scrollY;
-
-            if (currentScrollY > lastScrollY) {
-                // Scrolling Down
-                header.classList.add('header--hidden');
-            } else {
-                // Scrolling Up
-                header.classList.remove('header--hidden');
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || 'Failed to fetch products');
             }
+            products = data.products; // Store fetched products globally
 
-            lastScrollY = currentScrollY;
-
-            // Set a timeout to run after scrolling has stopped
-            scrollTimeout = setTimeout(() => {
-                // When scrolling stops, always show the header, unless at the very top
-                if (window.scrollY > 50) {
-                    header.classList.remove('header--hidden');
-                }
-            }, 150); // A 150ms pause will trigger this
-        });
-    };
-
-
-    // 6. LANGUAGE/CURRENCY SWITCHER
-    const initializeLangCurrSwitcher = () => {
-        const langSelect = document.getElementById('lang-select');
-        const currSelect = document.getElementById('curr-select');
-        const saveBtn = document.getElementById('lang-curr-save-btn');
-
-        if (!langSelect || !currSelect || !saveBtn) return;
-
-        langSelect.innerHTML = Object.entries(languages).map(([code, {name}]) => `<option value="${code}" ${code === currentLang ? 'selected' : ''}>${name}</option>`).join('');
-        currSelect.innerHTML = Object.entries(currencies).map(([code, {name, symbol}]) => `<option value="${code}" ${code === currentCurr ? 'selected' : ''}>${code} (${name})</option>`).join('');
-
-        const updateDisplay = () => {
-            document.getElementById('current-flag').textContent = languages[currentLang].flag;
-            document.getElementById('current-lang').textContent = currentLang;
-            document.getElementById('current-curr').textContent = currentCurr;
-            document.dispatchEvent(new Event('settingsChanged'));
-        };
-
-        saveBtn.addEventListener('click', () => {
-            currentLang = langSelect.value;
-            currentCurr = currSelect.value;
-            localStorage.setItem('digiworld_lang', currentLang);
-            localStorage.setItem('digiworld_curr', currentCurr);
-            updateDisplay();
-            const dropdown = document.querySelector('.lang-curr-dropdown');
-            if (dropdown) dropdown.style.display = 'none';
-            setTimeout(() => { if(dropdown) dropdown.style.display = ''; }, 100);
-        });
-        
-        updateDisplay();
-    };
-
-    // --- PAGE-SPECIFIC RENDER FUNCTIONS ---
-    const renderProductGrid = () => {
-        const grid = document.getElementById('productGrid');
-        if(!grid) return;
-        
-        grid.innerHTML = products.map((prod) => {
-            const price = prod.price[currentCurr] || prod.price.USD;
-            return `
-                <div class="product-card" data-product-id="${prod.id}">
-                  ${prod.isHot ? '<div class="badge-hot">Hot</div>' : ''}
-                  <a href="product-details.html?id=${prod.id}" class="card-image-container">
-                    <img class="card-image" src="${prod.image}" alt="${prod.name.en}" loading="lazy"/>
-                  </a>
-                  <div class="card-content-wrapper">
-                      <div class="tag-delivery">${prod.delivery.en}</div>
-                      <h3 class="product-name">${prod.name.en}</h3>
-                      <p class="product-price">${currencies[currentCurr].symbol}${price.toFixed(2)}</p>
-                      <div class="card-buttons">
-                          <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                          <a href="checkout.html?id=${prod.id}" class="card-btn buy-now">Buy Now</a>
-                      </div>
-                  </div>
-                </div>
-            `;
-        }).join('');
-
-        document.querySelectorAll('.product-card').forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.07}s`;
-        });
-    };
-
-    const renderProductDetailsPage = () => {
-        const pageContainer = document.getElementById('product-details-page');
-        if(!pageContainer) return;
-        
-        const params = new URLSearchParams(window.location.search);
-        const productId = params.get('id');
-        const product = products.find(p => p.id === productId);
-
-        if (!product) {
-            pageContainer.innerHTML = '<div id="errorState">Product not found.</div>';
-            return;
-        }
-
-        const price = product.price[currentCurr] || product.price.USD;
-        document.title = `DigiWorld - ${product.name.en}`;
-        const isWishlisted = wishlist.includes(productId);
-        
-        pageContainer.innerHTML = `
-            <div class="product-details-container">
-                <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
-                <div class="product-details-grid">
-                    <div class="product-image-container"><img src="${product.image}" alt="${product.name.en}"></div>
-                    <div class="product-info">
-                        <div class="product-title-wrapper">
-                            <h1 class="product-title">${product.name.en}</h1>
-                            <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${productId}" aria-label="Add to wishlist"><i class="fas fa-heart"></i></button>
-                        </div>
-                        <p class="product-delivery"><i class="fas fa-check-circle"></i> ${product.delivery.en}</p>
-                        <p class="product-price">${currencies[currentCurr].symbol}${price.toFixed(2)}</p>
-                        <div class="product-description">${product.desc.en}</div>
-                        <div class="product-actions">
-                            <button class="action-button add-to-cart" data-id="${product.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
-                            <a href="checkout.html?id=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
+            if (productGrid) {
+                productGrid.innerHTML = products.map(product => `
+                    <div class="product-card">
+                        <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
+                        <div class="product-info">
+                            <h3 class="product-name">${product.name}</h3>
+                            <p class="product-price">${product.price} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                            <div class="product-actions">
+                                <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Add to Cart</button>
+                                <a href="product-details.html?id=${product.id}" class="btn-secondary">View Details</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                `).join('');
+
+                document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const { id, name, price } = event.target.dataset;
+                        addToCart(id, name, parseFloat(price));
+                    });
+                });
+            } else if (productDetailsContainer) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                const product = products.find(p => p.id === productId);
+
+                if (product) {
+                    renderProductDetails(product);
+                    fetchAndRenderReviews(productId);
+                    setupReviewForm(productId);
+                } else {
+                    productDetailsContainer.innerHTML = '<p>Product not found.</p>';
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            if (productGrid) {
+                productGrid.innerHTML = '<p style="color: red;">Failed to load products. Please try again later.</p>';
+            } else if (productDetailsContainer) {
+                productDetailsContainer.innerHTML = '<p style="color: red;">Failed to load product details.</p>';
+            }
+        }
+    };
+
+    fetchAndRenderProducts();
+    updateCartDisplay(); // Initialize cart display on page load
+
+    const renderProductDetails = (product) => {
+        if (!productDetailsContainer) return;
+
+        productDetailsContainer.innerHTML = `
+            <div class="product-details-image">
+                <img src="${product.imageUrl}" alt="${product.name}">
             </div>
-            <div class="product-info-tabs">
-                <div class="tab-buttons"><button class="tab-button active" data-tab="features">Key Features</button><button class="tab-button" data-tab="requirements">Requirements</button><button class="tab-button" data-tab="activation">Activation</button></div>
-                <div id="features" class="tab-content active"></div><div id="requirements" class="tab-content"></div><div id="activation" class="tab-content"></div>
-            </div>
-            <div class="reviews-container">
-                <h2 class="section-title">Customer Reviews</h2>
-                <div id="reviews-list"><p>Loading reviews...</p></div>
-                <div id="review-form-section">
-                    <h3 class="section-title" style="font-size: 1.5rem; margin-top: 40px;">Leave a Review</h3>
-                    <form id="review-form">
-                        <div class="form-group"><label for="authorName">Your Name</label><input type="text" id="authorName" required></div>
-                        <div class="form-group"><label>Your Rating</label><div class="rating-input" id="rating-input"></div></div>
-                        <div class="form-group"><label for="reviewText">Your Review</label><textarea id="reviewText" required></textarea></div>
-                        <button type="submit" class="card-btn buy-now">Submit Review</button>
-                        <div id="form-message"></div>
-                    </form>
-                </div>
+            <div class="product-details-info">
+                <h1>${product.name}</h1>
+                <p class="product-details-price">${product.price} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                <p>${product.description}</p>
+                <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">Add to Cart</button>
             </div>
         `;
-        
-        renderInfoTabs(product);
-        setupTabs();
-        fetchAndRenderReviews(productId);
-        setupReviewForm(productId);
-    };
-
-    // --- SHARED FUNCTIONS ---
-    document.addEventListener('settingsChanged', () => {
-        if (document.getElementById('productGrid')) renderProductGrid();
-        if (document.getElementById('product-details-page')) renderProductDetailsPage();
-        updateMiniCartContent();
-    });
-    
-    const initializeAuth = () => {
-        const accountBtn = document.getElementById('accountBtn');
-        const accountText = document.getElementById('account-text');
-        const accountMenu = document.getElementById('accountMenu');
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                accountText.textContent = user.displayName || 'Account';
-                accountMenu.innerHTML = `<a href="profile.html">Profile</a><a href="orders.html">My Orders</a><button id="logoutBtn">Logout</button>`;
-                document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
-            } else {
-                accountText.textContent = 'Sign In';
-                accountMenu.innerHTML = `<a href="login.html">Login</a><a href="signup.html">Register</a>`;
-            }
+        document.querySelector('.product-details-info .add-to-cart-btn').addEventListener('click', (event) => {
+            const { id, name, price } = event.target.dataset;
+            addToCart(id, name, parseFloat(price));
         });
     };
-    
-    const updateCartBadge=()=>{const e=Object.values(cart).reduce((e,t)=>e+t,0),t=document.getElementById("cartCount");t&&(t.textContent=e)};const saveCart=()=>{localStorage.setItem("digiworldCart",JSON.stringify(cart)),updateCartBadge()};const openMiniCart=()=>{updateMiniCartContent(),document.getElementById("miniCartOverlay")?.classList.add("active")};const closeMiniCart=()=>{document.getElementById("miniCartOverlay")?.classList.remove("active")};const updateMiniCartContent=()=>{const e=document.getElementById("miniCartItems"),t=document.getElementById("miniCartTotal");if(!e||!t)return;let n=0;const o=currencies[currentCurr].symbol;if(0===Object.keys(cart).length)return e.innerHTML='<p style="padding: 20px; text-align: center;">Your cart is empty.</p>',void(t.innerHTML=`<span>Total:</span> <span>${o}0.00</span>`);e.innerHTML=Object.entries(cart).map(([e,t])=>{const a=products.find(t=>t.id===e);if(!a)return"";const c=a.price[currentCurr]||a.price.USD;return n+=c*t,`\n                <div class="mini-cart-item" data-id="${e}">\n                    <img src="${a.image}" class="mini-cart-item-img" alt="${a.name.en}">\n                    <div class="mini-cart-item-details">\n                        <div class="mini-cart-item-title">${a.name.en}</div>\n                        <div class="mini-cart-item-price">${t} x ${o}${c.toFixed(2)}</div>\n                    </div>\n                    <span class="mini-cart-item-remove" data-id="${e}">&times;</span>\n                </div>\n            `}).join(""),t.innerHTML=`<span>Total:</span> <span>${o}${n.toFixed(2)}</span>`};
-    
-    document.addEventListener('click', e => {
-        if (e.target.matches('.add-to-cart') && !e.target.classList.contains('added')) {
-            const button = e.target;
-            const prodId = button.dataset.id;
-            if (prodId) {
-                cart[prodId] = (cart[prodId] || 0) + 1;
-                saveCart();
-                animateImageToCart(button);
-                button.innerHTML = 'Added!';
-                button.classList.add('added');
-                setTimeout(() => {
-                    button.innerHTML = button.classList.contains('action-button') ? '<i class="fas fa-shopping-cart"></i> Add to Cart' : 'Add to Cart';
-                    button.classList.remove('added');
-                }, 2000);
-            }
-        }
-        if (e.target.matches('.mini-cart-item-remove')) {
-            const itemId = e.target.dataset.id;
-            delete cart[itemId];
-            saveCart();
-            updateMiniCartContent();
-        }
-        if (e.target.closest('.wishlist-btn')) {
-            const button = e.target.closest('.wishlist-btn');
-            const prodId = button.dataset.id;
-            button.classList.toggle('active');
-            if (wishlist.includes(prodId)) {
-                wishlist = wishlist.filter(id => id !== prodId);
-            } else {
-                wishlist.push(prodId);
-            }
-            localStorage.setItem('digiworldWishlist', JSON.stringify(wishlist));
-        }
-    });
 
-    const animateImageToCart=e=>{const t=document.getElementById("cartBtn"),n=e.closest(".product-card")||e.closest(".product-details-grid");if(!n||!t)return;const o=n.querySelector("img");if(!o)return;const a=o.getBoundingClientRect(),c=t.getBoundingClientRect(),r=o.cloneNode(!0);r.classList.add("flying-image"),Object.assign(r.style,{left:`${a.left}px`,top:`${a.top}px`,width:`${a.width}px`,height:`${a.height}px`}),document.body.appendChild(r),requestAnimationFrame(()=>{Object.assign(r.style,{left:`${c.left+c.width/2}px`,top:`${c.top+c.height/2}px`,width:"20px",height:"20px",transform:"scale(0.1)",opacity:"0"})}),r.addEventListener("transitionend",()=>{r.remove(),t.classList.add("animated"),setTimeout(()=>t.classList.remove("animated"),430)})};const handleSearch=()=>{const e=document.getElementById("searchInput"),t=document.getElementById("searchSuggestions");if(!e||!t)return;const n=e.value.trim().toLowerCase();if(n.length<2)return void(t.style.display="none");const o=products.filter(e=>e.name.en.toLowerCase().includes(n));o.length>0?(t.innerHTML=o.map(e=>`<div class="suggestion-item" onclick="window.location.href='product-details.html?id=${e.id}'">${e.name.en}</div>`).join(""),t.style.display="block"):t.style.display="none"};const renderInfoTabs=e=>{const t=e.features.en||[],n=e.requirements.en||[],o=e.activation.en||[];document.getElementById("features").innerHTML=`<ul>${t.map(e=>`<li>${e}</li>`).join("")}</ul>`,document.getElementById("requirements").innerHTML=`<ul>${n.map(e=>`<li>${e}</li>`).join("")}</ul>`,document.getElementById("activation").innerHTML=`<ul>${o.map(e=>`<li>${e}</li>`).join("")}</ul>`};const setupTabs=()=>{document.querySelectorAll(".tab-button").forEach(e=>{e.addEventListener("click",()=>{const t=e.dataset.tab;document.querySelectorAll(".tab-button").forEach(e=>e.classList.remove("active")),document.querySelectorAll(".tab-content").forEach(e=>e.classList.remove("active")),e.classList.add("active"),document.getElementById(t).classList.add("active")})})};const fetchAndRenderReviews=async e=>{const t=document.getElementById("reviews-list");try{const n=await fetch(`/.netlify/functions/get-reviews?productId=${e}`),o=await n.json();if(!n.ok||!o.success)throw new Error(o.message);if(0===o.reviews.length)return void(t.innerHTML="<p>Be the first to review this product!</p>");t.innerHTML=o.reviews.map(e=>{const t="★".repeat(e.rating)+"☆".repeat(5-e.rating);return`<div class="review-card"><div class="star-rating">${t}</div><p><strong>${e.authorName}</strong></p><p>${e.reviewText}</p></div>`}).join("")}catch(n){t.innerHTML=`<p style="color: red;">Could not load reviews.</p>`}};
-    
-    const setupReviewForm=e=>{const t=document.getElementById("review-form"),n=document.getElementById("rating-input"),o=document.getElementById("form-message");if(t&&n){n.innerHTML=[5,4,3,2,1].map(e=>`<input type="radio" id="star${e}" name="rating" value="${e}" required><label for="star${e}">★</label>`).join(""),t.addEventListener("submit",async a=>{a.preventDefault(),o.textContent="Submitting...";const c=new FormData(t),r={productId:e,authorName:c.get("authorName"),reviewText:c.get("reviewText"),rating:parseInt(c.get("rating"))};try{const e=await fetch("/.netlify/functions/submit-review",{method:"POST",body:JSON.stringify(r)}),a=await e.json();if(!e.ok)throw new Error(a.message);o.textContent="Review submitted for approval!",t.reset(),fetchAndRenderReviews(r.productId)}catch(e){o.textContent=`Error: ${e.message}`}})}};
+    const starRatingContainer = document.getElementById("star-rating");
+    if (starRatingContainer) {
+        starRatingContainer.innerHTML = Array(5).fill(null).map((_, i) => `<i class="far fa-star" data-value="${i + 1}"></i>`).join('');
+        starRatingContainer.querySelectorAll('.fa-star').forEach(star => {
+            star.addEventListener('click', (e) => {
+                const rating = e.target.dataset.value;
+                document.getElementById('rating-input').value = rating;
+                starRatingContainer.querySelectorAll('.fa-star').forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.remove('far');
+                        s.classList.add('fas');
+                    } else {
+                        s.classList.remove('fas');
+                        s.classList.add('far');
+                    }
+                });
+            });
+        });
+    }
 
-});
+
+    const fetchAndRenderReviews = async (productId) => {
+        const reviewsList = document.getElementById('reviews-list');
+        try {
+            const response = await fetch(`/.netlify/functions/get-reviews?productId=${productId}`);
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message);
+            }
+
+            if (data.reviews.length === 0) {
+                reviewsList.innerHTML = '<p>Be the first to review this product!</p>';
+                return;
+            }
+
+            reviewsList.innerHTML = data.reviews.map(review => {
+                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                return `
+                    <div class="review-card">
+                        <div class="star-rating">${stars}</div>
+                        <p><strong>${review.authorName}</strong></p>
+                        <p>${review.reviewText}</p>
+                    </div>
+                `;
+            }).join('');
+        } catch (error) {
+            reviewsList.innerHTML = `<p style="color: red;">Could not load reviews.</p>`;
+            console.error('Error fetching reviews:', error);
+        }
+    };
+
+    const setupReviewForm = (productId) => {
+        const reviewForm = document.getElementById('review-form');
+        const ratingInputStars = document.getElementById('rating-input'); // This is the hidden input for the rating value
+        const formMessage = document.getElementById('form-message');
+
+        if (reviewForm && ratingInputStars) {
+            // Setup star rating display for the form
+            const reviewStarsContainer = document.createElement('div');
+            reviewStarsContainer.className = 'star-rating-input';
+            reviewStarsContainer.innerHTML = [5, 4, 3, 2, 1].map(value => `
+                <input type="radio" id="star${value}-form" name="rating" value="${value}" required>
+                <label for="star${value}-form" data-value="${value}">★</label>
+            `).join('');
+            ratingInputStars.parentNode.insertBefore(reviewStarsContainer, ratingInputStars.nextSibling); // Insert after the hidden input
+
+            reviewStarsContainer.querySelectorAll('label').forEach(label => {
+                label.addEventListener('click', (e) => {
+                    const rating = parseInt(e.target.dataset.value);
+                    reviewStarsContainer.querySelectorAll('label').forEach((s, index) => {
+                        if (parseInt(s.dataset.value) <= rating) {
+                            s.style.color = 'var(--star-color)';
+                        } else {
+                            s.style.color = 'var(--star-color-inactive)';
+                        }
+                    });
+                });
+            });
+
+
+            reviewForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                formMessage.textContent = 'Submitting...';
+                formMessage.style.color = 'blue';
+
+                const formData = new FormData(reviewForm);
+                const reviewData = {
+                    productId: productId,
+                    authorName: formData.get('authorName'),
+                    reviewText: formData.get('reviewText'),
+                    rating: parseInt(formData.get('rating'))
+                };
+
+                try {
+                    const response = await fetch('/.netlify/functions/submit-review', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(reviewData)
+                    });
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        formMessage.textContent = 'Review submitted successfully! It will appear after moderation.';
+                        formMessage.style.color = 'green';
+                        reviewForm.reset();
+                        fetchAndRenderReviews(productId); // Refresh reviews
+                    } else {
+                        throw new Error(result.message || 'Failed to submit review');
+                    }
+                } catch (error) {
+                    formMessage.textContent = `Error: ${error.message}`;
+                    formMessage.style.color = 'red';
+                    console.error('Error submitting review:', error);
+                }
+            });
+        }
+    };
+
+    // NEW FUNCTION: Smooth Scrolling for Navigation Links
+    function setupSmoothScrolling() {
+        // Selects links that point to an ID on the current page or specifically to #products/#contact on index.html
+        document.querySelectorAll('a[href^="#"], a[href*="index.html#products"], a[href*="index.html#contact"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                // Extract the hash part (e.g., "products" from "#products" or "index.html#products")
+                const targetId = href.split('#')[1];
+                const targetElement = document.getElementById(targetId);
+
+                // Check if the link is an internal anchor link
+                const isInternalAnchor = href.startsWith('#') || (href.includes('index.html#') && (window.location.pathname === '/index.html' || window.location.pathname === '/'));
+
+                if (targetElement && isInternalAnchor) {
+                    e.preventDefault(); // Prevent default jump behavior
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth' // Enable smooth scrolling
+                    });
+
+                    // Optionally update URL hash without jumping
+                    // This creates a cleaner URL and allows direct linking to sections
+                    history.pushState(null, null, href);
+                }
+            });
+        });
+    }
+
+}); // DOMContentLoaded end

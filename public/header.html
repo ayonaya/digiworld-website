@@ -1,10 +1,11 @@
+<!-- public/header.html -->
 <header class="site-header">
     <div class="header-main-pro">
       <a href="index.html" class="logo-pro">DigiWorld</a>
       <nav>
         <a href="index.html" class="nav-link-pro active">Home</a>
         <a href="index.html#products" class="nav-link-pro">Products</a>
-        <a href="#" class="nav-link-pro">Contact</a>
+        <a href="index.html#contact" class="nav-link-pro">Contact</a> <!-- UPDATED: Link to #contact section on homepage -->
       </nav>
       <div class="header-actions-wrap">
         <div class="lang-curr-switcher">
@@ -35,6 +36,7 @@
                 <a href="orders.html">My Orders</a>
                 <a href="downloads.html">Downloads</a>
                 <a href="wishlist.html" class="desktop-only">Wishlist</a>
+                <a href="admin.html" id="adminLink" style="display: none;">Admin Dashboard</a> <!-- Added admin link -->
                 <button id="logoutBtn" style="display: none;">Logout</button>
                 <div id="auth-links">
                     <a href="login.html">Login</a>
@@ -52,6 +54,23 @@
     <form class="search-bar-modern" autocomplete="off" onsubmit="return false;">
         <input type="text" id="searchInput" placeholder="Search for products…">
         <button class="search-btn-modern" type="submit">Search</button>
-        <div class="search-suggestions" id="searchSuggestions"></div>
+        <div id="searchResults" class="search-results-dropdown"></div>
     </form>
+
+    <!-- Mini Cart HTML -->
+    <div class="mini-cart" id="miniCart">
+        <div class="mini-cart-header">
+            <h3>Your Cart</h3>
+            <button class="close-mini-cart" id="closeMiniCart">&times;</button>
+        </div>
+        <div class="mini-cart-items" id="miniCartItems">
+            <!-- Cart items will be dynamically loaded here -->
+        </div>
+        <div class="mini-cart-footer">
+            <div class="mini-cart-total" id="miniCartTotal">
+                Total: <span>0 LKR</span>
+            </div>
+            <button class="mini-cart-checkout" onclick="window.location.href='cart.html'">View Cart & Checkout</button>
+        </div>
+    </div>
 </header>
