@@ -1,0 +1,26 @@
+<header class="site-header">
+    <div class="header-main-pro">
+      <a href="index.html" class="logo-pro">DigiWorld</a>
+      <nav>
+        <a href="index.html" class="nav-link-pro active">Home</a>
+        <a href="index.html#products" class="nav-link-pro">Products</a>
+        <a href="#" class="nav-link-pro">Contact</a>
+      </nav>
+      <div class="lang-currency-wrap">
+        <div class="dropdown" id="currencyDropdown">
+            <button class="dropdown-toggle">
+                <span id="currentCurrSymbol">$</span><span id="currentCurrLabel">USD</span>
+            </button>
+            <div class="dropdown-menu" id="currencyMenu"></div>
+        </div>
+        <button class="cart-btn" id="cartBtn">
+            Cart <span class="cart-icon-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+    <form class="search-bar-modern" autocomplete="off" onsubmit="return false;">
+        <input type="text" id="searchInput" placeholder="Search for products…">
+        <button class="search-btn-modern" type="submit">Search</button>
+        <div class="search-suggestions" id="searchSuggestions"></div>
+    </form>
+</header>
