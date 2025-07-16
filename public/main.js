@@ -29,7 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
         'SI': { name: 'සිංහල', flag: '🇱🇰' }
         // Add more languages as needed
     };
-    const currencies = ['LKR', 'USD', 'EUR', 'GBP']; // Add more currencies as needed
+    const currencies = ['LKR', 'USD', 'EUR', 'GBP', 'INR']; // Ensure all currencies from products.js are here
+
+    // Mapping for currency symbols
+    const currencySymbols = {
+        'LKR': 'Rs.',
+        'USD': '$',
+        'EUR': '€',
+        'GBP': '£',
+        'INR': '₹'
+    };
 
     // --- DOM ELEMENTS ---
     const headerPlaceholder = document.getElementById('header-placeholder');
@@ -96,24 +105,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Mini Cart Toggle (UPDATED FOR MODAL BEHAVIOR)
         const cartBtn = document.getElementById('cartBtn');
-        const miniCartOverlay = document.getElementById('miniCartOverlay'); // Get the new overlay element
+        const mobileCartBtn = document.getElementById('mobileCartBtn'); // Get mobile cart button
+        const miniCartOverlay = document.getElementById('miniCartOverlay');
         const closeMiniCart = document.getElementById('closeMiniCart');
 
-        if (cartBtn && miniCartOverlay && closeMiniCart) {
+        // Function to open cart
+        const openCart = () => {
+            miniCartOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            updateCartDisplay(); // Ensure cart content is updated when opened
+        };
+
+        // Event listeners for cart buttons
+        if (cartBtn) {
             cartBtn.addEventListener('click', (event) => {
                 event.stopPropagation();
-                miniCartOverlay.classList.add('active'); // Add active to overlay
-                document.body.style.overflow = 'hidden'; // Prevent scrolling background
+                openCart();
             });
+        }
+        if (mobileCartBtn) { // Attach listener for mobile cart button
+            mobileCartBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                openCart();
+            });
+        }
 
+        if (miniCartOverlay && closeMiniCart) {
             closeMiniCart.addEventListener('click', () => {
-                miniCartOverlay.classList.remove('active'); // Remove active from overlay
-                document.body.style.overflow = ''; // Restore scrolling
+                miniCartOverlay.classList.remove('active');
+                document.body.style.overflow = '';
             });
 
-            // Close mini-cart when clicking outside the cart content, but inside the overlay
             miniCartOverlay.addEventListener('click', (event) => {
-                if (event.target === miniCartOverlay) { // Only close if clicking the overlay itself
+                if (event.target === miniCartOverlay) {
                     miniCartOverlay.classList.remove('active');
                     document.body.style.overflow = '';
                 }
@@ -129,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (accountMenu && !accountMenu.contains(event.target) && accountMenu.classList.contains('active')) {
                 accountMenu.classList.remove('active');
             }
-            // Removed miniCart from this global close, as its overlay handles it
         });
 
         // Populate language and currency selectors
@@ -161,6 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentLangSpan.textContent = langSelect.value;
                 currentCurrSpan.textContent = currSelect.value;
                 currentFlagSpan.textContent = languages[langSelect.value]?.flag || '🇬🇧';
+                // Re-render products to update prices if currency changed
+                fetchAndRenderProducts();
                 langCurrDropdown.classList.remove('active');
             });
         }
@@ -172,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (searchInput && searchResultsDiv) {
             searchInput.addEventListener('input', () => {
                 const query = searchInput.value.toLowerCase();
-                searchResultsDiv.innerHTML = ''; // Clear previous results
+                searchResultsDiv.innerHTML = '';
 
                 if (query.length > 0) {
                     const filteredProducts = products.filter(product =>
@@ -189,22 +214,21 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <img src="${product.image}" alt="${product.name.en}">
                                 <div>
                                     <h4>${product.name.en}</h4>
-                                    <p>${product.price[localStorage.getItem('siteCurr') || 'LKR']} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                                    <p>${currencySymbols[localStorage.getItem('siteCurr') || 'LKR'] || ''}${product.price[localStorage.getItem('siteCurr') || 'LKR'].toFixed(2)}</p>
                                 </div>
                             `;
                             searchResultsDiv.appendChild(resultItem);
                         });
-                        searchResultsDiv.classList.add('active'); // Show with animation
+                        searchResultsDiv.classList.add('active');
                     } else {
                         searchResultsDiv.innerHTML = '<p>No products found.</p>';
-                        searchResultsDiv.classList.add('active'); // Still show, but with no results message
+                        searchResultsDiv.classList.add('active');
                     }
                 } else {
-                    searchResultsDiv.classList.remove('active'); // Hide when query is empty
+                    searchResultsDiv.classList.remove('active');
                 }
             });
 
-            // Close search results when clicking outside
             document.addEventListener('click', (event) => {
                 if (!searchInput.contains(event.target) && !searchResultsDiv.contains(event.target)) {
                     searchResultsDiv.classList.remove('active');
@@ -259,8 +283,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const cartCount = document.getElementById('cartCount');
         const miniCartItems = document.getElementById('miniCartItems');
         const miniCartTotal = document.getElementById('miniCartTotal');
+        const mobileCartCount = document.getElementById('mobileCartCount');
         let totalItems = 0;
         let totalPrice = 0;
+        const currentCurrency = localStorage.getItem('siteCurr') || 'LKR';
 
         if (miniCartItems) {
             miniCartItems.innerHTML = '';
@@ -272,10 +298,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const cartItemDiv = document.createElement('div');
                 cartItemDiv.className = 'mini-cart-item';
+                // Correctly display item name and formatted price with symbol
                 cartItemDiv.innerHTML = `
                     <span>${item.name} x ${item.quantity}</span>
-                    <span>${item.quantity * item.price} ${localStorage.getItem('siteCurr') || 'LKR'}</span>
-                `;
+                    <span>${currencySymbols[currentCurrency] || ''}${item.price.toFixed(2)}</span>
+                `; 
                 miniCartItems.appendChild(cartItemDiv);
             }
 
@@ -284,25 +311,40 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (miniCartTotal) {
-                miniCartTotal.innerHTML = `Total: <span>${totalPrice} ${localStorage.getItem('siteCurr') || 'LKR'}</span>`;
+                miniCartTotal.innerHTML = `Total: <span>${currencySymbols[currentCurrency] || ''}${totalPrice.toFixed(2)}</span>`;
             }
         }
 
         if (cartCount) {
             cartCount.textContent = totalItems;
         }
+        if (mobileCartCount) {
+            mobileCartCount.textContent = totalItems;
+        }
         localStorage.setItem('cart', JSON.stringify(cart));
     };
 
-    const addToCart = (productId, name, price) => {
+    const addToCart = (productId) => {
+        const currentCurrency = localStorage.getItem('siteCurr') || 'LKR';
+        const product = products.find(p => p.id === productId);
+
+        if (!product) {
+            console.error('Product not found for addToCart:', productId);
+            showNotification('Error: Product not found.');
+            return;
+        }
+
+        const itemName = product.name.en;
+        const itemPrice = product.price[currentCurrency];
+
         if (cart[productId]) {
             cart[productId].quantity++;
         } else {
-            cart[productId] = { productId, name, price, quantity: 1 };
+            cart[productId] = { productId, name: itemName, price: itemPrice, quantity: 1 };
         }
         updateCartDisplay();
-        console.log(`Added ${name} to cart.`);
-        showNotification(`${name} added to cart!`);
+        console.log(`Added ${itemName} to cart.`);
+        showNotification(`${itemName} added to cart!`);
     };
 
     function showNotification(message) {
@@ -336,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render products on homepage and product page
     const productGrid = document.getElementById('productGrid');
-    const productDetailsContainer = document.getElementById('product-details-container');
+    const productDetailsContainer = document.getElementById('product-details-page');
 
     const fetchAndRenderProducts = async () => {
         try {
@@ -356,19 +398,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="product-info">
                             <h3 class="product-name">${product.name.en}</h3>
                             ${product.delivery && product.delivery.en === 'Instant Delivery' ? '<span class="product-badge instant shine">INSTANT DELIVERY</span>' : ''}
-                            <p class="product-price">${localStorage.getItem('siteCurr') || 'LKR'}${product.price[localStorage.getItem('siteCurr') || 'LKR']}</p>
+                            <p class="product-price">${currencySymbols[localStorage.getItem('siteCurr') || 'LKR'] || ''}${product.price[localStorage.getItem('siteCurr') || 'LKR'].toFixed(2)}</p>
                             <div class="product-actions">
-                                <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
-                                <button class="btn-buy-now" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Buy Now</button>
+                                <button class="btn-primary add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+                                <button class="btn-buy-now" data-id="${product.id}">Buy Now</button>
                             </div>
                         </div>
                     </div>
                 `).join('');
 
-                // Event listener for clicking anywhere on the product card
                 document.querySelectorAll('.product-card').forEach(card => {
                     card.addEventListener('click', (event) => {
-                        // Only redirect if the click was not on an "Add to Cart" or "Buy Now" button
                         if (!event.target.closest('.add-to-cart-btn') && !event.target.closest('.btn-buy-now')) {
                             const productId = card.dataset.id;
                             window.location.href = `product-details.html?id=${productId}`;
@@ -378,17 +418,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.querySelectorAll('.add-to-cart-btn').forEach(button => {
                     button.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Prevent card click from triggering
-                        const { id, name, price } = event.target.dataset;
-                        addToCart(id, name, parseFloat(price));
+                        event.stopPropagation();
+                        const productId = event.target.dataset.id;
+                        addToCart(productId);
                     });
                 });
 
                 document.querySelectorAll('.btn-buy-now').forEach(button => {
                     button.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Prevent card click from triggering
-                        const { id, name, price } = event.target.dataset;
-                        addToCart(id, name, parseFloat(price));
+                        event.stopPropagation();
+                        const productId = event.target.dataset.id;
+                        addToCart(productId);
                         window.location.href = 'checkout.html';
                     });
                 });
@@ -419,8 +459,11 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchAndRenderProducts();
     updateCartDisplay();
 
+
     const renderProductDetails = (product) => {
         if (!productDetailsContainer) return;
+
+        const currentCurrency = localStorage.getItem('siteCurr') || 'LKR';
 
         productDetailsContainer.innerHTML = `
             <div class="product-details-image">
@@ -428,21 +471,21 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="product-details-info">
                 <h1>${product.name.en}</h1>
-                <p class="product-details-price">${localStorage.getItem('siteCurr') || 'LKR'}${product.price[localStorage.getItem('siteCurr') || 'LKR']}</p>
+                <p class="product-details-price">${currencySymbols[currentCurrency] || ''}${product.price[currentCurrency].toFixed(2)}</p>
                 <p>${product.desc.en}</p>
                 <div class="product-actions">
-                    <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
-                    <button class="btn-buy-now" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Buy Now</button>
+                    <button class="btn-primary add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
+                    <button class="btn-buy-now" data-id="${product.id}">Buy Now</button>
                 </div>
             </div>
         `;
         document.querySelector('.product-details-info .add-to-cart-btn').addEventListener('click', (event) => {
-            const { id, name, price } = event.target.dataset;
-            addToCart(id, name, parseFloat(price));
+            const productId = event.target.dataset.id;
+            addToCart(productId);
         });
         document.querySelector('.product-details-info .btn-buy-now').addEventListener('click', (event) => {
-            const { id, name, price } = event.target.dataset;
-            addToCart(id, name, parseFloat(price));
+            const productId = event.target.dataset.id;
+            addToCart(productId);
             window.location.href = 'checkout.html';
         });
     };

@@ -23,11 +23,10 @@
         </div>
       </section>
 
-      <!-- NEW: Contact Section for smooth scrolling -->
+      <!-- Contact Section for smooth scrolling -->
       <section id="contact" class="main-section">
           <h2>Get in Touch!</h2>
           <p>We'd love to hear from you. Feel free to reach out with any questions or feedback.</p>
-          <!-- Replace this with your actual contact form or contact details -->
           <address>
               Email: info@digiworld.com<br>
               Phone: +123 456 7890<br>
@@ -38,6 +37,31 @@
     </main>
 
     <div id="footer-placeholder"></div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav">
+        <a href="index.html" class="mobile-nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="wishlist.html" class="mobile-nav-item">
+            <i class="fas fa-bookmark"></i>
+            <span>Wishlist</span>
+        </a>
+        <a href="products.html" class="mobile-nav-item">
+            <i class="fas fa-th-large"></i>
+            <span>Category</span>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobileCartBtn"> <!-- Cart button for mobile nav -->
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span class="cart-icon-badge" id="mobileCartCount">0</span>
+        </a>
+        <a href="account.html" class="mobile-nav-item">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+    </nav>
 
     <script src="main.js" type="module"></script>
     <script>
