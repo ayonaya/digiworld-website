@@ -23,7 +23,7 @@ body {
     font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif;
     margin: 0;
     color: #333;
-    padding-bottom: 80px; /* Space for a potential fixed footer */
+    padding-bottom: 80px;
 }
 
 /* --- 1. GENERAL LAYOUT & CONTAINERS --- */
@@ -43,7 +43,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
-    transition: transform 0.3s ease-out; /* For hiding/showing on scroll */
+    transition: transform 0.3s ease-out;
 }
 
 .header-main-pro {
@@ -52,7 +52,7 @@ body {
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    flex-wrap: wrap;
 }
 
 .logo-pro {
@@ -65,7 +65,7 @@ body {
 
 .site-header nav {
     display: flex;
-    gap: 15px; /* Reduced gap for more compact buttons */
+    gap: 25px; /* Reverted gap */
     margin: 0 20px;
 }
 
@@ -73,27 +73,37 @@ body {
     color: #fff;
     text-decoration: none;
     font-weight: 600;
-    padding: 10px 18px; /* Button-like padding */
-    border-radius: 10px; /* Rounded corners for button look */
-    transition: background 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+    padding: 8px 0; /* Reverted padding */
     position: relative;
-    overflow: hidden; /* For shining animation */
-    z-index: 1; /* Ensure shining is within bounds */
+    transition: color 0.2s ease;
 }
 
+.nav-link-pro::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px;
+    width: 0;
+    height: 3px;
+    background: #fff;
+    transition: width 0.3s ease;
+    display: block; /* Ensure it's displayed */
+}
+
+.nav-link-pro:hover::after,
+.nav-link-pro.active::after {
+    width: 100%;
+}
+
+/* Remove button-like styles from nav links */
 .nav-link-pro:hover {
-    background: rgba(255, 255, 255, 0.2); /* Slight background on hover */
-    transform: translateY(-2px); /* Lift effect */
+    background: transparent; /* No background on hover */
+    transform: none; /* No lift effect */
 }
 
 .nav-link-pro.active {
-    background: rgba(255, 255, 255, 0.3); /* More prominent for active */
-    transform: translateY(-1px);
-}
-
-/* Remove the ::after pseudo-element for the new button style */
-.nav-link-pro::after {
-    display: none;
+    background: transparent; /* No background for active */
+    transform: none;
 }
 
 
@@ -138,7 +148,7 @@ body {
 
 .lang-curr-dropdown, .account-menu {
     position: absolute;
-    top: 100%; /* Position below the button */
+    top: 100%;
     right: 0;
     background: var(--card-bg);
     border-radius: var(--radius);
@@ -198,11 +208,11 @@ body {
     padding: 10px 15px;
     border-radius: 8px;
     transition: background 0.2s ease;
-    white-space: nowrap; /* Prevent text wrapping */
-    background: none; /* Reset button background */
-    border: none; /* Reset button border */
-    width: 100%; /* Make button take full width */
-    text-align: left; /* Align button text to left */
+    white-space: nowrap;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
     cursor: pointer;
 }
 
@@ -231,7 +241,7 @@ body {
     align-items: center;
     gap: 8px;
     transition: all 0.2s ease;
-    position: relative; /* For the badge */
+    position: relative;
 }
 
 .cart-btn:hover {
@@ -249,7 +259,7 @@ body {
     position: absolute;
     top: -5px;
     right: -5px;
-    min-width: 15px; /* Ensure it's always a circle */
+    min-width: 15px;
     text-align: center;
 }
 
@@ -262,7 +272,7 @@ body {
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    position: relative; /* For search results dropdown */
+    position: relative;
 }
 
 .search-bar-modern input {
@@ -294,7 +304,7 @@ body {
 
 .search-results-dropdown {
     position: absolute;
-    top: 100%; /* Position below the search bar */
+    top: 100%;
     left: 0;
     right: 0;
     background: var(--card-bg);
@@ -303,12 +313,12 @@ body {
     z-index: 99;
     max-height: 300px;
     overflow-y: auto;
-    display: none; /* Hidden by default */
+    display: none;
     border-top: 1px solid var(--border);
 }
 
 .search-results-dropdown.active {
-    display: block; /* Show when active */
+    display: block;
 }
 
 .search-result-item {
@@ -354,10 +364,10 @@ body {
     width: 100%;
     overflow: hidden;
     position: relative;
-    margin-top: -1px; /* Overlap slightly with header shadow */
+    margin-top: -1px;
     border-radius: var(--radius);
     box-shadow: var(--shadow);
-    max-width: 1200px; /* Match main content width */
+    max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -365,7 +375,7 @@ body {
 .banner-slide {
     display: none;
     width: 100%;
-    height: 300px; /* Fixed height for consistency */
+    height: 300px;
     position: relative;
 }
 
@@ -376,7 +386,7 @@ body {
 .banner-slide img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Cover the area, cropping if necessary */
+    object-fit: cover;
     border-radius: var(--radius);
 }
 
@@ -405,11 +415,12 @@ body {
     transform: scale(1.2);
 }
 
-/* --- 4. PRODUCT GRID & CARDS --- */
+/* --- 4. PRODUCT GRID & CARDS (Reverted to previous layout) --- */
 .product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 25px;
+    display: flex; /* Use flexbox for the previous layout */
+    flex-wrap: wrap; /* Allow items to wrap */
+    justify-content: center; /* Center items in the grid */
+    gap: 30px; /* Space between products */
     padding: 20px 0;
 }
 
@@ -422,7 +433,9 @@ body {
     flex-direction: column;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     text-align: center;
-    position: relative; /* For badges */
+    position: relative;
+    width: 280px; /* Fixed width for consistent sizing */
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .product-card:hover {
@@ -512,24 +525,25 @@ body {
 
 .product-actions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Buttons side-by-side */
+    justify-content: center;
     gap: 10px;
     margin-top: auto;
 }
 
-.btn-primary, .btn-secondary, .btn-buy-now { /* Added .btn-buy-now */
-    display: block;
-    padding: 12px 15px;
-    border-radius: 12px;
+.btn-primary, .btn-buy-now { /* Adjusted for side-by-side buttons */
+    flex: 1; /* Distribute space evenly */
+    padding: 10px 15px; /* Slightly smaller padding */
+    border-radius: 10px; /* Slightly smaller radius */
     text-decoration: none;
     font-weight: 700;
-    font-size: 0.95em;
+    font-size: 0.9em; /* Slightly smaller font size */
     cursor: pointer;
     transition: all 0.2s ease;
     text-align: center;
     border: none;
-    position: relative; /* For hover animation */
-    overflow: hidden; /* For hover animation */
+    position: relative;
+    overflow: hidden;
     z-index: 1;
 }
 
@@ -544,34 +558,20 @@ body {
     box-shadow: 0 4px 15px rgba(245,114,36,0.3);
 }
 
-.btn-secondary {
-    background: var(--bg);
-    color: var(--primary);
-    border: 1px solid var(--primary);
-}
-
-.btn-secondary:hover {
-    background: var(--primary);
-    color: #fff;
-    transform: scale(1.03);
-    box-shadow: 0 4px 15px rgba(245,114,36,0.3);
-}
-
-.btn-buy-now { /* New style for Buy Now button */
-    background: linear-gradient(90deg, #28a745 0%, #218838 100%); /* Green gradient */
+.btn-buy-now {
+    background: linear-gradient(90deg, #28a745 0%, #218838 100%);
     color: #fff;
     box-shadow: 0 4px 15px rgba(40,167,69,0.2);
 }
 
 .btn-buy-now:hover {
-    background: linear-gradient(90deg, #218838 0%, #1e7e34 100%); /* Darker green on hover */
+    background: linear-gradient(90deg, #218838 0%, #1e7e34 100%);
     transform: scale(1.03);
     box-shadow: 0 6px 20px rgba(40,167,69,0.4);
 }
 
 /* Hover animation for buttons */
 .btn-primary::before,
-.btn-secondary::before,
 .btn-buy-now::before {
     content: '';
     position: absolute;
@@ -586,31 +586,51 @@ body {
 }
 
 .btn-primary:hover::before,
-.btn-secondary:hover::before,
 .btn-buy-now:hover::before {
     left: 100%;
 }
 
 
-/* --- 5. MINI CART STYLES (FIXED POSITIONING) --- */
-.mini-cart {
+/* --- 5. MINI CART MODAL (Reverted to previous modal style) --- */
+.mini-cart-overlay {
     position: fixed;
     top: 0;
-    right: 0;
+    left: 0;
     width: 100%;
-    max-width: 380px;
     height: 100%;
-    background: var(--card-bg);
-    box-shadow: -4px 0 20px rgba(0,0,0,0.1);
-    z-index: 1001;
-    transform: translateX(100%); /* Start off-screen to the right */
-    transition: transform 0.3s ease-in-out;
+    background: rgba(0, 0, 0, 0.5); /* Dark, semi-transparent background */
+    backdrop-filter: blur(5px); /* Blurry background */
+    z-index: 1000;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.mini-cart.active {
-    transform: translateX(0); /* Slide in */
+.mini-cart-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mini-cart {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 90%; /* Responsive width */
+    max-width: 450px; /* Max width for larger screens */
+    transform: translateY(-50px); /* Start slightly above center for bounce */
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* Limit height on smaller screens */
+}
+
+.mini-cart-overlay.active .mini-cart {
+    transform: translateY(0); /* Bounce into place */
+    opacity: 1;
 }
 
 .mini-cart-header {
@@ -621,6 +641,7 @@ body {
     border-bottom: 1px solid var(--border);
     background: linear-gradient(90deg, #fd7e1a, #ff3a5e);
     color: #fff;
+    border-radius: var(--radius) var(--radius) 0 0; /* Rounded top corners */
 }
 
 .mini-cart-header h3 {
@@ -667,6 +688,7 @@ body {
     padding: 20px;
     border-top: 1px solid var(--border);
     background: #fafafa;
+    border-radius: 0 0 var(--radius) var(--radius); /* Rounded bottom corners */
 }
 
 .mini-cart-total {
@@ -773,7 +795,7 @@ body {
     box-shadow: var(--shadow);
     padding: 30px;
     display: flex;
-    flex-direction: column; /* Stack on small screens */
+    flex-direction: column;
     gap: 30px;
     max-width: 900px;
     margin: 40px auto;
@@ -781,14 +803,14 @@ body {
 
 @media (min-width: 768px) {
     .product-details-container {
-        flex-direction: row; /* Side-by-side on larger screens */
+        flex-direction: row;
         align-items: flex-start;
     }
 }
 
 .product-details-image {
     flex: 1;
-    min-width: 280px; /* Ensure image doesn't shrink too much */
+    min-width: 280px;
 }
 
 .product-details-image img {
@@ -800,13 +822,13 @@ body {
 
 .product-details-info {
     flex: 2;
-    padding-left: 20px; /* Space between image and info */
+    padding-left: 20px;
 }
 
 @media (max-width: 767px) {
     .product-details-info {
-        padding-left: 0; /* Remove padding on small screens */
-        padding-top: 20px; /* Add some space above info */
+        padding-left: 0;
+        padding-top: 20px;
     }
 }
 
@@ -896,7 +918,7 @@ body {
     border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 1em;
-    box-sizing: border-box; /* Include padding in width */
+    box-sizing: border-box;
 }
 
 .review-form-container textarea {
@@ -906,13 +928,13 @@ body {
 
 .review-form-container .star-rating-input {
     display: flex;
-    flex-direction: row-reverse; /* Display stars right-to-left for easier selection */
+    flex-direction: row-reverse;
     justify-content: flex-end;
     gap: 5px;
 }
 
 .review-form-container .star-rating-input input[type="radio"] {
-    display: none; /* Hide actual radio buttons */
+    display: none;
 }
 
 .review-form-container .star-rating-input label {
@@ -1126,7 +1148,7 @@ body {
     font-weight: 700;
     color: #333;
     cursor: pointer;
-    margin-bottom: 0; /* Reset default label margin */
+    margin-bottom: 0;
 }
 
 .checkout-form .payment-details {
@@ -1144,7 +1166,7 @@ body {
 }
 
 .checkout-form .place-order-btn {
-    background: linear-gradient(90deg, #28a745, #218838); /* Green for success/order */
+    background: linear-gradient(90deg, #28a745, #218838);
     color: #fff;
     padding: 15px;
     border: none;
@@ -1355,20 +1377,22 @@ body {
         margin-top: 10px;
     }
 
+    /* Mini cart responsive adjustments */
     .mini-cart {
-        width: 100%; /* Full width on mobile */
+        width: 95%; /* Slightly smaller on very small screens */
     }
 
     .product-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Smaller cards on mobile */
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     }
 
     .product-card {
         padding: 10px;
+        width: unset; /* Remove fixed width on small screens */
     }
 
     .product-image {
-        height: 150px; /* Smaller images on mobile */
+        height: 150px;
     }
 
     .product-name {
@@ -1379,7 +1403,7 @@ body {
         font-size: 1.1em;
     }
 
-    .btn-primary, .btn-secondary {
+    .btn-primary, .btn-buy-now {
         padding: 10px 12px;
         font-size: 0.9em;
     }

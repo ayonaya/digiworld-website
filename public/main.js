@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error loading footer:', error));
     }
 
-    // Language and Currency Switcher (EXISTING CODE - ANIMATION IS ALREADY IN CSS)
+    // Language and Currency Switcher
     let langCurrBtn;
     let langCurrDropdown;
     let langSelect;
@@ -78,12 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (langCurrBtn && langCurrDropdown) {
             langCurrBtn.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent document click from closing immediately
+                event.stopPropagation();
                 langCurrDropdown.classList.toggle('active');
             });
         }
 
-        // Account Dropdown (EXISTING CODE - ANIMATION IS ALREADY IN CSS)
+        // Account Dropdown
         const accountBtn = document.getElementById('accountBtn');
         const accountMenu = document.getElementById('accountMenu');
 
@@ -94,19 +94,29 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Mini Cart Toggle
+        // Mini Cart Toggle (UPDATED FOR MODAL BEHAVIOR)
         const cartBtn = document.getElementById('cartBtn');
-        const miniCart = document.getElementById('miniCart');
+        const miniCartOverlay = document.getElementById('miniCartOverlay'); // Get the new overlay element
         const closeMiniCart = document.getElementById('closeMiniCart');
 
-        if (cartBtn && miniCart && closeMiniCart) {
+        if (cartBtn && miniCartOverlay && closeMiniCart) {
             cartBtn.addEventListener('click', (event) => {
-                event.stopPropagation(); // Prevent document click from closing immediately
-                miniCart.classList.toggle('active');
+                event.stopPropagation();
+                miniCartOverlay.classList.add('active'); // Add active to overlay
+                document.body.style.overflow = 'hidden'; // Prevent scrolling background
             });
 
             closeMiniCart.addEventListener('click', () => {
-                miniCart.classList.remove('active');
+                miniCartOverlay.classList.remove('active'); // Remove active from overlay
+                document.body.style.overflow = ''; // Restore scrolling
+            });
+
+            // Close mini-cart when clicking outside the cart content, but inside the overlay
+            miniCartOverlay.addEventListener('click', (event) => {
+                if (event.target === miniCartOverlay) { // Only close if clicking the overlay itself
+                    miniCartOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
             });
         }
 
@@ -119,9 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (accountMenu && !accountMenu.contains(event.target) && accountMenu.classList.contains('active')) {
                 accountMenu.classList.remove('active');
             }
-            if (miniCart && !miniCart.contains(event.target) && miniCart.classList.contains('active')) {
-                miniCart.classList.remove('active');
-            }
+            // Removed miniCart from this global close, as its overlay handles it
         });
 
         // Populate language and currency selectors
@@ -168,8 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (query.length > 0) {
                     const filteredProducts = products.filter(product =>
-                        product.name.en.toLowerCase().includes(query) || // Corrected to product.name.en
-                        product.desc.en.toLowerCase().includes(query) // Corrected to product.desc.en
+                        product.name.en.toLowerCase().includes(query) ||
+                        product.desc.en.toLowerCase().includes(query)
                     );
 
                     if (filteredProducts.length > 0) {
@@ -211,16 +219,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const accountText = document.getElementById('account-text');
         const authLinks = document.getElementById('auth-links');
         const logoutBtn = document.getElementById('logoutBtn');
-        const adminLink = document.getElementById('adminLink'); // Get the admin link element
+        const adminLink = document.getElementById('adminLink');
 
         if (user) {
             accountText.textContent = user.displayName || user.email;
             if (authLinks) authLinks.style.display = 'none';
             if (logoutBtn) logoutBtn.style.display = 'block';
 
-            // Check if user is admin (example: by UIDs or custom claims)
-            // This is a basic client-side check, proper authorization must be server-side
-            // IMPORTANT: Replace 'YOUR_ADMIN_UID_1' and 'YOUR_ADMIN_UID_2' with actual admin UIDs
             if (user.uid === 'YOUR_ADMIN_UID_1' || user.uid === 'YOUR_ADMIN_UID_2') {
                 if (adminLink) adminLink.style.display = 'block';
             } else {
@@ -230,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             accountText.textContent = 'Sign In';
             if (authLinks) authLinks.style.display = 'flex';
             if (logoutBtn) logoutBtn.style.display = 'none';
-            if (adminLink) adminLink.style.display = 'none'; // Hide admin link if not logged in
+            if (adminLink) adminLink.style.display = 'none';
         }
     });
 
@@ -240,7 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
                 console.log('User signed out');
-                // Redirect to homepage or login page
                 window.location.href = 'index.html';
             }).catch((error) => {
                 console.error('Logout error:', error);
@@ -259,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let totalPrice = 0;
 
         if (miniCartItems) {
-            miniCartItems.innerHTML = ''; // Clear existing items
+            miniCartItems.innerHTML = '';
 
             for (const productId in cart) {
                 const item = cart[productId];
@@ -301,7 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showNotification(`${name} added to cart!`);
     };
 
-    // Simple notification function (can be expanded into a custom modal)
     function showNotification(message) {
         const notificationDiv = document.createElement('div');
         notificationDiv.textContent = message;
@@ -322,12 +325,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(() => {
             notificationDiv.style.opacity = 1;
-        }, 10); // Small delay to trigger transition
+        }, 10);
 
         setTimeout(() => {
             notificationDiv.style.opacity = 0;
             notificationDiv.addEventListener('transitionend', () => notificationDiv.remove());
-        }, 3000); // Hide after 3 seconds
+        }, 3000);
     }
 
 
@@ -343,17 +346,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('API Response for products:', data);
                 throw new Error(data.message || 'Failed to fetch products');
             }
-            products = data.products; // Store fetched products globally
+            products = data.products;
 
             if (productGrid) {
                 productGrid.innerHTML = products.map(product => `
                     <div class="product-card">
-                        ${product.isHot ? '<span class="product-badge hot shine">🔥 Hot</span>' : ''}
-                        ${product.delivery && product.delivery.en === 'Instant Delivery' ? '<span class="product-badge instant shine">⚡ Instant</span>' : ''}
+                        ${product.isHot ? '<span class="product-badge hot shine">HOT</span>' : ''}
+                        ${product.delivery && product.delivery.en === 'Instant Delivery' ? '<span class="product-badge instant shine">INSTANT</span>' : ''}
                         <img src="${product.image}" alt="${product.name.en}" class="product-image">
                         <div class="product-info">
                             <h3 class="product-name">${product.name.en}</h3>
-                            <p class="product-price">${product.price[localStorage.getItem('siteCurr') || 'LKR']} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                            <p class="product-price">${localStorage.getItem('siteCurr') || 'LKR'}${product.price[localStorage.getItem('siteCurr') || 'LKR']}</p>
                             <div class="product-actions">
                                 <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
                                 <button class="btn-buy-now" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Buy Now</button>
@@ -372,10 +375,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.btn-buy-now').forEach(button => {
                     button.addEventListener('click', (event) => {
                         const { id, name, price } = event.target.dataset;
-                        // For "Buy Now", you might want to immediately redirect to checkout or a specific payment flow
-                        // For now, let's just add to cart and redirect to cart page
                         addToCart(id, name, parseFloat(price));
-                        window.location.href = 'cart.html'; // Redirect to cart for immediate checkout
+                        window.location.href = 'checkout.html'; // Redirect to checkout for immediate purchase
                     });
                 });
 
@@ -403,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     fetchAndRenderProducts();
-    updateCartDisplay(); // Initialize cart display on page load
+    updateCartDisplay();
 
     const renderProductDetails = (product) => {
         if (!productDetailsContainer) return;
@@ -414,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="product-details-info">
                 <h1>${product.name.en}</h1>
-                <p class="product-details-price">${product.price[localStorage.getItem('siteCurr') || 'LKR']} ${localStorage.getItem('siteCurr') || 'LKR'}</p>
+                <p class="product-details-price">${localStorage.getItem('siteCurr') || 'LKR'}${product.price[localStorage.getItem('siteCurr') || 'LKR']}</p>
                 <p>${product.desc.en}</p>
                 <div class="product-actions">
                     <button class="btn-primary add-to-cart-btn" data-id="${product.id}" data-name="${product.name.en}" data-price="${product.price[localStorage.getItem('siteCurr') || 'LKR']}">Add to Cart</button>
@@ -429,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.product-details-info .btn-buy-now').addEventListener('click', (event) => {
             const { id, name, price } = event.target.dataset;
             addToCart(id, name, parseFloat(price));
-            window.location.href = 'cart.html';
+            window.location.href = 'checkout.html';
         });
     };
 
@@ -487,18 +488,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const setupReviewForm = (productId) => {
         const reviewForm = document.getElementById('review-form');
-        const ratingInputStars = document.getElementById('rating-input'); // This is the hidden input for the rating value
+        const ratingInputStars = document.getElementById('rating-input');
         const formMessage = document.getElementById('form-message');
 
         if (reviewForm && ratingInputStars) {
-            // Setup star rating display for the form
             const reviewStarsContainer = document.createElement('div');
             reviewStarsContainer.className = 'star-rating-input';
             reviewStarsContainer.innerHTML = [5, 4, 3, 2, 1].map(value => `
                 <input type="radio" id="star${value}-form" name="rating" value="${value}" required>
                 <label for="star${value}-form" data-value="${value}">★</label>
             `).join('');
-            ratingInputStars.parentNode.insertBefore(reviewStarsContainer, ratingInputStars.nextSibling); // Insert after the hidden input
+            ratingInputStars.parentNode.insertBefore(reviewStarsContainer, ratingInputStars.nextSibling);
 
             reviewStarsContainer.querySelectorAll('label').forEach(label => {
                 label.addEventListener('click', (e) => {
@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         formMessage.textContent = 'Review submitted successfully! It will appear after moderation.';
                         formMessage.style.color = 'green';
                         reviewForm.reset();
-                        fetchAndRenderReviews(productId); // Refresh reviews
+                        fetchAndRenderReviews(productId);
                     } else {
                         throw new Error(result.message || 'Failed to submit review');
                     }
@@ -554,31 +554,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // NEW FUNCTION: Smooth Scrolling for Navigation Links
     function setupSmoothScrolling() {
-        // Selects links that point to an ID on the current page or specifically to #products/#contact on index.html
         document.querySelectorAll('a[href^="#"], a[href*="index.html#products"], a[href*="index.html#contact"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
-                // Extract the hash part (e.g., "products" from "#products" or "index.html#products")
                 const targetId = href.split('#')[1];
                 const targetElement = document.getElementById(targetId);
 
-                // Check if the link is an internal anchor link
                 const isInternalAnchor = href.startsWith('#') || (href.includes('index.html#') && (window.location.pathname === '/index.html' || window.location.pathname === '/'));
 
                 if (targetElement && isInternalAnchor) {
-                    e.preventDefault(); // Prevent default jump behavior
+                    e.preventDefault();
                     targetElement.scrollIntoView({
-                        behavior: 'smooth' // Enable smooth scrolling
+                        behavior: 'smooth'
                     });
-
-                    // Optionally update URL hash without jumping
-                    // This creates a cleaner URL and allows direct linking to sections
                     history.pushState(null, null, href);
                 }
             });
         });
     }
 
-}); // DOMContentLoaded end
+});
