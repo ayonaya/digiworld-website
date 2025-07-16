@@ -1,50 +1,91 @@
 // main.js
 
-// This is your product data. In a real application, you would fetch this from a server.
-const products = [
-    { id: "office365lifetime", category: "Office", name: { en: "Office 365 Lifetime Account (5 Devices)"}, price: { LKR: 7700, USD: 23 }, image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg" },
-    { id: "win10pro", category: "Windows", name: { en: "Windows 10 Pro Key" }, price: { LKR: 3000, USD: 9 }, image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif" },
-    { id: "win11pro", category: "Windows", name: { en: "Windows 11 Pro Key" }, price: { LKR: 3700, USD: 11 }, image: "https://img.drz.lazcdn.com/static/lk/p/4ac77c5340b852dcfe5d0f0ba66fb1ed.png_400x400q75.avif" },
-    { id: "office2021", category: "Office", name: { en: "Office 2021 Pro Plus Key" }, price: { LKR: 4500, USD: 13 }, image: "https://img.drz.lazcdn.com/g/kf/Sb9bc8d1802a04d8394d16f951736c65a2.jpg_400x400q75.avif" },
-];
+// Import Firebase v9 modular SDKs directly from the CDN
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
+  authDomain: "digiworld-46a1e.firebaseapp.com",
+  projectId: "digiworld-46a1e",
+  storageBucket: "digiworld-46a1e.appspot.com",
+  messagingSenderId: "242235397710",
+  appId: "1:242235397710:web:a80c15cc285188610cd51f",
+  measurementId: "G-R8C4BWHXBL"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- GLOBAL APP STATE & UTILS ---
+    let products = []; // This will be filled by fetching from your function
     let currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
     const currencySymbols = { USD: '$', LKR: 'Rs' };
     let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
 
+    // --- Central Function to Fetch Data and Initialize the App ---
+    const fetchAndInitializeApp = async () => {
+        try {
+            // Fetch products from your Netlify function
+            const response = await fetch('/.netlify/functions/get-products');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            products = await response.json();
+            
+            // Now that we have the products, render the correct page content
+            if (document.getElementById('productGrid')) {
+                renderProductGrid();
+            }
+            if (document.getElementById('product-details-page')) {
+                renderProductDetailsPage();
+            }
+
+        } catch (error) {
+            console.error("Could not load product data:", error);
+            const mainContent = document.querySelector('main');
+            if(mainContent) mainContent.innerHTML = `<p style="text-align:center; color:red; padding: 40px;">Error: Could not load products. Please try again later.</p>`;
+        }
+    };
+    
     // --- COMPONENT LOADER ---
-    // Fetches and injects reusable HTML like the header and footer
-    const loadComponent = (selector, url) => {
+    const loadComponent = (selector, url, callback) => {
         fetch(url)
             .then(response => response.ok ? response.text() : Promise.reject('File not found'))
             .then(data => {
-                document.querySelector(selector).innerHTML = data;
-                // Re-run initialization for newly loaded content
-                initializeSharedComponents();
+                const element = document.querySelector(selector);
+                if(element) element.innerHTML = data;
+                if(callback) callback();
             })
             .catch(error => console.error(`Failed to load ${url}:`, error));
     };
     
-    loadComponent('#header-placeholder', 'header.html');
-    loadComponent('#footer-placeholder', 'footer.html');
+    // --- APP START SEQUENCE ---
+    // 1. Load header
+    loadComponent('#header-placeholder', 'header.html', () => {
+        // 2. Load footer
+        loadComponent('#footer-placeholder', 'footer.html', () => {
+            // 3. Initialize all shared components (auth, cart, etc.)
+            initializeSharedComponents();
+            // 4. Fetch product data and render the page content
+            fetchAndInitializeApp();
+        });
+    });
 
 
-    // --- SHARED INITIALIZATION ---
-    // This function runs after components are loaded to make them interactive
+    // --- SHARED INITIALIZATION (runs before product data is fetched) ---
     const initializeSharedComponents = () => {
-        // Dropdown Logic
+        initializeAuth();
         setupDropdown('currencyDropdown', (newCurr) => {
             currentCurr = newCurr;
             localStorage.setItem('digiworld_curr', newCurr);
-            // We need a way to tell the page to re-render prices.
-            // A custom event is perfect for this.
             document.dispatchEvent(new Event('currencyChanged'));
         });
-
-        // Cart Logic
         const cartBtn = document.getElementById('cartBtn');
         const mobileCartBtn = document.getElementById('mobileCartBtn');
         if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
@@ -57,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target === miniCartOverlay) closeMiniCart();
         });
 
-        // Search Logic
         const searchInput = document.getElementById('searchInput');
         if(searchInput) searchInput.addEventListener('input', handleSearch);
 
@@ -65,189 +105,141 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCartBadge();
     };
 
-
-    // --- CURRENCY DROPDOWN ---
-    const setupDropdown = (dropdownId, onSelect) => {
-        const dropdown = document.getElementById(dropdownId);
-        if (!dropdown) return;
-
-        const toggle = dropdown.querySelector('.dropdown-toggle');
-        const menu = dropdown.querySelector('.dropdown-menu');
-
-        // Populate menu
-        menu.innerHTML = Object.keys(currencySymbols).map(curr => 
-            `<div class="dropdown-item" data-value="${curr}">${currencySymbols[curr]} ${curr}</div>`
-        ).join('');
+    // --- PAGE-SPECIFIC RENDER FUNCTIONS (Called AFTER data is fetched) ---
+    const renderProductGrid = () => {
+        const grid = document.getElementById('productGrid');
+        if(!grid) return;
+        const currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
         
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('open');
-        });
-
-        menu.addEventListener('click', (e) => {
-            if (e.target.matches('.dropdown-item')) {
-                onSelect(e.target.dataset.value);
-                dropdown.classList.remove('open');
-            }
-        });
-    };
-
-    const updateUICurrency = () => {
-        const currLabel = document.getElementById('currentCurrLabel');
-        const currSymbol = document.getElementById('currentCurrSymbol');
-        if (currLabel) currLabel.textContent = currentCurr;
-        if (currSymbol) currSymbol.textContent = currencySymbols[currentCurr] || '$';
-    };
-
-
-    // --- CART LOGIC ---
-    const updateCartBadge = () => {
-        const count = Object.keys(cart).length;
-        const cartCountBadge = document.getElementById('cartCount');
-        if (cartCountBadge) cartCountBadge.textContent = count;
-    };
-
-    const saveCart = () => {
-        localStorage.setItem('digiworldCart', JSON.stringify(cart));
-        updateCartBadge();
-    };
-
-    const openMiniCart = () => {
-        updateMiniCartContent();
-        document.getElementById('miniCartOverlay')?.classList.add('active');
-    };
-
-    const closeMiniCart = () => {
-        document.getElementById('miniCartOverlay')?.classList.remove('active');
-    };
-    
-    const updateMiniCartContent = () => {
-        const container = document.getElementById('miniCartItems');
-        const totalEl = document.getElementById('miniCartTotal');
-        if (!container || !totalEl) return;
-        
-        let total = 0;
-        const currencySymbol = currencySymbols[currentCurr] || '$';
-        
-        if (Object.keys(cart).length === 0) {
-            container.innerHTML = '<p style="padding: 20px; text-align: center;">Your cart is empty.</p>';
-            totalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}0.00</span>`;
-            return;
-        }
-        
-        container.innerHTML = Object.entries(cart).map(([id, quantity]) => {
-            const product = products.find(p => p.id === id);
-            if (!product) return '';
-            const price = product.price[currentCurr] || product.price.USD;
-            total += price * quantity;
+        grid.innerHTML = products.map((prod) => {
+            const price = prod.price[currentCurr] || prod.price.USD;
             return `
-                <div class="mini-cart-item" data-id="${id}">
-                    <img src="${product.image}" class="mini-cart-item-img" alt="${product.name.en}">
-                    <div class="mini-cart-item-details">
-                        <div class="mini-cart-item-title">${product.name.en}</div>
-                        <div class="mini-cart-item-price">${quantity} x ${currencySymbol}${price.toFixed(2)}</div>
-                    </div>
-                    <span class="mini-cart-item-remove" data-id="${id}">&times;</span>
+                <div class="product-card" data-product-id="${prod.id}">
+                  ${prod.isHot ? '<div class="badge-hot">Hot</div>' : ''}
+                  <a href="product-details.html?id=${prod.id}" class="card-image-container">
+                    <img class="card-image" src="${prod.image}" alt="${prod.name.en}" loading="lazy"/>
+                  </a>
+                  <div class="card-content-wrapper">
+                      <div class="tag-delivery">${prod.delivery.en}</div>
+                      <h3 class="product-name">${prod.name.en}</h3>
+                      <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
+                      <div class="card-buttons">
+                          <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
+                          <a href="checkout.html?id=${prod.id}" class="card-btn buy-now">Buy Now</a>
+                      </div>
+                  </div>
                 </div>
             `;
         }).join('');
 
-        totalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
-    };
-    
-    // Global event listener for adding to cart and removing from mini-cart
-    document.addEventListener('click', (e) => {
-        // Add to cart from product card or product details page
-        if (e.target.matches('.add-to-cart')) {
-            const prodId = e.target.dataset.id;
-            if (prodId) {
-                cart[prodId] = (cart[prodId] || 0) + 1;
-                saveCart();
-                animateImageToCart(e.target);
-                openMiniCart();
-            }
-        }
-
-        // Remove from mini-cart
-        if (e.target.matches('.mini-cart-item-remove')) {
-            const itemId = e.target.dataset.id;
-            delete cart[itemId];
-            saveCart();
-            updateMiniCartContent(); // Re-render the cart content
-        }
-
-        // Close dropdowns if clicking outside
-        if (!e.target.closest('.dropdown')) {
-            document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-        }
-    });
-
-    // --- ANIMATIONS ---
-    const animateImageToCart = (button) => {
-        const cartIcon = document.getElementById('cartBtn');
-        const card = button.closest('.product-card') || button.closest('.product-details-grid');
-        if (!card || !cartIcon) return;
-        
-        const productImage = card.querySelector('img');
-        if (!productImage) return;
-
-        const startRect = productImage.getBoundingClientRect();
-        const endRect = cartIcon.getBoundingClientRect();
-
-        const flyingImage = productImage.cloneNode(true);
-        flyingImage.classList.add('flying-image');
-        
-        Object.assign(flyingImage.style, {
-            left: `${startRect.left}px`,
-            top: `${startRect.top}px`,
-            width: `${startRect.width}px`,
-            height: `${startRect.height}px`,
-        });
-
-        document.body.appendChild(flyingImage);
-
-        requestAnimationFrame(() => {
-            Object.assign(flyingImage.style, {
-                left: `${endRect.left + endRect.width / 2}px`,
-                top: `${endRect.top + endRect.height / 2}px`,
-                width: '20px',
-                height: '20px',
-                transform: 'scale(0.1)',
-                opacity: '0',
-            });
-        });
-
-        flyingImage.addEventListener('transitionend', () => {
-            flyingImage.remove();
-            cartIcon.classList.add('animated');
-            setTimeout(() => cartIcon.classList.remove('animated'), 430);
+        document.querySelectorAll('.product-card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.07}s`;
         });
     };
 
-    // --- SEARCH LOGIC ---
-    const handleSearch = () => {
-        const input = document.getElementById('searchInput');
-        const suggestions = document.getElementById('searchSuggestions');
-        if (!input || !suggestions) return;
-
-        const query = input.value.trim().toLowerCase();
+    const renderProductDetailsPage = () => {
+        const pageContainer = document.getElementById('product-details-page');
+        if(!pageContainer) return;
         
-        if (query.length < 2) {
-            suggestions.style.display = 'none';
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+        const product = products.find(p => p.id === productId);
+        const currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
+
+        if (!product) {
+            pageContainer.innerHTML = '<div id="errorState">Product not found.</div>';
             return;
         }
 
-        const results = products.filter(p => p.name.en.toLowerCase().includes(query));
-
-        if (results.length > 0) {
-            suggestions.innerHTML = results.map(p => `
-                <div class="suggestion-item" onclick="window.location.href='product-details.html?id=${p.id}'">
-                    ${p.name.en}
+        const price = product.price[currentCurr] || product.price.USD;
+        document.title = `DigiWorld - ${product.name.en}`;
+        
+        pageContainer.innerHTML = `
+            <div class="product-details-container">
+                <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
+                <div class="product-details-grid">
+                    <div class="product-image-container"><img src="${product.image}" alt="${product.name.en}"></div>
+                    <div class="product-info">
+                        <h1 class="product-title">${product.name.en}</h1>
+                        <p class="product-delivery"><i class="fas fa-check-circle"></i> ${product.delivery.en}</p>
+                        <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
+                        <div class="product-description">${product.desc.en}</div>
+                        <div class="product-actions">
+                            <button class="action-button add-to-cart" data-id="${product.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                            <a href="checkout.html?id=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
+                        </div>
+                    </div>
                 </div>
-            `).join('');
-            suggestions.style.display = 'block';
-        } else {
-            suggestions.style.display = 'none';
+            </div>
+            <div class="product-info-tabs">
+                <div class="tab-buttons"><button class="tab-button active" data-tab="features">Key Features</button><button class="tab-button" data-tab="requirements">Requirements</button><button class="tab-button" data-tab="activation">Activation</button></div>
+                <div id="features" class="tab-content active"></div>
+                <div id="requirements" class="tab-content"></div>
+                <div id="activation" class="tab-content"></div>
+            </div>
+            <div class="reviews-container">
+                <h2 class="section-title">Customer Reviews</h2>
+                <div id="reviews-list"><p>Loading reviews...</p></div>
+                <div id="review-form-section">
+                    <h3 class="section-title" style="font-size: 1.5rem; margin-top: 40px;">Leave a Review</h3>
+                    <form id="review-form">
+                        <div class="form-group"><label for="authorName">Your Name</label><input type="text" id="authorName" required></div>
+                        <div class="form-group"><label for="reviewText">Your Review</label><textarea id="reviewText" required></textarea></div>
+                        <button type="submit" class="card-btn buy-now">Submit Review</button>
+                        <div id="form-message"></div>
+                    </form>
+                </div>
+            </div>
+        `;
+        
+        renderInfoTabs(product);
+        setupTabs();
+        fetchAndRenderReviews(productId);
+        setupReviewForm(productId);
+    };
+
+
+    // --- ALL OTHER SHARED FUNCTIONS (Auth, Cart, Dropdowns, etc.) ---
+    
+    document.addEventListener('currencyChanged', () => {
+        if (document.getElementById('productGrid')) renderProductGrid();
+        if (document.getElementById('product-details-page')) renderProductDetailsPage();
+        updateMiniCartContent();
+    });
+    
+    const initializeAuth = () => {
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const accountDropdown = document.getElementById('accountDropdown');
+        const accountBtn = document.getElementById('accountBtn');
+        const accountMenu = document.getElementById('accountMenu');
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                loginBtn.style.display = 'none';
+                signupBtn.style.display = 'none';
+                accountDropdown.style.display = 'inline-flex';
+                accountMenu.innerHTML = `
+                    <a href="profile.html">Profile</a>
+                    <a href="orders.html">My Orders</a>
+                    <button id="logoutBtn">Logout</button>
+                `;
+                document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+            } else {
+                loginBtn.style.display = 'inline-flex';
+                signupBtn.style.display = 'inline-flex';
+                accountDropdown.style.display = 'none';
+            }
+        });
+
+        if (accountBtn) {
+            accountBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                accountMenu.classList.toggle('show');
+            });
         }
     };
+    
+    const setupDropdown=(e,t)=>{const n=document.getElementById(e);if(!n)return;const o=n.querySelector(".dropdown-toggle"),a=n.querySelector(".dropdown-menu");a&&o&&(a.innerHTML=Object.keys(currencySymbols).map(e=>`<div class="dropdown-item" data-value="${e}">${currencySymbols[e]} ${e}</div>`).join(""),o.addEventListener("click",e=>{e.stopPropagation(),n.classList.toggle("open")}),a.addEventListener("click",e=>{e.target.matches(".dropdown-item")&&(t(e.target.dataset.value),n.classList.remove("open"))}))};const updateUICurrency=()=>{const e=document.getElementById("currentCurrLabel"),t=document.getElementById("currentCurrSymbol");e&&(e.textContent=currentCurr),t&&(t.textContent=currencySymbols[currentCurr]||"$")};const updateCartBadge=()=>{const e=Object.keys(cart).length,t=document.getElementById("cartCount");t&&(t.textContent=e)};const saveCart=()=>{localStorage.setItem("digiworldCart",JSON.stringify(cart)),updateCartBadge()};const openMiniCart=()=>{updateMiniCartContent(),document.getElementById("miniCartOverlay")?.classList.add("active")};const closeMiniCart=()=>{document.getElementById("miniCartOverlay")?.classList.remove("active")};const updateMiniCartContent=()=>{const e=document.getElementById("miniCartItems"),t=document.getElementById("miniCartTotal");if(!e||!t)return;let n=0;const o=currencySymbols[currentCurr]||"$";if(0===Object.keys(cart).length)return e.innerHTML='<p style="padding: 20px; text-align: center;">Your cart is empty.</p>',void(t.innerHTML=`<span>Total:</span> <span>${o}0.00</span>`);e.innerHTML=Object.entries(cart).map(([e,t])=>{const a=products.find(t=>t.id===e);if(!a)return"";const r=a.price[currentCurr]||a.price.USD;return n+=r*t,`\n                <div class="mini-cart-item" data-id="${e}">\n                    <img src="${a.image}" class="mini-cart-item-img" alt="${a.name.en}">\n                    <div class="mini-cart-item-details">\n                        <div class="mini-cart-item-title">${a.name.en}</div>\n                        <div class="mini-cart-item-price">${t} x ${o}${r.toFixed(2)}</div>\n                    </div>\n                    <span class="mini-cart-item-remove" data-id="${e}">&times;</span>\n                </div>\n            `}).join(""),t.innerHTML=`<span>Total:</span> <span>${o}${n.toFixed(2)}</span>`};document.addEventListener("click",e=>{if(e.target.matches(".add-to-cart")){const t=e.target.dataset.id;t&&(cart[t]=(cart[t]||0)+1,saveCart(),animateImageToCart(e.target),openMiniCart())}if(e.target.matches(".mini-cart-item-remove")){const t=e.target.dataset.id;delete cart[t],saveCart(),updateMiniCartContent()}e.target.closest(".dropdown, .account-dropdown")||document.querySelectorAll(".dropdown.open, .account-menu.show").forEach(e=>e.classList.remove("open","show"))});const animateImageToCart=e=>{const t=document.getElementById("cartBtn"),n=e.closest(".product-card")||e.closest(".product-details-grid");if(!n||!t)return;const o=n.querySelector("img");if(!o)return;const a=o.getBoundingClientRect(),r=t.getBoundingClientRect(),c=o.cloneNode(!0);c.classList.add("flying-image"),Object.assign(c.style,{left:`${a.left}px`,top:`${a.top}px`,width:`${a.width}px`,height:`${a.height}px`}),document.body.appendChild(c),requestAnimationFrame(()=>{Object.assign(c.style,{left:`${r.left+r.width/2}px`,top:`${r.top+r.height/2}px`,width:"20px",height:"20px",transform:"scale(0.1)",opacity:"0"})}),c.addEventListener("transitionend",()=>{c.remove(),t.classList.add("animated"),setTimeout(()=>t.classList.remove("animated"),430)})};const handleSearch=()=>{const e=document.getElementById("searchInput"),t=document.getElementById("searchSuggestions");if(!e||!t)return;const n=e.value.trim().toLowerCase();if(n.length<2)return void(t.style.display="none");const o=products.filter(e=>e.name.en.toLowerCase().includes(n));o.length>0?(t.innerHTML=o.map(e=>`<div class="suggestion-item" onclick="window.location.href='product-details.html?id=${e.id}'">${e.name.en}</div>`).join(""),t.style.display="block"):t.style.display="none"};const renderInfoTabs=e=>{const t=e.features.en||[],n=e.requirements.en||[],o=e.activation.en||[];document.getElementById("features").innerHTML=`<ul>${t.map(e=>`<li>${e}</li>`).join("")}</ul>`,document.getElementById("requirements").innerHTML=`<ul>${n.map(e=>`<li>${e}</li>`).join("")}</ul>`,document.getElementById("activation").innerHTML=`<ul>${o.map(e=>`<li>${e}</li>`).join("")}</ul>`};const setupTabs=()=>{document.querySelectorAll(".tab-button").forEach(e=>{e.addEventListener("click",()=>{const t=e.dataset.tab;document.querySelectorAll(".tab-button").forEach(e=>e.classList.remove("active")),document.querySelectorAll(".tab-content").forEach(e=>e.classList.remove("active")),e.classList.add("active"),document.getElementById(t).classList.add("active")})})};const fetchAndRenderReviews=async e=>{const t=document.getElementById("reviews-list");try{const n=await fetch(`/.netlify/functions/get-reviews?productId=${e}`),o=await n.json();if(!n.ok||!o.success)throw new Error(o.message);if(0===o.reviews.length)return void(t.innerHTML="<p>Be the first to review this product!</p>");t.innerHTML=o.reviews.map(e=>{const t="★".repeat(e.rating)+"☆".repeat(5-e.rating);return`<div class="review-card"><div class="star-rating">${t}</div><p><strong>${e.authorName}</strong></p><p>${e.reviewText}</p></div>`}).join("")}catch(n){t.innerHTML='<p style="color: red;">Could not load reviews.</p>'}};const setupReviewForm=e=>{const t=document.getElementById("review-form"),n=document.getElementById("form-message");t.addEventListener("submit",async o=>{o.preventDefault(),n.textContent="Submitting...";const a={productId:e,authorName:document.getElementById("authorName").value,reviewText:document.getElementById("reviewText").value,rating:5};try{const e=await fetch("/.netlify/functions/submit-review",{method:"POST",body:JSON.stringify(a)}),o=await e.json();if(!e.ok)throw new Error(o.message);n.textContent="Review submitted for approval!",t.reset()}catch(e){n.textContent=`Error: ${e.message}`}})};
+
 });

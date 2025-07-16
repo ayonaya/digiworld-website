@@ -1,3 +1,4 @@
+<!-- header.html -->
 <header class="site-header">
     <div class="header-main-pro">
       <a href="index.html" class="logo-pro">DigiWorld</a>
@@ -7,6 +8,7 @@
         <a href="#" class="nav-link-pro">Contact</a>
       </nav>
       <div class="lang-currency-wrap">
+        <!-- Currency Dropdown -->
         <div class="dropdown" id="currencyDropdown">
             <button class="dropdown-toggle">
                 <span id="currentCurrSymbol">$</span><span id="currentCurrLabel">USD</span>
@@ -14,14 +16,17 @@
             <div class="dropdown-menu" id="currencyMenu"></div>
         </div>
 
+        <!-- Account Buttons & Dropdown -->
         <a href="login.html" id="loginBtn" class="auth-btn" style="display: none;">Login</a>
         <a href="signup.html" id="signupBtn" class="auth-btn" style="display: none;">Signup</a>
         <div class="account-dropdown" id="accountDropdown" style="display: none;">
           <button id="accountBtn" class="account-btn">Account</button>
           <div id="accountMenu" class="account-menu">
-            </div>
+            <!-- Menu items will be added by JS -->
+          </div>
         </div>
         
+        <!-- Cart Button -->
         <button class="cart-btn" id="cartBtn">
             Cart <span class="cart-icon-badge" id="cartCount">0</span>
         </button>
