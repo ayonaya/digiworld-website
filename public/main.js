@@ -1,633 +1,253 @@
 // main.js
 
-// Import Firebase v9 modular SDKs
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-  authDomain: "digiworld-46a1e.firebaseapp.com",
-  projectId: "digiworld-46a1e",
-  storageBucket: "digiworld-46a1e.appspot.com",
-  messagingSenderId: "242235397710",
-  appId: "1:242235397710:web:a80c15cc285188610cd51f",
-  measurementId: "G-R8C4BWHXBL"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
+// This is your product data. In a real application, you would fetch this from a server.
+const products = [
+    { id: "office365lifetime", category: "Office", name: { en: "Office 365 Lifetime Account (5 Devices)"}, price: { LKR: 7700, USD: 23 }, image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg" },
+    { id: "win10pro", category: "Windows", name: { en: "Windows 10 Pro Key" }, price: { LKR: 3000, USD: 9 }, image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif" },
+    { id: "win11pro", category: "Windows", name: { en: "Windows 11 Pro Key" }, price: { LKR: 3700, USD: 11 }, image: "https://img.drz.lazcdn.com/static/lk/p/4ac77c5340b852dcfe5d0f0ba66fb1ed.png_400x400q75.avif" },
+    { id: "office2021", category: "Office", name: { en: "Office 2021 Pro Plus Key" }, price: { LKR: 4500, USD: 13 }, image: "https://img.drz.lazcdn.com/g/kf/Sb9bc8d1802a04d8394d16f951736c65a2.jpg_400x400q75.avif" },
+];
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- GLOBAL APP STATE & DATA ---
-    let products = [];
-    const languages = {
-        'EN': { name: 'English', flag: '🇬🇧' },
-        'SI': { name: 'සිංහල', flag: '🇱🇰' }
-        // Add more languages as needed
-    };
-    const currencies = ['LKR', 'USD', 'EUR', 'GBP', 'INR']; // Ensure all currencies from products.js are here
+    // --- GLOBAL APP STATE & UTILS ---
+    let currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
+    const currencySymbols = { USD: '$', LKR: 'Rs' };
+    let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
 
-    // Mapping for currency symbols
-    const currencySymbols = {
-        'LKR': 'Rs.',
-        'USD': '$',
-        'EUR': '€',
-        'GBP': '£',
-        'INR': '₹'
-    };
-
-    // --- DOM ELEMENTS ---
-    const headerPlaceholder = document.getElementById('header-placeholder');
-    const footerPlaceholder = document.getElementById('footer-placeholder');
-
-    // Load header and footer
-    if (headerPlaceholder) {
-        fetch('header.html')
-            .then(response => response.text())
-            .then(html => {
-                headerPlaceholder.innerHTML = html;
-                initializeHeaderElements();
-                setupSmoothScrolling(); // Call the smooth scrolling setup after header is loaded
+    // --- COMPONENT LOADER ---
+    // Fetches and injects reusable HTML like the header and footer
+    const loadComponent = (selector, url) => {
+        fetch(url)
+            .then(response => response.ok ? response.text() : Promise.reject('File not found'))
+            .then(data => {
+                document.querySelector(selector).innerHTML = data;
+                // Re-run initialization for newly loaded content
+                initializeSharedComponents();
             })
-            .catch(error => console.error('Error loading header:', error));
-    }
-
-    if (footerPlaceholder) {
-        fetch('footer.html')
-            .then(response => response.text())
-            .then(html => {
-                footerPlaceholder.innerHTML = html;
-            })
-            .catch(error => console.error('Error loading footer:', error));
-    }
-
-    // Language and Currency Switcher
-    let langCurrBtn;
-    let langCurrDropdown;
-    let langSelect;
-    let currSelect;
-    let langCurrSaveBtn;
-    let currentLangSpan;
-    let currentCurrSpan;
-    let currentFlagSpan;
-
-    function initializeHeaderElements() {
-        langCurrBtn = document.getElementById('lang-curr-btn');
-        langCurrDropdown = document.getElementById('lang-curr-dropdown');
-        langSelect = document.getElementById('lang-select');
-        currSelect = document.getElementById('curr-select');
-        langCurrSaveBtn = document.getElementById('lang-curr-save-btn');
-        currentLangSpan = document.getElementById('current-lang');
-        currentCurrSpan = document.getElementById('current-curr');
-        currentFlagSpan = document.getElementById('current-flag');
-
-        if (langCurrBtn && langCurrDropdown) {
-            langCurrBtn.addEventListener('click', (event) => {
-                event.stopPropagation();
-                langCurrDropdown.classList.toggle('active');
-            });
-        }
-
-        // Account Dropdown
-        const accountBtn = document.getElementById('accountBtn');
-        const accountMenu = document.getElementById('accountMenu');
-
-        if (accountBtn && accountMenu) {
-            accountBtn.addEventListener('click', (event) => {
-                event.stopPropagation();
-                accountMenu.classList.toggle('active');
-            });
-        }
-
-        // Mini Cart Toggle (UPDATED FOR MODAL BEHAVIOR)
-        const cartBtn = document.getElementById('cartBtn');
-        const mobileCartBtn = document.getElementById('mobileCartBtn'); // Get mobile cart button
-        const miniCartOverlay = document.getElementById('miniCartOverlay');
-        const closeMiniCart = document.getElementById('closeMiniCart');
-
-        // Function to open cart
-        const openCart = () => {
-            miniCartOverlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            updateCartDisplay(); // Ensure cart content is updated when opened
-        };
-
-        // Event listeners for cart buttons
-        if (cartBtn) {
-            cartBtn.addEventListener('click', (event) => {
-                event.stopPropagation();
-                openCart();
-            });
-        }
-        if (mobileCartBtn) { // Attach listener for mobile cart button
-            mobileCartBtn.addEventListener('click', (event) => {
-                event.stopPropagation();
-                openCart();
-            });
-        }
-
-        if (miniCartOverlay && closeMiniCart) {
-            closeMiniCart.addEventListener('click', () => {
-                miniCartOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-
-            miniCartOverlay.addEventListener('click', (event) => {
-                if (event.target === miniCartOverlay) {
-                    miniCartOverlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-        }
+            .catch(error => console.error(`Failed to load ${url}:`, error));
+    };
+    
+    loadComponent('#header-placeholder', 'header.html');
+    loadComponent('#footer-placeholder', 'footer.html');
 
 
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', (event) => {
-            if (langCurrDropdown && !langCurrDropdown.contains(event.target) && langCurrDropdown.classList.contains('active')) {
-                langCurrDropdown.classList.remove('active');
-            }
-            if (accountMenu && !accountMenu.contains(event.target) && accountMenu.classList.contains('active')) {
-                accountMenu.classList.remove('active');
-            }
+    // --- SHARED INITIALIZATION ---
+    // This function runs after components are loaded to make them interactive
+    const initializeSharedComponents = () => {
+        // Dropdown Logic
+        setupDropdown('currencyDropdown', (newCurr) => {
+            currentCurr = newCurr;
+            localStorage.setItem('digiworld_curr', newCurr);
+            // We need a way to tell the page to re-render prices.
+            // A custom event is perfect for this.
+            document.dispatchEvent(new Event('currencyChanged'));
         });
 
-        // Populate language and currency selectors
-        if (langSelect && currSelect) {
-            Object.keys(languages).forEach(langCode => {
-                const option = document.createElement('option');
-                option.value = langCode;
-                option.textContent = languages[langCode].name;
-                langSelect.appendChild(option);
-            });
+        // Cart Logic
+        const cartBtn = document.getElementById('cartBtn');
+        const mobileCartBtn = document.getElementById('mobileCartBtn');
+        if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
+        if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
+        
+        const miniCartClose = document.getElementById('miniCartClose');
+        const miniCartOverlay = document.getElementById('miniCartOverlay');
+        if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
+        if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => {
+            if (e.target === miniCartOverlay) closeMiniCart();
+        });
 
-            currencies.forEach(currencyCode => {
-                const option = document.createElement('option');
-                option.value = currencyCode;
-                option.textContent = currencyCode;
-                currSelect.appendChild(option);
-            });
-
-            // Set initial values from localStorage or defaults
-            currentLangSpan.textContent = localStorage.getItem('siteLang') || 'EN';
-            currentCurrSpan.textContent = localStorage.getItem('siteCurr') || 'LKR';
-            currentFlagSpan.textContent = languages[currentLangSpan.textContent]?.flag || '🇬🇧';
-            langSelect.value = currentLangSpan.textContent;
-            currSelect.value = currentCurrSpan.textContent;
-
-            langCurrSaveBtn.addEventListener('click', () => {
-                localStorage.setItem('siteLang', langSelect.value);
-                localStorage.setItem('siteCurr', currSelect.value);
-                currentLangSpan.textContent = langSelect.value;
-                currentCurrSpan.textContent = currSelect.value;
-                currentFlagSpan.textContent = languages[langSelect.value]?.flag || '🇬🇧';
-                // Re-render products to update prices if currency changed
-                fetchAndRenderProducts();
-                langCurrDropdown.classList.remove('active');
-            });
-        }
-
-        // Search functionality with live suggestions and animation
+        // Search Logic
         const searchInput = document.getElementById('searchInput');
-        const searchResultsDiv = document.getElementById('searchResults');
+        if(searchInput) searchInput.addEventListener('input', handleSearch);
 
-        if (searchInput && searchResultsDiv) {
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.toLowerCase();
-                searchResultsDiv.innerHTML = '';
-
-                if (query.length > 0) {
-                    const filteredProducts = products.filter(product =>
-                        product.name.en.toLowerCase().includes(query) ||
-                        product.desc.en.toLowerCase().includes(query)
-                    );
-
-                    if (filteredProducts.length > 0) {
-                        filteredProducts.forEach(product => {
-                            const resultItem = document.createElement('a');
-                            resultItem.href = `product-details.html?id=${product.id}`;
-                            resultItem.className = 'search-result-item';
-                            resultItem.innerHTML = `
-                                <img src="${product.image}" alt="${product.name.en}">
-                                <div>
-                                    <h4>${product.name.en}</h4>
-                                    <p>${currencySymbols[localStorage.getItem('siteCurr') || 'LKR'] || ''}${product.price[localStorage.getItem('siteCurr') || 'LKR'].toFixed(2)}</p>
-                                </div>
-                            `;
-                            searchResultsDiv.appendChild(resultItem);
-                        });
-                        searchResultsDiv.classList.add('active');
-                    } else {
-                        searchResultsDiv.innerHTML = '<p>No products found.</p>';
-                        searchResultsDiv.classList.add('active');
-                    }
-                } else {
-                    searchResultsDiv.classList.remove('active');
-                }
-            });
-
-            document.addEventListener('click', (event) => {
-                if (!searchInput.contains(event.target) && !searchResultsDiv.contains(event.target)) {
-                    searchResultsDiv.classList.remove('active');
-                }
-            });
-        }
-    }
+        updateUICurrency();
+        updateCartBadge();
+    };
 
 
-    // Firebase Auth State Listener
-    onAuthStateChanged(auth, (user) => {
-        const accountText = document.getElementById('account-text');
-        const authLinks = document.getElementById('auth-links');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const adminLink = document.getElementById('adminLink');
+    // --- CURRENCY DROPDOWN ---
+    const setupDropdown = (dropdownId, onSelect) => {
+        const dropdown = document.getElementById(dropdownId);
+        if (!dropdown) return;
 
-        if (user) {
-            accountText.textContent = user.displayName || user.email;
-            if (authLinks) authLinks.style.display = 'none';
-            if (logoutBtn) logoutBtn.style.display = 'block';
+        const toggle = dropdown.querySelector('.dropdown-toggle');
+        const menu = dropdown.querySelector('.dropdown-menu');
 
-            if (user.uid === 'YOUR_ADMIN_UID_1' || user.uid === 'YOUR_ADMIN_UID_2') {
-                if (adminLink) adminLink.style.display = 'block';
-            } else {
-                if (adminLink) adminLink.style.display = 'none';
+        // Populate menu
+        menu.innerHTML = Object.keys(currencySymbols).map(curr => 
+            `<div class="dropdown-item" data-value="${curr}">${currencySymbols[curr]} ${curr}</div>`
+        ).join('');
+        
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('open');
+        });
+
+        menu.addEventListener('click', (e) => {
+            if (e.target.matches('.dropdown-item')) {
+                onSelect(e.target.dataset.value);
+                dropdown.classList.remove('open');
             }
-        } else {
-            accountText.textContent = 'Sign In';
-            if (authLinks) authLinks.style.display = 'flex';
-            if (logoutBtn) logoutBtn.style.display = 'none';
-            if (adminLink) adminLink.style.display = 'none';
+        });
+    };
+
+    const updateUICurrency = () => {
+        const currLabel = document.getElementById('currentCurrLabel');
+        const currSymbol = document.getElementById('currentCurrSymbol');
+        if (currLabel) currLabel.textContent = currentCurr;
+        if (currSymbol) currSymbol.textContent = currencySymbols[currentCurr] || '$';
+    };
+
+
+    // --- CART LOGIC ---
+    const updateCartBadge = () => {
+        const count = Object.keys(cart).length;
+        const cartCountBadge = document.getElementById('cartCount');
+        if (cartCountBadge) cartCountBadge.textContent = count;
+    };
+
+    const saveCart = () => {
+        localStorage.setItem('digiworldCart', JSON.stringify(cart));
+        updateCartBadge();
+    };
+
+    const openMiniCart = () => {
+        updateMiniCartContent();
+        document.getElementById('miniCartOverlay')?.classList.add('active');
+    };
+
+    const closeMiniCart = () => {
+        document.getElementById('miniCartOverlay')?.classList.remove('active');
+    };
+    
+    const updateMiniCartContent = () => {
+        const container = document.getElementById('miniCartItems');
+        const totalEl = document.getElementById('miniCartTotal');
+        if (!container || !totalEl) return;
+        
+        let total = 0;
+        const currencySymbol = currencySymbols[currentCurr] || '$';
+        
+        if (Object.keys(cart).length === 0) {
+            container.innerHTML = '<p style="padding: 20px; text-align: center;">Your cart is empty.</p>';
+            totalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}0.00</span>`;
+            return;
+        }
+        
+        container.innerHTML = Object.entries(cart).map(([id, quantity]) => {
+            const product = products.find(p => p.id === id);
+            if (!product) return '';
+            const price = product.price[currentCurr] || product.price.USD;
+            total += price * quantity;
+            return `
+                <div class="mini-cart-item" data-id="${id}">
+                    <img src="${product.image}" class="mini-cart-item-img" alt="${product.name.en}">
+                    <div class="mini-cart-item-details">
+                        <div class="mini-cart-item-title">${product.name.en}</div>
+                        <div class="mini-cart-item-price">${quantity} x ${currencySymbol}${price.toFixed(2)}</div>
+                    </div>
+                    <span class="mini-cart-item-remove" data-id="${id}">&times;</span>
+                </div>
+            `;
+        }).join('');
+
+        totalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
+    };
+    
+    // Global event listener for adding to cart and removing from mini-cart
+    document.addEventListener('click', (e) => {
+        // Add to cart from product card or product details page
+        if (e.target.matches('.add-to-cart')) {
+            const prodId = e.target.dataset.id;
+            if (prodId) {
+                cart[prodId] = (cart[prodId] || 0) + 1;
+                saveCart();
+                animateImageToCart(e.target);
+                openMiniCart();
+            }
+        }
+
+        // Remove from mini-cart
+        if (e.target.matches('.mini-cart-item-remove')) {
+            const itemId = e.target.dataset.id;
+            delete cart[itemId];
+            saveCart();
+            updateMiniCartContent(); // Re-render the cart content
+        }
+
+        // Close dropdowns if clicking outside
+        if (!e.target.closest('.dropdown')) {
+            document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
         }
     });
 
-    // Logout Functionality
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                console.log('User signed out');
-                window.location.href = 'index.html';
-            }).catch((error) => {
-                console.error('Logout error:', error);
+    // --- ANIMATIONS ---
+    const animateImageToCart = (button) => {
+        const cartIcon = document.getElementById('cartBtn');
+        const card = button.closest('.product-card') || button.closest('.product-details-grid');
+        if (!card || !cartIcon) return;
+        
+        const productImage = card.querySelector('img');
+        if (!productImage) return;
+
+        const startRect = productImage.getBoundingClientRect();
+        const endRect = cartIcon.getBoundingClientRect();
+
+        const flyingImage = productImage.cloneNode(true);
+        flyingImage.classList.add('flying-image');
+        
+        Object.assign(flyingImage.style, {
+            left: `${startRect.left}px`,
+            top: `${startRect.top}px`,
+            width: `${startRect.width}px`,
+            height: `${startRect.height}px`,
+        });
+
+        document.body.appendChild(flyingImage);
+
+        requestAnimationFrame(() => {
+            Object.assign(flyingImage.style, {
+                left: `${endRect.left + endRect.width / 2}px`,
+                top: `${endRect.top + endRect.height / 2}px`,
+                width: '20px',
+                height: '20px',
+                transform: 'scale(0.1)',
+                opacity: '0',
             });
         });
-    }
 
-    // Shopping Cart Functionality
-    let cart = JSON.parse(localStorage.getItem('cart')) || {};
-
-    const updateCartDisplay = () => {
-        const cartCount = document.getElementById('cartCount');
-        const miniCartItems = document.getElementById('miniCartItems');
-        const miniCartTotal = document.getElementById('miniCartTotal');
-        const mobileCartCount = document.getElementById('mobileCartCount');
-        let totalItems = 0;
-        let totalPrice = 0;
-        const currentCurrency = localStorage.getItem('siteCurr') || 'LKR';
-
-        if (miniCartItems) {
-            miniCartItems.innerHTML = '';
-
-            for (const productId in cart) {
-                const item = cart[productId];
-                totalItems += item.quantity;
-                totalPrice += item.quantity * item.price;
-
-                const cartItemDiv = document.createElement('div');
-                cartItemDiv.className = 'mini-cart-item';
-                // Correctly display item name and formatted price with symbol
-                cartItemDiv.innerHTML = `
-                    <span>${item.name} x ${item.quantity}</span>
-                    <span>${currencySymbols[currentCurrency] || ''}${item.price.toFixed(2)}</span>
-                `; 
-                miniCartItems.appendChild(cartItemDiv);
-            }
-
-            if (Object.keys(cart).length === 0) {
-                miniCartItems.innerHTML = '<p>Your cart is empty.</p>';
-            }
-
-            if (miniCartTotal) {
-                miniCartTotal.innerHTML = `Total: <span>${currencySymbols[currentCurrency] || ''}${totalPrice.toFixed(2)}</span>`;
-            }
-        }
-
-        if (cartCount) {
-            cartCount.textContent = totalItems;
-        }
-        if (mobileCartCount) {
-            mobileCartCount.textContent = totalItems;
-        }
-        localStorage.setItem('cart', JSON.stringify(cart));
+        flyingImage.addEventListener('transitionend', () => {
+            flyingImage.remove();
+            cartIcon.classList.add('animated');
+            setTimeout(() => cartIcon.classList.remove('animated'), 430);
+        });
     };
 
-    const addToCart = (productId) => {
-        const currentCurrency = localStorage.getItem('siteCurr') || 'LKR';
-        const product = products.find(p => p.id === productId);
+    // --- SEARCH LOGIC ---
+    const handleSearch = () => {
+        const input = document.getElementById('searchInput');
+        const suggestions = document.getElementById('searchSuggestions');
+        if (!input || !suggestions) return;
 
-        if (!product) {
-            console.error('Product not found for addToCart:', productId);
-            showNotification('Error: Product not found.');
+        const query = input.value.trim().toLowerCase();
+        
+        if (query.length < 2) {
+            suggestions.style.display = 'none';
             return;
         }
 
-        const itemName = product.name.en;
-        const itemPrice = product.price[currentCurrency];
+        const results = products.filter(p => p.name.en.toLowerCase().includes(query));
 
-        if (cart[productId]) {
-            cart[productId].quantity++;
-        } else {
-            cart[productId] = { productId, name: itemName, price: itemPrice, quantity: 1 };
-        }
-        updateCartDisplay();
-        console.log(`Added ${itemName} to cart.`);
-        showNotification(`${itemName} added to cart!`);
-    };
-
-    function showNotification(message) {
-        const notificationDiv = document.createElement('div');
-        notificationDiv.textContent = message;
-        notificationDiv.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--primary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        `;
-        document.body.appendChild(notificationDiv);
-
-        setTimeout(() => {
-            notificationDiv.style.opacity = 1;
-        }, 10);
-
-        setTimeout(() => {
-            notificationDiv.style.opacity = 0;
-            notificationDiv.addEventListener('transitionend', () => notificationDiv.remove());
-        }, 3000);
-    }
-
-
-    // Render products on homepage and product page
-    const productGrid = document.getElementById('productGrid');
-    const productDetailsContainer = document.getElementById('product-details-page');
-
-    const fetchAndRenderProducts = async () => {
-        try {
-            const response = await fetch('/.netlify/functions/get-products');
-            const data = await response.json();
-            if (!response.ok || !data.success) {
-                console.error('API Response for products:', data);
-                throw new Error(data.message || 'Failed to fetch products');
-            }
-            products = data.products;
-
-            if (productGrid) {
-                productGrid.innerHTML = products.map(product => `
-                    <div class="product-card" data-id="${product.id}">
-                        ${product.isHot ? '<span class="product-badge hot shine">HOT</span>' : ''}
-                        <img src="${product.image}" alt="${product.name.en}" class="product-image">
-                        <div class="product-info">
-                            <h3 class="product-name">${product.name.en}</h3>
-                            ${product.delivery && product.delivery.en === 'Instant Delivery' ? '<span class="product-badge instant shine">INSTANT DELIVERY</span>' : ''}
-                            <p class="product-price">${currencySymbols[localStorage.getItem('siteCurr') || 'LKR'] || ''}${product.price[localStorage.getItem('siteCurr') || 'LKR'].toFixed(2)}</p>
-                            <div class="product-actions">
-                                <button class="btn-primary add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
-                                <button class="btn-buy-now" data-id="${product.id}">Buy Now</button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-
-                document.querySelectorAll('.product-card').forEach(card => {
-                    card.addEventListener('click', (event) => {
-                        if (!event.target.closest('.add-to-cart-btn') && !event.target.closest('.btn-buy-now')) {
-                            const productId = card.dataset.id;
-                            window.location.href = `product-details.html?id=${productId}`;
-                        }
-                    });
-                });
-
-                document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        event.stopPropagation();
-                        const productId = event.target.dataset.id;
-                        addToCart(productId);
-                    });
-                });
-
-                document.querySelectorAll('.btn-buy-now').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        event.stopPropagation();
-                        const productId = event.target.dataset.id;
-                        addToCart(productId);
-                        window.location.href = 'checkout.html';
-                    });
-                });
-
-            } else if (productDetailsContainer) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const productId = urlParams.get('id');
-                const product = products.find(p => p.id === productId);
-
-                if (product) {
-                    renderProductDetails(product);
-                    fetchAndRenderReviews(productId);
-                    setupReviewForm(productId);
-                } else {
-                    productDetailsContainer.innerHTML = '<p>Product not found.</p>';
-                }
-            }
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            if (productGrid) {
-                productGrid.innerHTML = '<p style="color: red;">Failed to load products. Please try again later.</p>';
-            } else if (productDetailsContainer) {
-                productDetailsContainer.innerHTML = '<p style="color: red;">Failed to load product details.</p>';
-            }
-        }
-    };
-
-    fetchAndRenderProducts();
-    updateCartDisplay();
-
-
-    const renderProductDetails = (product) => {
-        if (!productDetailsContainer) return;
-
-        const currentCurrency = localStorage.getItem('siteCurr') || 'LKR';
-
-        productDetailsContainer.innerHTML = `
-            <div class="product-details-image">
-                <img src="${product.image}" alt="${product.name.en}">
-            </div>
-            <div class="product-details-info">
-                <h1>${product.name.en}</h1>
-                <p class="product-details-price">${currencySymbols[currentCurrency] || ''}${product.price[currentCurrency].toFixed(2)}</p>
-                <p>${product.desc.en}</p>
-                <div class="product-actions">
-                    <button class="btn-primary add-to-cart-btn" data-id="${product.id}">Add to Cart</button>
-                    <button class="btn-buy-now" data-id="${product.id}">Buy Now</button>
+        if (results.length > 0) {
+            suggestions.innerHTML = results.map(p => `
+                <div class="suggestion-item" onclick="window.location.href='product-details.html?id=${p.id}'">
+                    ${p.name.en}
                 </div>
-            </div>
-        `;
-        document.querySelector('.product-details-info .add-to-cart-btn').addEventListener('click', (event) => {
-            const productId = event.target.dataset.id;
-            addToCart(productId);
-        });
-        document.querySelector('.product-details-info .btn-buy-now').addEventListener('click', (event) => {
-            const productId = event.target.dataset.id;
-            addToCart(productId);
-            window.location.href = 'checkout.html';
-        });
-    };
-
-    const starRatingContainer = document.getElementById("star-rating");
-    if (starRatingContainer) {
-        starRatingContainer.innerHTML = Array(5).fill(null).map((_, i) => `<i class="far fa-star" data-value="${i + 1}"></i>`).join('');
-        starRatingContainer.querySelectorAll('.fa-star').forEach(star => {
-            star.addEventListener('click', (e) => {
-                const rating = e.target.dataset.value;
-                document.getElementById('rating-input').value = rating;
-                starRatingContainer.querySelectorAll('.fa-star').forEach((s, index) => {
-                    if (index < rating) {
-                        s.classList.remove('far');
-                        s.classList.add('fas');
-                    } else {
-                        s.classList.remove('fas');
-                        s.classList.add('far');
-                    }
-                });
-            });
-        });
-    }
-
-
-    const fetchAndRenderReviews = async (productId) => {
-        const reviewsList = document.getElementById('reviews-list');
-        try {
-            const response = await fetch(`/.netlify/functions/get-reviews?productId=${productId}`);
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(data.message);
-            }
-
-            if (data.reviews.length === 0) {
-                reviewsList.innerHTML = '<p>Be the first to review this product!</p>';
-                return;
-            }
-
-            reviewsList.innerHTML = data.reviews.map(review => {
-                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-                return `
-                    <div class="review-card">
-                        <div class="star-rating">${stars}</div>
-                        <p><strong>${review.authorName}</strong></p>
-                        <p>${review.reviewText}</p>
-                    </div>
-                `;
-            }).join('');
-        } catch (error) {
-            reviewsList.innerHTML = `<p style="color: red;">Could not load reviews.</p>`;
-            console.error('Error fetching reviews:', error);
-        }
-    };
-
-    const setupReviewForm = (productId) => {
-        const reviewForm = document.getElementById('review-form');
-        const ratingInputStars = document.getElementById('rating-input');
-        const formMessage = document.getElementById('form-message');
-
-        if (reviewForm && ratingInputStars) {
-            const reviewStarsContainer = document.createElement('div');
-            reviewStarsContainer.className = 'star-rating-input';
-            reviewStarsContainer.innerHTML = [5, 4, 3, 2, 1].map(value => `
-                <input type="radio" id="star${value}-form" name="rating" value="${value}" required>
-                <label for="star${value}-form" data-value="${value}">★</label>
             `).join('');
-            ratingInputStars.parentNode.insertBefore(reviewStarsContainer, ratingInputStars.nextSibling);
-
-            reviewStarsContainer.querySelectorAll('label').forEach(label => {
-                label.addEventListener('click', (e) => {
-                    const rating = parseInt(e.target.dataset.value);
-                    reviewStarsContainer.querySelectorAll('label').forEach((s, index) => {
-                        if (parseInt(s.dataset.value) <= rating) {
-                            s.style.color = 'var(--star-color)';
-                        } else {
-                            s.style.color = 'var(--star-color-inactive)';
-                        }
-                    });
-                });
-            });
-
-
-            reviewForm.addEventListener('submit', async (event) => {
-                event.preventDefault();
-                formMessage.textContent = 'Submitting...';
-                formMessage.style.color = 'blue';
-
-                const formData = new FormData(reviewForm);
-                const reviewData = {
-                    productId: productId,
-                    authorName: formData.get('authorName'),
-                    reviewText: formData.get('reviewText'),
-                    rating: parseInt(formData.get('rating'))
-                };
-
-                try {
-                    const response = await fetch('/.netlify/functions/submit-review', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(reviewData)
-                    });
-                    const result = await response.json();
-
-                    if (response.ok && result.success) {
-                        formMessage.textContent = 'Review submitted successfully! It will appear after moderation.';
-                        formMessage.style.color = 'green';
-                        reviewForm.reset();
-                        fetchAndRenderReviews(productId);
-                    } else {
-                        throw new Error(result.message || 'Failed to submit review');
-                    }
-                } catch (error) {
-                    formMessage.textContent = `Error: ${error.message}`;
-                    formMessage.style.color = 'red';
-                    console.error('Error submitting review:', error);
-                }
-            });
+            suggestions.style.display = 'block';
+        } else {
+            suggestions.style.display = 'none';
         }
     };
-
-    function setupSmoothScrolling() {
-        document.querySelectorAll('a[href^="#"], a[href*="index.html#products"], a[href*="index.html#contact"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                const href = this.getAttribute('href');
-                const targetId = href.split('#')[1];
-                const targetElement = document.getElementById(targetId);
-
-                const isInternalAnchor = href.startsWith('#') || (href.includes('index.html#') && (window.location.pathname === '/index.html' || window.location.pathname === '/'));
-
-                if (targetElement && isInternalAnchor) {
-                    e.preventDefault();
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                    history.pushState(null, null, href);
-                }
-            });
-        });
-    }
-
 });
