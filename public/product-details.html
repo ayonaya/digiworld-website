@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>DigiWorld - Product Details</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     :root {
@@ -21,11 +23,11 @@
     html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
-      font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
       color: #333;
     }
-    /* --- HEADER, CART, AND FOOTER STYLES FROM INDEX.HTML --- */
+    /* --- HEADER, CART, AND FOOTER STYLES --- */
     header {
       background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
       color: #fff;
@@ -62,68 +64,33 @@
     .nav-link-pro:hover, .nav-link-pro.active {
       background: rgba(255, 255, 255, 0.837); color: #fe724c;
     }
-    .search-bar-modern {
-      position: relative;
-      z-index: 9;
+    .header-controls {
       display: flex;
       align-items: center;
-      background: #fff;
-      border-radius: 24px;
-      padding: 2px 10px;
-      box-shadow: 0 2px 12px #0001;
-      margin: 12px auto 16px auto;
-      max-width: 600px;
-    }
-    .search-suggestions {
-      position: absolute;
-      top: 110%;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-radius: 0 0 24px 24px;
-      box-shadow: 0 6px 24px #f5722414;
-      z-index: 99;
-      max-height: 260px;
-      overflow-y: auto;
-      border-top: 1px solid #f5722433;
-      font-size: 1.08rem;
-      padding-top: 6px;
-      padding-bottom: 4px;
-      display: none;
-    }
-    .suggestion-item {
-      padding: 13px 22px;
-      cursor: pointer;
-      color: #222;
-      border-radius: 7px;
-      font-weight: 600;
-      transition: background 0.13s, color 0.12s;
-    }
-    .suggestion-item:hover {
-      background: #ffe4d1;
-      color: #d45703;
+      gap: 15px;
     }
     .dropdown { position: relative; }
     .dropdown-toggle {
-        background: rgba(255, 255, 255, 0.884); border: none; font-size: 0.98em; font-weight: 700;
-        display: flex; align-items: center; gap: 5px; cursor: pointer;
-        color: #fe724c; border-radius: 7px; padding: 3px 10px;
+        background: rgba(255, 255, 255, 0.15); border: none; font-size: 0.98em; font-weight: 700;
+        display: flex; align-items: center; gap: 8px; cursor: pointer;
+        color: #fff; border-radius: 50px; padding: 8px 15px;
         transition: background 0.12s; user-select: none;
     }
-    .dropdown-toggle:hover { background: #fff; }
+    .dropdown-toggle:hover { background: rgba(255, 255, 255, 0.25); }
     .dropdown-menu {
-      position: absolute; top: 110%; left: 0; min-width: 124px;
-      background: #fff; border-radius: 10px; box-shadow: 0 4px 24px #fe724c26;
-      z-index: 50; display: none; margin-top: 2px; padding: 5px 0;
+      position: absolute; top: 120%; right: 0; min-width: 140px;
+      background: #fff; border-radius: 10px; box-shadow: 0 4px 24px #00000026;
+      z-index: 50; display: none; margin-top: 2px; padding: 5px;
+      overflow: hidden;
     }
     .dropdown.open .dropdown-menu { display: block; }
     .dropdown-item {
-      padding: 8px 17px; cursor: pointer; font-weight: 700;
+      padding: 10px 15px; cursor: pointer; font-weight: 700;
       display: flex; align-items: center; gap: 7px;
-      color: #fe724c; transition: background 0.12s, color 0.13s;
-      border-radius: 7px; white-space: nowrap;
+      color: var(--primary-dark); transition: background 0.12s, color 0.13s;
+      border-radius: 7px; white-space: nowrap; text-decoration: none;
     }
-    .dropdown-item:hover { background: #ffe4d1; color: #d45703; }
+    .dropdown-item:hover { background: #ffe4d1; }
     .cart-btn {
       background: #fff3; color: #fff; border: none; border-radius: 50px;
       padding: 8px 19px 8px 11px; font-size: 1.1rem; font-weight: 700;
@@ -221,15 +188,13 @@
         position: fixed; z-index: 1111; left: 0; right: 0; bottom: 0;
         height: 56px; background: #fff; border-top: 1.5px solid #f2e2d6;
         box-shadow: 0 -2px 12px #f5722413;
+        display: none;
         justify-content: space-around; align-items: center;
     }
     @media (max-width: 900px) {
-        .header-main-pro nav, .header-main-pro .lang-currency-wrap, .header-main-pro .search-bar-modern { display: none; }
+        .header-main-pro nav, .header-controls { display: none; }
         .dw-bottom-nav { display: flex; }
         body { padding-bottom: 60px; }
-    }
-    @media (min-width: 901px) {
-        .dw-bottom-nav { display: none; }
     }
     .dw-bottom-nav a, .dw-bottom-nav button {
         flex: 1 1 auto; height: 100%; display: flex; flex-direction: column;
@@ -257,6 +222,7 @@
       box-shadow: var(--shadow); align-items: flex-start;
     }
     .product-image-container {
+      position: relative; /* Needed for positioning the badge */
       border-radius: var(--radius); overflow: hidden;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
@@ -477,6 +443,72 @@
         padding: 10px;
         border-radius: 8px;
     }
+    
+    /* === RELATED PRODUCTS & HOT BADGE STYLES === */
+    .related-products-container {
+        margin-top: 40px;
+    }
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 25px;
+    }
+    .product-card {
+        background: #fff;
+        border-radius: var(--radius);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        overflow: hidden;
+        text-decoration: none;
+        color: #333;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        position: relative; /* Needed for badge */
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow);
+    }
+    .product-card-img {
+        width: 100%;
+        height: 180px;
+        object-fit: contain;
+        padding: 10px;
+        background-color: #fff;
+    }
+    .product-card-info {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-card-title {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+    .product-card-price {
+        font-weight: 900;
+        font-size: 1.2rem;
+        color: var(--primary);
+        margin-top: auto;
+    }
+    .hot-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: linear-gradient(45deg, #ff4e50, #f9d423);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 2px 8px #00000033;
+    }
 
     @media (max-width: 900px) {
         .product-details-grid { grid-template-columns: 1fr; gap: 30px; padding: 25px; }
@@ -487,6 +519,7 @@
 </head>
 <body>
 
+  <!-- Header -->
   <header class="site-header">
     <div class="header-main-pro">
       <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
@@ -495,11 +528,21 @@
         <a href="index.html#products" class="nav-link-pro">Products</a>
         <a href="contact.html" class="nav-link-pro">Contact</a>
       </nav>
-      <div class="lang-currency-wrap">
+      <div class="header-controls">
+        <!-- Currency Dropdown for Desktop -->
         <div class="dropdown" id="currencyDropdown">
-          <button class="dropdown-toggle" type="button"><span id="currentCurrLabel">USD</span></button>
-          <div class="dropdown-menu" id="currencyMenu"></div>
+          <button class="dropdown-toggle" type="button">
+            <span id="currentCurrLabel">USD</span> <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
+          </button>
+          <div class="dropdown-menu" id="currencyMenu">
+            <a href="#" class="dropdown-item" data-currency="USD">USD</a>
+            <a href="#" class="dropdown-item" data-currency="LKR">LKR</a>
+            <a href="#" class="dropdown-item" data-currency="EUR">EUR</a>
+            <a href="#" class="dropdown-item" data-currency="GBP">GBP</a>
+            <a href="#" class="dropdown-item" data-currency="INR">INR</a>
+          </div>
         </div>
+        <!-- Cart Button -->
         <button class="cart-btn" id="cartBtn" aria-label="Open cart">
           <i class="fas fa-shopping-cart"></i>
           <span>Cart</span>
@@ -557,8 +600,17 @@
             </form>
         </div>
     </div>
+
+    <!-- NEW: RELATED PRODUCTS SECTION -->
+    <div class="related-products-container">
+        <h2 class="section-title">You Might Also Like</h2>
+        <div id="related-products-list" class="products-grid">
+            <!-- Related products will be injected here by JavaScript -->
+        </div>
+    </div>
   </main>
 
+  <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-grid">
         <div class="footer-col">
@@ -590,6 +642,7 @@
     </div>
   </footer>
   
+  <!-- Mini-cart and mobile nav -->
   <div class="mini-cart-overlay" id="miniCartOverlay">
     <div class="mini-cart-drawer" id="miniCartDrawer">
       <div class="mini-cart-header">
@@ -610,193 +663,128 @@
     <a href="account.html"><i class="fas fa-user"></i><span>Account</span></a>
   </nav>
 
-<script src="products.js" defer></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-        let currentProduct = null;
-        let currentCurr = 'USD';
-        const currencySymbols = { USD: '$', LKR: 'Rs ' };
-        const detailsContainer = document.getElementById('product-details-container');
-        const loadingState = document.getElementById('loadingState');
-        const errorState = document.getElementById('errorState');
-        
-        // --- MERGED JAVASCRIPT LOGIC ---
-        const cartBtn = document.getElementById('cartBtn');
-        const cartCountBadge = document.getElementById('cartCount');
-        const mobileCartBtn = document.getElementById('mobileCartBtn');
-        const miniCartOverlay = document.getElementById('miniCartOverlay');
-        const miniCartDrawer = document.getElementById('miniCartDrawer');
-        const miniCartClose = document.getElementById('miniCartClose');
-        const miniCartItemsContainer = document.getElementById('miniCartItems');
-        const miniCartTotalEl = document.getElementById('miniCartTotal');
-        let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
-        
-        const updateCartBadge = () => {
-            const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
-            cartCountBadge.textContent = count;
-        };
-        const saveCart = () => {
-            localStorage.setItem('digiworldCart', JSON.stringify(cart));
-            updateCartBadge(); 
-        };
-        const openMiniCart = () => {
-            updateMiniCartContent();
-            miniCartOverlay.classList.add('active');
-            miniCartDrawer.classList.add('active');
-        };
-        const closeMiniCart = () => {
-            miniCartOverlay.classList.remove('active');
-            miniCartDrawer.classList.remove('active');
-        };
-        const updateMiniCartContent = () => {
-            let total = 0;
-            const currencySymbol = currencySymbols[currentCurr];
-            if (Object.keys(cart).length === 0) {
-                miniCartItemsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Your cart is empty.</p>';
-            } else {
-                miniCartItemsContainer.innerHTML = Object.entries(cart).map(([id, quantity]) => {
-                    const product = products.find(p => p.id === id);
-                    if (!product) return '';
-                    const price = product.price[currentCurr] || product.price.USD;
-                    total += price * quantity;
-                    return `
-                        <div class="mini-cart-item" data-id="${id}">
-                            <img src="${product.image}" class="mini-cart-item-img" alt="${product.name?.en}">
-                            <div class="mini-cart-item-details">
-                                <div class="mini-cart-item-title">${product.name?.en}</div>
-                                <div class="mini-cart-item-price">${quantity} x ${currencySymbol}${price.toFixed(2)}</div>
-                            </div>
-                            <span class="mini-cart-item-remove" data-id="${id}">&times;</span>
-                        </div>
-                    `;
-                }).join('');
-            }
-            miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
-        };
+document.addEventListener('DOMContentLoaded', async () => {
+    // Define all necessary element variables
+    const detailsContainer = document.getElementById('product-details-container');
+    const loadingState = document.getElementById('loadingState');
+    const errorState = document.getElementById('errorState');
+    const cartBtn = document.getElementById('cartBtn');
+    const cartCountBadge = document.getElementById('cartCount');
+    const mobileCartBtn = document.getElementById('mobileCartBtn');
+    const miniCartOverlay = document.getElementById('miniCartOverlay');
+    const miniCartDrawer = document.getElementById('miniCartDrawer');
+    const miniCartClose = document.getElementById('miniCartClose');
+    const miniCartItemsContainer = document.getElementById('miniCartItems');
+    const miniCartTotalEl = document.getElementById('miniCartTotal');
+    const currencyDropdown = document.getElementById('currencyDropdown');
+    const currencyMenu = document.getElementById('currencyMenu');
+    const currentCurrLabel = document.getElementById('currentCurrLabel');
 
-        if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
-        if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
-        if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
-        if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => {
-            if(e.target === miniCartOverlay) closeMiniCart();
-        });
-        if (miniCartItemsContainer) miniCartItemsContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('mini-cart-item-remove')) {
-                const itemId = e.target.dataset.id;
-                delete cart[itemId];
-                saveCart();
-                updateMiniCartContent();
-            }
-        });
-        
-        const renderProduct = (product) => {
-            currentProduct = product;
-            // Use optional chaining (?.) to prevent crashes if a property is missing.
-            const name = product.name?.en || 'Product Name';
-            const image = product.image || 'https://placehold.co/600x400?text=No+Image';
-            const delivery = product.delivery?.en || 'Standard Delivery';
-            const price = product.price[currentCurr] || product.price.USD;
-            const description = product.desc?.en || 'No description available.';
-            const currencySymbol = currencySymbols[currentCurr];
-            
-            document.title = `DigiWorld - ${name}`;
-            
-            detailsContainer.innerHTML = `
-                <div class="product-details-grid">
-                    <div class="product-image-container"><img src="${image}" alt="${name}"></div>
-                    <div class="product-info">
-                        <h1 class="product-title">${name}</h1>
-                        <p class="product-delivery"><i class="fas fa-check-circle"></i> ${delivery}</p>
-                        <p class="product-price">${currencySymbol}${price.toFixed(2)}</p>
-                        <div class="product-description">${description}</div>
-                        <div class="product-actions">
-                            <button class="action-button add-to-cart" data-id="${product.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
-                            <a href="checkout.html?product=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
+    // App state variables
+    let currentProduct = null;
+    let currentCurr = localStorage.getItem('userCurrency') || 'USD';
+    const currencySymbols = { USD: '$', LKR: 'Rs ', EUR: '€', GBP: '£', INR: '₹' };
+    let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+    let allProducts = [];
+
+    // --- Currency Functions ---
+    const setCurrency = (newCurrency) => {
+        currentCurr = newCurrency;
+        localStorage.setItem('userCurrency', newCurrency);
+        currentCurrLabel.textContent = newCurrency;
+        if (currentProduct) {
+            renderProduct(currentProduct);
+            renderRelatedProducts(currentProduct, allProducts); // Re-render related products with new currency
+        }
+        updateMiniCartContent();
+    };
+    
+    // --- Cart Functions ---
+    const updateCartBadge = () => {
+        const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
+        cartCountBadge.textContent = count;
+    };
+    const saveCart = () => {
+        localStorage.setItem('digiworldCart', JSON.stringify(cart));
+        updateCartBadge();
+    };
+    const updateMiniCartContent = () => {
+        let total = 0;
+        const currencySymbol = currencySymbols[currentCurr] || '$';
+        if (Object.keys(cart).length === 0 || allProducts.length === 0) {
+            miniCartItemsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Your cart is empty.</p>';
+            miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}0.00</span>`;
+        } else {
+            miniCartItemsContainer.innerHTML = Object.entries(cart).map(([id, quantity]) => {
+                const product = allProducts.find(p => p.id === id);
+                if (!product) return '';
+                const price = product.price[currentCurr] || product.price.USD;
+                total += price * quantity;
+                return `
+                    <div class="mini-cart-item" data-id="${id}">
+                        <img src="${product.image}" class="mini-cart-item-img" alt="${product.name?.en}">
+                        <div class="mini-cart-item-details">
+                            <div class="mini-cart-item-title">${product.name?.en}</div>
+                            <div class="mini-cart-item-price">${quantity} x ${currencySymbol}${price.toFixed(2)}</div>
                         </div>
+                        <span class="mini-cart-item-remove" data-id="${id}">&times;</span>
+                    </div>
+                `;
+            }).join('');
+            miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
+        }
+    };
+    const openMiniCart = () => {
+        updateMiniCartContent();
+        miniCartOverlay.classList.add('active');
+    };
+    const closeMiniCart = () => {
+        miniCartOverlay.classList.remove('active');
+    };
+
+    // --- Page Rendering Functions ---
+    const renderProduct = (product) => {
+        currentProduct = product;
+        const name = product.name?.en || 'Product Name';
+        const image = product.image || 'https://placehold.co/600x400?text=No+Image';
+        const delivery = product.delivery?.en || 'Standard Delivery';
+        const price = product.price[currentCurr] || product.price.USD;
+        const description = product.desc?.en || 'No description available.';
+        const currencySymbol = currencySymbols[currentCurr] || '$';
+        const hotBadgeHTML = product.isHot ? `<div class="hot-badge"><i class="fas fa-fire"></i> Hot Deal</div>` : '';
+        
+        document.title = `DigiWorld - ${name}`;
+        
+        detailsContainer.innerHTML = `
+            <div class="product-details-grid">
+                <div class="product-image-container">
+                    ${hotBadgeHTML}
+                    <img src="${image}" alt="${name}">
+                </div>
+                <div class="product-info">
+                    <h1 class="product-title">${name}</h1>
+                    <p class="product-delivery"><i class="fas fa-check-circle"></i> ${delivery}</p>
+                    <p class="product-price">${currencySymbol}${price.toFixed(2)}</p>
+                    <div class="product-description">${description}</div>
+                    <div class="product-actions">
+                        <button class="action-button add-to-cart" data-id="${product.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                        <a href="checkout.html?product=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
                     </div>
                 </div>
-            `;
-
-            renderInfoTabs(product);
-
-            detailsContainer.querySelector('.add-to-cart').addEventListener('click', (e) => {
-                const prodId = e.target.dataset.id;
-                cart[prodId] = (cart[prodId] || 0) + 1;
-                saveCart();
-                openMiniCart();
-            });
-        };
-
-        const params = new URLSearchParams(window.location.search);
-        const productId = params.get('id');
-        
-        if (typeof products !== 'undefined') {
-            const product = products.find(p => p.id === productId);
-            if (product) { 
-                renderProduct(product); 
-                fetchAndRenderReviews(productId);
-            } else { 
-                // Only manipulate style if the container wasn't replaced
-                if (loadingState) loadingState.style.display = 'none'; 
-                if (errorState) errorState.style.display = 'block'; 
-            }
-        }
-        
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === button.dataset.tab) {
-                        content.classList.add('active');
-                    }
-                });
-            });
+            </div>
+        `;
+        renderInfoTabs(product);
+        detailsContainer.querySelector('.add-to-cart').addEventListener('click', (e) => {
+            const prodId = e.target.dataset.id;
+            cart[prodId] = (cart[prodId] || 0) + 1;
+            saveCart();
+            openMiniCart();
         });
-        
-        const reviewForm = document.getElementById('review-form');
-        const formMessage = document.getElementById('form-message');
-        if(reviewForm) {
-            reviewForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                formMessage.textContent = 'Submitting...';
-                const ratingValue = document.querySelector('input[name="rating"]:checked')?.value;
-                if (!ratingValue) {
-                    formMessage.textContent = 'Please select a star rating.';
-                    return;
-                }
-                const formData = {
-                    productId: productId,
-                    authorName: document.getElementById('authorName').value,
-                    rating: parseInt(ratingValue, 10),
-                    reviewText: document.getElementById('reviewText').value
-                };
-                try {
-                    const response = await fetch('/.netlify/functions/submit-review', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData)
-                    });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.message);
-                    formMessage.style.color = 'green';
-                    formMessage.textContent = result.message;
-                    reviewForm.reset();
-                } catch (error) {
-                    formMessage.style.color = 'red';
-                    formMessage.textContent = `Error: ${error.message}`;
-                }
-            });
-        }
-        updateCartBadge();
-    });
+    };
 
-    function renderInfoTabs(product) {
+    const renderInfoTabs = (product) => {
         const lang = 'en';
-        // Use optional chaining (?.) to prevent crashes
         const features = product.features?.[lang] || ['No features listed.'];
         const requirements = product.requirements?.[lang] || ['No requirements listed.'];
         const activation = product.activation?.[lang] || ['No activation steps listed.'];
@@ -805,13 +793,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('activation').innerHTML = `<ul>${activation.map(a => `<li>${a}</li>`).join('')}</ul>`;
     }
 
-    async function fetchAndRenderReviews(productId) {
+    const fetchAndRenderReviews = async (productId) => {
         const reviewsList = document.getElementById('reviews-list');
         reviewsList.innerHTML = '<p>Loading reviews...</p>';
         try {
-            const response = await fetch(`/.netlify/functions/get-reviews?productId=${productId}`);
+            const response = await fetch(`/api/get-reviews?productId=${productId}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
-            if (!response.ok || !result.success) throw new Error(result.message);
+            if (!result.success) throw new Error(result.message);
             if (result.reviews.length === 0) {
                 reviewsList.innerHTML = '<p>Be the first to review this product!</p>';
                 return;
@@ -836,9 +825,174 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }).join('');
         } catch (error) {
-            reviewsList.innerHTML = `<p style="color: red;">Could not load reviews: ${error.message}</p>`;
+            console.error('Error fetching reviews:', error);
+            reviewsList.innerHTML = `<p style="color: red;">Could not load reviews.</p>`;
         }
     }
-  </script>
+
+    const renderRelatedProducts = (currentProduct, allProducts) => {
+        const relatedListContainer = document.getElementById('related-products-list');
+        const relatedContainer = document.querySelector('.related-products-container');
+        if (!relatedListContainer || !relatedContainer) return;
+
+        const relatedProducts = allProducts.filter(p =>
+            p.category === currentProduct.category && p.id !== currentProduct.id
+        );
+
+        if (relatedProducts.length === 0) {
+            relatedContainer.style.display = 'none';
+            return;
+        }
+
+        relatedContainer.style.display = 'block';
+        const productsToDisplay = relatedProducts.slice(0, 4);
+        const currencySymbol = currencySymbols[currentCurr] || '$';
+
+        relatedListContainer.innerHTML = productsToDisplay.map(product => {
+            const price = product.price[currentCurr] || product.price.USD;
+            const hotBadgeHTML = product.isHot ? `<div class="hot-badge"><i class="fas fa-fire"></i> Hot Deal</div>` : '';
+            return `
+                <a href="product-details.html?id=${product.id}" class="product-card">
+                    ${hotBadgeHTML}
+                    <img src="${product.image}" alt="${product.name?.en}" class="product-card-img">
+                    <div class="product-card-info">
+                        <h3 class="product-card-title">${product.name?.en}</h3>
+                        <p class="product-card-price">${currencySymbol}${price.toFixed(2)}</p>
+                    </div>
+                </a>
+            `;
+        }).join('');
+    };
+
+    // --- Main Execution Logic ---
+    
+    // 1. Set initial currency display
+    currentCurrLabel.textContent = currentCurr;
+
+    // 2. Fetch all products from the server
+    try {
+        const response = await fetch('/api/get-products');
+        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+        const data = await response.json();
+        if (!data.success || !data.products) throw new Error('API did not return successful product data.');
+        allProducts = data.products;
+    } catch (error) {
+        console.error("Fatal Error: Could not fetch products.", error);
+        if (loadingState) loadingState.style.display = 'none';
+        if (errorState) {
+            errorState.textContent = 'Could not load product data. Please try again later.';
+            errorState.style.display = 'block';
+        }
+        return;
+    }
+
+    // 3. Get the product ID from the URL and find the product
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+
+    if (!productId) {
+        if (loadingState) loadingState.style.display = 'none';
+        if (errorState) errorState.style.display = 'block';
+    } else {
+        const product = allProducts.find(p => p.id === productId);
+        if (product) {
+            renderProduct(product);
+            fetchAndRenderReviews(productId);
+            renderRelatedProducts(product, allProducts);
+        } else {
+            if (loadingState) loadingState.style.display = 'none';
+            if (errorState) errorState.style.display = 'block';
+        }
+    }
+
+    // 4. Set up event listeners
+    if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
+    if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
+    if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
+    if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => {
+        if (e.target === miniCartOverlay) closeMiniCart();
+    });
+    if (miniCartItemsContainer) miniCartItemsContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('mini-cart-item-remove')) {
+            const itemId = e.target.dataset.id;
+            delete cart[itemId];
+            saveCart();
+            updateMiniCartContent();
+        }
+    });
+
+    // Desktop Currency Dropdown Listeners
+    currencyDropdown.addEventListener('click', (event) => {
+        event.stopPropagation();
+        currencyDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', () => {
+        if (currencyDropdown.classList.contains('open')) {
+            currencyDropdown.classList.remove('open');
+        }
+    });
+    currencyMenu.addEventListener('click', (e) => {
+        if (e.target.matches('.dropdown-item')) {
+            e.preventDefault();
+            const newCurrency = e.target.dataset.currency;
+            setCurrency(newCurrency);
+        }
+    });
+
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === button.dataset.tab) {
+                    content.classList.add('active');
+                }
+            });
+        });
+    });
+
+    const reviewForm = document.getElementById('review-form');
+    if(reviewForm) {
+        reviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formMessage = document.getElementById('form-message');
+            formMessage.textContent = 'Submitting...';
+            const ratingValue = document.querySelector('input[name="rating"]:checked')?.value;
+            if (!ratingValue) {
+                formMessage.textContent = 'Please select a star rating.';
+                return;
+            }
+            const formData = {
+                productId: productId,
+                authorName: document.getElementById('authorName').value,
+                rating: parseInt(ratingValue, 10),
+                reviewText: document.getElementById('reviewText').value
+            };
+            try {
+                const response = await fetch('/api/submit-review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message);
+                formMessage.style.color = 'green';
+                formMessage.textContent = result.message;
+                reviewForm.reset();
+            } catch (error) {
+                formMessage.style.color = 'red';
+                formMessage.textContent = `Error: ${error.message}`;
+            }
+        });
+    }
+
+    // Initialize the cart badge and content on page load
+    updateCartBadge();
+    updateMiniCartContent();
+});
+</script>
 </body>
 </html>

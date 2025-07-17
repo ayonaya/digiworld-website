@@ -1,3 +1,8 @@
+// This function fetches all approved reviews for a specific product.
+
+// CORRECT: Imports the initialized 'db' instance.
+const { db } = require('./firebase-admin');
+
 exports.handler = async (event) => {
     const { productId } = event.queryStringParameters;
 
@@ -24,7 +29,7 @@ exports.handler = async (event) => {
             };
         }
 
-        const reviews = snapshot.docs.map(doc => doc.data());
+        const reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         return { 
             statusCode: 200, 
             body: JSON.stringify({ success: true, reviews }) 

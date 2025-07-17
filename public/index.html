@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>DigiWorld - Home</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #f57224;
@@ -21,7 +23,7 @@
     }
     html, body {
       background: var(--bg);
-      font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
       margin: 0;
       color: #1a1a1a;
     }
@@ -2164,280 +2166,69 @@ if (mobileAccountBtn) {
 <button id="dwBackToTop" title="Back to Top" aria-label="Back to Top" style="display:none;">↑</button>
 
 <script>
-const products = [
-  {
-    id: "office365lifetime",
-    category: "Office",
-    isHot: false,
-    name: {
-      en: "Office 365 Lifetime Genuine Account (Up to 5 Devices)",
-      si: "Office 365 ජීවිත කාලීන ගිණුම (ඉහළම උපාංග 5ක්)",
-      ta: "Office 365 வாழ்நாள் கணக்கு (அதிகபட்சம் 5 கருவிகள்)",
-      ru: "Office 365 пожизненная лицензия (до 5 устройств)",
-      zh: "Office 365 永久正版账号（最多5台设备）",
-      es: "Office 365 Cuenta genuina de por vida (Hasta 5 dispositivos)"
-    },
-    price: { LKR: 7700, USD: 23, EUR: 21, GBP: 18, INR: 1900 },
-    image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    }
-  },
-  {
-    id: "win10pro",
-    category: "Windows",
-    isHot: false,
-    name: {
-      en: "Windows 10 Pro Key",
-      si: "Windows 10 Pro යතුර",
-      ta: "Windows 10 Pro விசை",
-      ru: "Ключ Windows 10 Pro",
-      zh: "Windows 10 Pro 激活密钥",
-      es: "Clave Windows 10 Pro"
-    },
-    price: { LKR: 3000, USD: 9, EUR: 8, GBP: 7, INR: 700 },
-    image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发貨",
-      es: "Entrega instantánea"
-    }
-  },
-  {
-    id: "win11pro",
-    category: "Windows",
-    isHot: true,
-    name: {
-      en: "Windows 11 Pro Key",
-      si: "Windows 11 Pro යතුර",
-      ta: "Windows 11 Pro விசை",
-      ru: "Ключ Windows 11 Pro",
-      zh: "Windows 11 Pro 激活密钥",
-      es: "Clave Windows 11 Pro"
-    },
-    price: { LKR: 3700, USD: 11, EUR: 10, GBP: 8, INR: 860 },
-    image: "https://img.drz.lazcdn.com/static/lk/p/4ac77c5340b852dcfe5d0f0ba66fb1ed.png_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发貨",
-      es: "Entrega instantánea"
-    }
-  },
-  {
-    id: "office2021",
-    category: "Office",
-    isHot: false,
-    name: {
-      en: "Office 2021 Pro Plus Key",
-      si: "Office 2021 Pro Plus යතුර",
-      ta: "Office 2021 Pro Plus விசை",
-      ru: "Ключ Office 2021 Pro Plus",
-      zh: "Office 2021 Pro Plus 激活密钥",
-      es: "Clave Office 2021 Pro Plus"
-    },
-    price: { LKR: 4500, USD: 13, EUR: 12, GBP: 10, INR: 1100 },
-    image: "https://img.drz.lazcdn.com/g/kf/Sb9bc8d1802a04d8394d16f951736c65a2.jpg_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发貨",
-      es: "Entrega instantánea"
-    }
-  },
-  {
-    id: "office2024",
-    category: "Office",
-    isHot: true,
-    name: {
-      en: "Office 2024 Pro Plus Key",
-      si: "Office 2024 Pro Plus යතුර",
-      ta: "Office 2024 Pro Plus விசை",
-      ru: "Ключ Office 2024 Pro Plus",
-      zh: "Office 2024 Pro Plus 激活密钥",
-      es: "Clave Office 2024 Pro Plus"
-    },
-    price: { LKR: 5600, USD: 15, EUR: 14, GBP: 12, INR: 1200 },
-    image: "https://img.drz.lazcdn.com/g/kf/S5d7015c8fb0f4693ac06c2df71e1dadbA.jpg_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发貨",
-      es: "Entrega instantánea"
-    }
-  },
-  {
-    id: "project2021",
-    category: "Development",
-    isHot: false,
-    name: {
-      en: "Microsoft Project Pro 2021 Key",
-      si: "Microsoft Project Pro 2021 යතුර",
-      ta: "Microsoft Project Pro 2021 விசை",
-      ru: "Ключ Project Pro 2021",
-      zh: "Project Pro 2021 激活密钥",
-      es: "Clave Project Pro 2021"
-    },
-    price: { LKR: 5200, USD: 15, EUR: 14, GBP: 13, INR: 1200 },
-    image: "https://img.drz.lazcdn.com/g/kf/S418dd45f61604ef8a7be51cd7190ffec3.jpg_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி විநியோගය",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    }
-  },
-  {
-    id: "visio2021",
-    category: "Development",
-    isHot: false,
-    name: {
-      en: "Microsoft Visio 2021 Key",
-      si: "Microsoft Visio 2021 යතුර",
-      ta: "Microsoft Visio 2021 விசை",
-      ru: "Ключ Visio 2021",
-      zh: "Visio 2021 激活密钥",
-      es: "Clave Visio 2021"
-    },
-    price: { LKR: 3500, USD: 10, EUR: 9, GBP: 8, INR: 800 },
-    image: "https://img.drz.lazcdn.com/static/lk/p/e6fa1180deb98607be4cc772a1af56ca.png_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    }
-  }
-];
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // --- VARIABLE & STATE SETUP ---
+    // DOM Elements
     const categoryFilter = document.getElementById('categoryFilter');
     const sortProductsControl = document.getElementById('sortProducts');
+    const productGrid = document.getElementById('productGrid');
+    const langDropdown = document.getElementById('langDropdown');
+    const currencyDropdown = document.getElementById('currencyDropdown');
+    const cartBtn = document.getElementById('cartBtn');
+    const miniCartDrawer = document.getElementById('miniCartDrawer');
+    const miniCartOverlay = document.getElementById('miniCartOverlay');
+    const miniCartItems = document.getElementById('miniCartItems');
+    const miniCartTotal = document.getElementById('miniCartTotal');
+    const miniCartClose = document.getElementById('miniCartClose');
+    const searchInputDesktop = document.getElementById('searchInput');
+    const searchSuggestionsDesktop = document.getElementById('searchSuggestionsDesktop');
+    const searchInputMobile = document.getElementById('mobileSearch');
+    const searchSuggestionsMobile = document.getElementById('searchSuggestionsMobile');
+    const slides = document.querySelectorAll('.banner-slide');
+    const controls = document.getElementById('bannerSliderControls');
+    const headerEl = document.querySelector('header.site-header');
+    const banner = document.getElementById('bannerSlider');
+    const sentinel = document.getElementById('headerSentinel');
+    const dwBottomNav = document.getElementById('dwBottomNav');
+    const dwNavCartBtn = document.getElementById('dwNavCart');
+    const backBtn = document.getElementById('dwBackToTop');
+    const modal = document.getElementById('langCurrModal');
+    const openBtn = document.getElementById('mobileSwitcherBtn');
+    const closeBtn = document.getElementById('langCurrCloseBtn');
+    const saveBtn = document.getElementById('langCurrSaveBtn');
+    const langSelect = document.getElementById('langSelect');
+    const currSelect = document.getElementById('currSelect');
 
-    function applyCascadeAnimation() {
-        const productGrid = document.getElementById('productGrid');
-        const cards = Array.from(productGrid.children);
-        if (cards.length === 0) return;
+    // App State
+    let allProducts = []; // Will be filled from the API
+    let currentLang = 'en';
+    let currentCurr = localStorage.getItem('userCurrency') || 'USD';
+    let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+    let currentSlide = 0;
+    let slideTimer = null;
+    let scrollPauseTimer;
 
-        const gridStyle = window.getComputedStyle(productGrid);
-        const gridWidth = productGrid.offsetWidth;
-        const firstCardWidth = cards[0]?.offsetWidth || 250;
-        const gap = parseInt(gridStyle.gap) || 30;
-        const numColumns = Math.max(1, Math.round(gridWidth / (firstCardWidth + gap)));
-        
-        cards.forEach((card, index) => {
-            const rowIndex = Math.floor(index / numColumns);
-            card.style.animationDelay = `${rowIndex * 0.1}s`;
-        });
-    }
-
-    function animateImageToCart(event) {
-        const mainCartIcon = window.innerWidth <= 650 
-            ? document.getElementById('dwNavCart')
-            : document.getElementById('cartBtn');
-
-        const button = event.target;
-        const card = button.closest('.product-card');
-        if (!card || !mainCartIcon) return;
-        const productImage = card.querySelector('.card-image');
-
-        const startRect = productImage.getBoundingClientRect();
-        const endRect = mainCartIcon.getBoundingClientRect();
-
-        const flyingImage = productImage.cloneNode(true);
-        flyingImage.classList.add('flying-image');
-        
-        flyingImage.style.left = `${startRect.left}px`;
-        flyingImage.style.top = `${startRect.top}px`;
-        flyingImage.style.width = `${startRect.width}px`;
-        flyingImage.style.height = `${startRect.height}px`;
-
-        document.body.appendChild(flyingImage);
-
-        requestAnimationFrame(() => {
-            flyingImage.style.left = `${endRect.left + endRect.width / 2}px`;
-            flyingImage.style.top = `${endRect.top + endRect.height / 2}px`;
-            flyingImage.style.width = '20px';
-            flyingImage.style.height = '20px';
-            flyingImage.style.transform = 'scale(0.1)';
-            flyingImage.style.opacity = '0';
-        });
-
-        flyingImage.addEventListener('transitionend', () => {
-            flyingImage.remove();
-        });
-    }
-
-
-    function applyFiltersAndSorting() {
-        let filteredProducts = [...products];
-
-        const selectedCategory = categoryFilter.value;
-        if (selectedCategory !== 'all') {
-            filteredProducts = filteredProducts.filter(p => p.category === selectedCategory);
-        }
-
-        const sortValue = sortProductsControl.value;
-        switch (sortValue) {
-            case 'price-asc':
-                filteredProducts.sort((a, b) => (a.price[currentCurr] || a.price['USD']) - (b.price[currentCurr] || b.price['USD']));
-                break;
-            case 'price-desc':
-                filteredProducts.sort((a, b) => (b.price[currentCurr] || b.price['USD']) - (a.price[currentCurr] || a.price['USD']));
-                break;
-            case 'name-asc':
-                filteredProducts.sort((a, b) => (a.name[currentLang] || a.name['en']).localeCompare(b.name[currentLang] || b.name['en']));
-                break;
-            case 'name-desc':
-                filteredProducts.sort((a, b) => (b.name[currentLang] || b.name['en']).localeCompare(a.name[currentLang] || a.name['en']));
-                break;
-        }
-
-        renderProducts(filteredProducts);
-        setTimeout(applyCascadeAnimation, 50);
-    }
-    
-    categoryFilter.addEventListener('change', applyFiltersAndSorting);
-    sortProductsControl.addEventListener('change', applyFiltersAndSorting);
-
-    let currentLang = 'en', currentCurr = 'USD';
+    // Data Maps
     const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
-    const langFlags = { en: '🇺🇸', si: '🇱🇰', ta: '🇮🇳', ru: '🇷🇺', zh: '🇨🇳', es: '🇪🇸' };
+    const langFlags = { en: '🇺🇸', si: '🇱🇰', ta: '🇮🇳', ru: '�🇺', zh: '🇨🇳', es: '🇪🇸' };
     const langLabels = { en: 'English', si: 'සිංහල', ta: 'தமிழ்', ru: 'Русский', zh: '中文', es: 'Español' };
 
-    // === UPDATED RENDER FUNCTION with NEW BADGES & TAGS ===
+    // --- FUNCTIONS ---
+
     function renderProducts(list) {
-        const grid = document.getElementById('productGrid');
-        if (!grid) return;
-        
-        grid.innerHTML = list.map((prod) => {
+        if (!productGrid) return;
+        if(list.length === 0) {
+            productGrid.innerHTML = `<p>No products found.</p>`;
+            return;
+        }
+        productGrid.innerHTML = list.map((prod) => {
             const name = prod.name[currentLang] || prod.name['en'];
             const price = (prod.price[currentCurr] || prod.price['USD']);
             const deliveryText = prod.delivery[currentLang] || prod.delivery['en'];
-            
+            const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
             return `
                 <div class="product-card" data-product-id="${prod.id}">
-                  ${prod.isHot ? '<div class="badge-hot">Hot</div>' : ''}
+                  ${hotBadgeHTML}
                   <div class="card-image-container">
                     <a href="product-details.html?id=${prod.id}">
                         <img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" />
@@ -2457,39 +2248,73 @@ document.addEventListener('DOMContentLoaded', function() {
         }).join('');
     }
 
-    renderProducts(products); // Initial render
-    setTimeout(applyCascadeAnimation, 50);
-
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(applyCascadeAnimation, 200);
-    });
-  
-    // --- All other JavaScript functions are unchanged ---
-    const slides = document.querySelectorAll('.banner-slide');
-    const controls = document.getElementById('bannerSliderControls');
-    let currentSlide = 0, slideTimer = null;
-    function showSlide(i) {
-        slides.forEach((slide, idx) => {slide.classList.toggle('active', idx === i);});
-        Array.from(controls.children).forEach((dot, idx) => {dot.classList.toggle('active', idx === i);});
-        currentSlide = i;
-    }
-    if (slides.length > 0 && controls) {
-        slides.forEach((_, idx) => {
-            const dot = document.createElement('div');
-            dot.className = 'banner-slider-dot' + (idx === 0 ? ' active' : '');
-            dot.onclick = ()=>{ showSlide(idx); resetSlideTimer(); }
-            controls.appendChild(dot);
-        });
-    }
-    function nextSlide() {let next = (currentSlide + 1) % slides.length; showSlide(next);}
-    function resetSlideTimer() {clearInterval(slideTimer); slideTimer = setInterval(nextSlide, 5200);}
-    if (slides.length > 1) {
-        resetSlideTimer();
+    function applyFiltersAndSorting() {
+        let filteredProducts = [...allProducts];
+        const selectedCategory = categoryFilter.value;
+        if (selectedCategory !== 'all') {
+            filteredProducts = filteredProducts.filter(p => p.category === selectedCategory);
+        }
+        const sortValue = sortProductsControl.value;
+        switch (sortValue) {
+            case 'price-asc':
+                filteredProducts.sort((a, b) => (a.price[currentCurr] || a.price['USD']) - (b.price[currentCurr] || b.price['USD']));
+                break;
+            case 'price-desc':
+                filteredProducts.sort((a, b) => (b.price[currentCurr] || b.price['USD']) - (a.price[currentCurr] || a.price['USD']));
+                break;
+            case 'name-asc':
+                filteredProducts.sort((a, b) => (a.name[currentLang] || a.name['en']).localeCompare(b.name[currentLang] || b.name['en']));
+                break;
+            case 'name-desc':
+                filteredProducts.sort((a, b) => (b.name[currentLang] || b.name['en']).localeCompare(a.name[currentLang] || a.name['en']));
+                break;
+        }
+        renderProducts(filteredProducts);
+        setTimeout(applyCascadeAnimation, 50);
     }
     
-    let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+    function applyCascadeAnimation() {
+        const cards = Array.from(productGrid.children);
+        if (cards.length === 0) return;
+        const gridStyle = window.getComputedStyle(productGrid);
+        const gridWidth = productGrid.offsetWidth;
+        const firstCardWidth = cards[0]?.offsetWidth || 250;
+        const gap = parseInt(gridStyle.gap) || 30;
+        const numColumns = Math.max(1, Math.round(gridWidth / (firstCardWidth + gap)));
+        cards.forEach((card, index) => {
+            const rowIndex = Math.floor(index / numColumns);
+            card.style.animationDelay = `${rowIndex * 0.1}s`;
+        });
+    }
+
+    function animateImageToCart(event) {
+        const mainCartIcon = window.innerWidth <= 650 ? document.getElementById('dwNavCart') : document.getElementById('cartBtn');
+        const button = event.target;
+        const card = button.closest('.product-card');
+        if (!card || !mainCartIcon) return;
+        const productImage = card.querySelector('.card-image');
+        const startRect = productImage.getBoundingClientRect();
+        const endRect = mainCartIcon.getBoundingClientRect();
+        const flyingImage = productImage.cloneNode(true);
+        flyingImage.classList.add('flying-image');
+        flyingImage.style.left = `${startRect.left}px`;
+        flyingImage.style.top = `${startRect.top}px`;
+        flyingImage.style.width = `${startRect.width}px`;
+        flyingImage.style.height = `${startRect.height}px`;
+        document.body.appendChild(flyingImage);
+        requestAnimationFrame(() => {
+            flyingImage.style.left = `${endRect.left + endRect.width / 2}px`;
+            flyingImage.style.top = `${endRect.top + endRect.height / 2}px`;
+            flyingImage.style.width = '20px';
+            flyingImage.style.height = '20px';
+            flyingImage.style.transform = 'scale(0.1)';
+            flyingImage.style.opacity = '0';
+        });
+        flyingImage.addEventListener('transitionend', () => {
+            flyingImage.remove();
+        });
+    }
+
     function updateCartCount() {
         const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
         document.getElementById('cartCount').textContent = count;
@@ -2502,17 +2327,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCartCount();
     }
 
-    const cartBtn = document.getElementById('cartBtn');
-    const miniCartDrawer = document.getElementById('miniCartDrawer');
-    const miniCartOverlay = document.getElementById('miniCartOverlay');
-    const miniCartItems = document.getElementById('miniCartItems');
-    const miniCartTotal = document.getElementById('miniCartTotal');
-    const miniCartClose = document.getElementById('miniCartClose');
-    function openMiniCart() { miniCartDrawer.classList.add('active'); miniCartOverlay.classList.add('active'); renderMiniCart(); }
-    function closeMiniCart() { miniCartDrawer.classList.remove('active'); miniCartOverlay.classList.remove('active'); }
-    cartBtn.onclick = openMiniCart;
-    miniCartOverlay.onclick = closeMiniCart;
-    miniCartClose.onclick = closeMiniCart;
     function renderMiniCart() {
         let items = Object.entries(cart);
         if (items.length === 0) {
@@ -2522,7 +2336,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         let total = 0;
         miniCartItems.innerHTML = items.map(([id, qty]) => {
-          const prod = products.find(p=>p.id===id);
+          const prod = allProducts.find(p=>p.id===id);
           if (!prod) return '';
           const price = (prod.price[currentCurr] || prod.price['USD']) * qty;
           total += price;
@@ -2540,7 +2354,86 @@ document.addEventListener('DOMContentLoaded', function() {
         }).join('');
         miniCartTotal.textContent = (currencySymbols[currentCurr] || '$') + total.toFixed(2);
     }
+
+    function openMiniCart() { miniCartDrawer.classList.add('active'); miniCartOverlay.classList.add('active'); renderMiniCart(); }
+    function closeMiniCart() { miniCartDrawer.classList.remove('active'); miniCartOverlay.classList.remove('active'); }
+
+    function handleSearch(inputElement, suggestionsElement) {
+        const val = inputElement.value.trim().toLowerCase();
+        if(val.length === 0){ suggestionsElement.style.display='none'; inputElement.setAttribute('aria-expanded','false'); return; }
+        let result = allProducts.filter(prod => {
+            const prodName = (prod.name[currentLang] || prod.name['en']).toLowerCase();
+            return prodName.includes(val);
+        });
+        if(result.length === 0){ suggestionsElement.style.display='none'; inputElement.setAttribute('aria-expanded','false'); return;}
+        suggestionsElement.innerHTML = result.map(p=>{
+          let name = p.name[currentLang] || p.name['en'];
+          let idx = name.toLowerCase().indexOf(val);
+          if(idx>=0){
+            name = name.substring(0,idx)+'<b>'+name.substring(idx,idx+val.length)+'</b>'+name.substring(idx+val.length);
+          }
+          return `<div class="suggestion-item" role="option" tabindex="0" onclick="window.location='product-details.html?id=${p.id}'">${name}</div>`;
+        }).join('');
+        suggestionsElement.style.display = 'block';
+        inputElement.setAttribute('aria-expanded','true');
+    }
+
+    function showSlide(i) {
+        slides.forEach((slide, idx) => {slide.classList.toggle('active', idx === i);});
+        Array.from(controls.children).forEach((dot, idx) => {dot.classList.toggle('active', idx === i);});
+        currentSlide = i;
+    }
+
+    function nextSlide() {let next = (currentSlide + 1) % slides.length; showSlide(next);}
     
+    function resetSlideTimer() {clearInterval(slideTimer); slideTimer = setInterval(nextSlide, 5200);}
+
+    function closeDropdowns(){document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));}
+    
+    function toggleDropdown(id){
+        const allDropdowns = document.querySelectorAll('.dropdown');
+        const targetDropdown = document.getElementById(id);
+        const wasOpen = targetDropdown.classList.contains('open');
+        allDropdowns.forEach(d => d.classList.remove('open'));
+        if (!wasOpen) {
+            targetDropdown.classList.add('open');
+        }
+    }
+
+    function showBottomNavIfMobile() {
+        if(dwBottomNav) {
+            if(window.innerWidth <= 650) dwBottomNav.style.display = 'flex';
+            else dwBottomNav.style.display = 'none';
+        }
+    }
+
+    // --- INITIALIZATION ---
+    
+    // Set initial currency display
+    document.getElementById('currentCurrSymbol').textContent = currencySymbols[currentCurr] || '$';
+    document.getElementById('currentCurrLabel').textContent = currentCurr;
+
+    // Fetch products from the server
+    try {
+        productGrid.innerHTML = '<p>Loading products...</p>';
+        const response = await fetch('/api/get-products');
+        if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
+        const data = await response.json();
+        if (!data.success || !data.products) throw new Error('API did not return valid product data.');
+        allProducts = data.products;
+        applyFiltersAndSorting();
+    } catch (error) {
+        console.error("Failed to load products:", error);
+        productGrid.innerHTML = `<p style="color:red;">Could not load products. Please try again later.</p>`;
+    }
+    
+    // --- EVENT LISTENERS ---
+    categoryFilter.addEventListener('change', applyFiltersAndSorting);
+    sortProductsControl.addEventListener('change', applyFiltersAndSorting);
+    cartBtn.onclick = openMiniCart;
+    miniCartOverlay.onclick = closeMiniCart;
+    miniCartClose.onclick = closeMiniCart;
+    if (dwNavCartBtn) dwNavCartBtn.onclick = openMiniCart;
     document.body.addEventListener('click', function(e){
         const target = e.target;
         if(target.classList.contains('add-to-cart') || target.classList.contains('buy-now')){
@@ -2563,7 +2456,6 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
     });
-
     document.querySelectorAll('#langMenu .dropdown-item').forEach(el=>{
         el.onclick = ()=>{
           currentLang = el.getAttribute('data-lang');
@@ -2574,9 +2466,7 @@ document.addEventListener('DOMContentLoaded', function() {
           closeDropdowns();
         }
     });
-    document.querySelector('#langDropdown .dropdown-toggle').onclick = function(e){
-        e.stopPropagation(); toggleDropdown('langDropdown');
-    };
+    document.querySelector('#langDropdown .dropdown-toggle').onclick = function(e){ e.stopPropagation(); toggleDropdown('langDropdown'); };
     document.querySelectorAll('#currencyMenu .dropdown-item').forEach(el=>{
         el.onclick = ()=>{
           currentCurr = el.getAttribute('data-curr');
@@ -2587,52 +2477,10 @@ document.addEventListener('DOMContentLoaded', function() {
           closeDropdowns();
         }
     });
-    document.querySelector('#currencyDropdown .dropdown-toggle').onclick = function(e){
-        e.stopPropagation(); toggleDropdown('currencyDropdown');
-    };
-    function closeDropdowns(){document.querySelectorAll('.dropdown').forEach(d=>d.classList.remove('open'));}
-    function toggleDropdown(id){
-        const allDropdowns = document.querySelectorAll('.dropdown');
-        const targetDropdown = document.getElementById(id);
-        const wasOpen = targetDropdown.classList.contains('open');
-        allDropdowns.forEach(d => d.classList.remove('open'));
-        if (!wasOpen) {
-            targetDropdown.classList.add('open');
-        }
-    }
+    document.querySelector('#currencyDropdown .dropdown-toggle').onclick = function(e){ e.stopPropagation(); toggleDropdown('currencyDropdown'); };
     document.body.addEventListener('click', closeDropdowns);
-
-    function handleSearch(inputElement, suggestionsElement) {
-        const val = inputElement.value.trim().toLowerCase();
-        if(val.length === 0){ suggestionsElement.style.display='none'; inputElement.setAttribute('aria-expanded','false'); return; }
-        
-        let result = products.filter(prod => {
-            const prodName = (prod.name[currentLang] || prod.name['en']).toLowerCase();
-            return prodName.includes(val);
-        });
-
-        if(result.length === 0){ suggestionsElement.style.display='none'; inputElement.setAttribute('aria-expanded','false'); return;}
-        
-        suggestionsElement.innerHTML = result.map(p=>{
-          let name = p.name[currentLang] || p.name['en'];
-          let idx = name.toLowerCase().indexOf(val);
-          if(idx>=0){
-            name = name.substring(0,idx)+'<b>'+name.substring(idx,idx+val.length)+'</b>'+name.substring(idx+val.length);
-          }
-          return `<div class="suggestion-item" role="option" tabindex="0" onclick="window.location='product-details.html?id=${p.id}'">${name}</div>`;
-        }).join('');
-        suggestionsElement.style.display = 'block';
-        inputElement.setAttribute('aria-expanded','true');
-    }
-
-    const searchInputDesktop = document.getElementById('searchInput');
-    const searchSuggestionsDesktop = document.getElementById('searchSuggestionsDesktop');
     searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
-    
-    const searchInputMobile = document.getElementById('mobileSearch');
-    const searchSuggestionsMobile = document.getElementById('searchSuggestionsMobile');
     searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile));
-
     document.addEventListener('click', ()=>{
         if (searchSuggestionsDesktop) searchSuggestionsDesktop.style.display='none'; 
         if (searchInputDesktop) searchInputDesktop.setAttribute('aria-expanded','false');
@@ -2641,19 +2489,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     searchInputDesktop.addEventListener('focus', ()=>{if(searchInputDesktop.value.trim()!=='') searchInputDesktop.dispatchEvent(new Event('input'));});
     searchInputMobile.addEventListener('focus', ()=>{if(searchInputMobile.value.trim()!=='') searchInputMobile.dispatchEvent(new Event('input'));});
-
-    const headerEl = document.querySelector('header.site-header');
-    const banner = document.getElementById('bannerSlider');
-    const sentinel = document.getElementById('headerSentinel');
-    let scrollPauseTimer;
-
     window.addEventListener('scroll', () => {
         if (headerEl) {
             if (window.scrollY > 30) headerEl.classList.add('sticky-blur');
             else headerEl.classList.remove('sticky-blur');
         }
     });
-  
     window.addEventListener('scroll', () => {
         clearTimeout(scrollPauseTimer);
         scrollPauseTimer = setTimeout(() => {
@@ -2661,7 +2502,6 @@ document.addEventListener('DOMContentLoaded', function() {
           if(banner) banner.classList.remove('banner-hidden');
         }, 200);
     });
-
     if (headerEl && sentinel) {
         const observer = new IntersectionObserver(
           ([entry]) => {
@@ -2673,25 +2513,12 @@ document.addEventListener('DOMContentLoaded', function() {
               if(banner) banner.classList.remove('banner-hidden');
             }
           },
-          {
-            root: null,
-            threshold: 0,
-            rootMargin: `-${headerEl.offsetHeight}px 0px 0px 0px`
-          }
+          { root: null, threshold: 0, rootMargin: `-${headerEl.offsetHeight}px 0px 0px 0px` }
         );
         observer.observe(sentinel);
     }
-
-    const dwBottomNav = document.getElementById('dwBottomNav');
-    function showBottomNavIfMobile() {
-        if(dwBottomNav) {
-            if(window.innerWidth <= 650) dwBottomNav.style.display = 'flex';
-            else dwBottomNav.style.display = 'none';
-        }
-    }
     showBottomNavIfMobile();
     window.addEventListener('resize', showBottomNavIfMobile);
-
     document.querySelectorAll('.dw-bottom-nav a:not(.dw-nav-cart)').forEach(el=>{
         el.addEventListener('click',function(e){
           document.querySelectorAll('.dw-bottom-nav a').forEach(a=>a.classList.remove('dw-nav-active'));
@@ -2700,13 +2527,10 @@ document.addEventListener('DOMContentLoaded', function() {
             window.scrollTo({top:0,behavior:"smooth"});
             e.preventDefault();
           } else if (this.id === "dwNavCategories") {
-            // Add navigation logic for categories if needed
             e.preventDefault();
           }
         });
     });
-
-    const backBtn = document.getElementById('dwBackToTop');
     window.addEventListener('scroll', function() {
         if(backBtn) {
             if(window.innerWidth <= 650) {
@@ -2718,38 +2542,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     if(backBtn) backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
-
-    const dwNavCartBtn = document.getElementById('dwNavCart');
-    if (dwNavCartBtn) dwNavCartBtn.onclick = openMiniCart;
-
-    const modal = document.getElementById('langCurrModal');
-    const openBtn = document.getElementById('mobileSwitcherBtn');
-    const closeBtn = document.getElementById('langCurrCloseBtn');
-    const saveBtn = document.getElementById('langCurrSaveBtn');
-    const langSelect = document.getElementById('langSelect');
-    const currSelect = document.getElementById('currSelect');
-    const langLabel = document.getElementById('mobileLangLabel');
-    const flagSpan = document.getElementById('mobileLangFlag');
-    const currSymbol = document.getElementById('mobileCurrSymbol');
-    const currLabel = document.getElementById('mobileCurrLabel');
-
     if (modal && openBtn && closeBtn && saveBtn) {
         openBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
         closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-
         saveBtn.addEventListener('click', () => {
           const selectedLang = langSelect.options[langSelect.selectedIndex];
           const selectedCurr = currSelect.options[currSelect.selectedIndex];
-          langLabel.textContent = selectedLang.text;
-          flagSpan.textContent = selectedLang.getAttribute('data-flag');
-          currSymbol.textContent = selectedCurr.getAttribute('data-symbol');
-          currLabel.textContent = selectedCurr.text;
+          document.getElementById('mobileLangLabel').textContent = selectedLang.text;
+          document.getElementById('mobileLangFlag').textContent = selectedLang.getAttribute('data-flag');
+          document.getElementById('mobileCurrSymbol').textContent = selectedCurr.getAttribute('data-symbol');
+          document.getElementById('mobileCurrLabel').textContent = selectedCurr.text;
           modal.style.display = 'none';
         });
     }
-
-    updateCartCount(); // Initial cart count load
+    if (slides.length > 0 && controls) {
+        slides.forEach((_, idx) => {
+            const dot = document.createElement('div');
+            dot.className = 'banner-slider-dot' + (idx === 0 ? ' active' : '');
+            dot.onclick = ()=>{ showSlide(idx); resetSlideTimer(); }
+            controls.appendChild(dot);
+        });
+    }
+    if (slides.length > 1) {
+        resetSlideTimer();
+    }
+    updateCartCount();
 });
 </script>
-</body>
-</html>

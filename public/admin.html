@@ -1,361 +1,366 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DigiWorld Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    :root {
-      --primary: #f57224;
-      --primary-dark: #d45703;
-      --accent: #fe724c;
-      --card-bg: #fff;
-      --bg: #f6f6fa;
-      --radius: 12px;
-      --shadow: 0 6px 24px rgba(0, 0, 0, 0.07);
-      --success: #28a745;
-      --warning: #ffc107;
-      --danger: #dc3545;
-    }
-    body {
-      background: var(--bg);
-      font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif;
-      margin: 0;
-      color: #333;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    .admin-container {
-      max-width: 1400px;
-      margin: 40px auto;
-      padding: 20px;
-    }
-    /* --- Login View --- */
-    #login-view {
-      max-width: 400px;
-      margin: 100px auto;
-      background: var(--card-bg);
-      padding: 40px;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      text-align: center;
-      animation: fadeIn 0.5s ease-out;
-    }
-    #login-view h1 {
-      font-weight: 900;
-      color: var(--primary-dark);
-      margin-bottom: 10px;
-    }
-    #login-view p {
-      color: #666;
-      margin-bottom: 30px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-    .form-group label {
-      display: block;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 12px 15px;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      box-sizing: border-box;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-group input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(245, 114, 36, 0.2);
-    }
-    .btn {
-      padding: 12px 25px;
-      border: none;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn-primary {
-      background-color: var(--primary);
-      color: white;
-      width: 100%;
-    }
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(245, 114, 36, 0.3);
-    }
-    #login-message {
-      margin-top: 15px;
-      font-weight: 700;
-    }
-    /* --- Dashboard View --- */
-    #dashboard-view {
-      display: none;
-      animation: fadeIn 0.5s 0.2s ease-out forwards;
-      opacity: 0;
-    }
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-    .dashboard-header h1 {
-        font-size: 2.5rem;
-        font-weight: 900;
-        color: var(--primary-dark);
-        margin: 0;
-    }
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-    }
-    .dashboard-card {
-        background: var(--card-bg);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding: 25px;
-    }
-    .dashboard-card h2 {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--primary-dark);
-        margin: 0 0 20px 0;
-        border-bottom: 2px solid #eee;
-        padding-bottom: 15px;
-    }
-    .table-container {
-        max-height: 500px;
-        overflow-y: auto;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    th, td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-    }
-    th {
-        font-weight: 700;
-        color: #666;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-    }
-    td {
-        font-size: 0.95rem;
-    }
-    tr:last-child td {
-        border-bottom: none;
-    }
-    .status {
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.8rem;
-        text-align: center;
-    }
-    .status-completed { background-color: #e9f7ec; color: var(--success); }
-    .status-initiated { background-color: #fff8e1; color: var(--warning); }
-    .status-key_unavailable { background-color: #fbe9e7; color: var(--danger); }
-    .btn-approve {
-        background-color: var(--success);
-        color: white;
-        padding: 6px 12px;
-        font-size: 0.8rem;
-    }
-    .btn-approve:hover {
-        background-color: #218838;
-    }
-    .inventory-list li {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #eee;
-        font-weight: 600;
-    }
-    .inventory-list li:last-child { border-bottom: none; }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @media (max-width: 1200px) {
-        .dashboard-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiWorld - Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #f57224;
+            --primary-dark: #d45703;
+            --accent: #fe724c;
+            --card-bg: #fff;
+            --bg: #f0f2f5;
+            --radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            color: #333;
+        }
+        .admin-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .admin-header h1 {
+            font-weight: 900;
+            color: var(--primary-dark);
+            margin: 0;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .login-container h2 {
+            margin-top: 0;
+            font-weight: 700;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        .dashboard {
+            display: none; /* Hidden by default */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .dashboard-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+        .dashboard-card h3 {
+            margin-top: 0;
+            font-weight: 700;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+        th {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+        .review-card {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .review-card:last-child {
+            border-bottom: none;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .review-author {
+            font-weight: 700;
+        }
+        .review-rating {
+            color: var(--star-color);
+        }
+        .review-text {
+            color: #555;
+            margin-bottom: 15px;
+        }
+        .review-actions .btn {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            margin-right: 10px;
+        }
+        .btn-approve {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-approve:hover {
+            background-color: #218838;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        #loginMessage {
+            text-align: center;
+            padding: 10px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="admin-container">
-    <!-- Login View -->
-    <div id="login-view">
-      <h1><i class="fas fa-lock"></i> Admin Access</h1>
-      <p>Please enter your password to continue.</p>
-      <form id="login-form">
-        <div class="form-group">
-          <label for="adminPassword">Password</label>
-          <input type="password" id="adminPassword" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-      </form>
-      <div id="login-message"></div>
+    <div class="login-container" id="loginContainer">
+        <h2>Admin Login</h2>
+        <form id="loginForm">
+            <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <div id="loginMessage"></div>
     </div>
 
-    <!-- Dashboard View (hidden by default) -->
-    <div id="dashboard-view">
-        <div class="dashboard-header">
+    <div class="admin-container hidden" id="dashboardContainer">
+        <div class="admin-header">
             <h1>Admin Dashboard</h1>
-            <button id="logout-btn" class="btn">Logout</button>
+            <button id="logoutBtn" class="btn btn-delete">Logout</button>
         </div>
-        <div class="dashboard-grid">
+        
+        <div class="dashboard">
             <div class="dashboard-card">
-                <h2><i class="fas fa-key"></i> Key Inventory</h2>
-                <ul class="inventory-list" id="inventory-list">
-                    <!-- Inventory data will be loaded here -->
-                </ul>
+                <h3><i class="fas fa-key"></i> Key Inventory</h3>
+                <table id="inventoryTable">
+                    <thead>
+                        <tr><th>Product ID</th><th>Available</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
+
             <div class="dashboard-card">
-                <h2><i class="fas fa-check-circle"></i> Pending Reviews</h2>
-                <div class="table-container">
-                    <table id="reviews-table">
-                        <thead><tr><th>Product</th><th>Author</th><th>Rating</th><th>Action</th></tr></thead>
-                        <tbody><!-- Review data will be loaded here --></tbody>
-                    </table>
-                </div>
+                <h3><i class="fas fa-star"></i> Pending Reviews</h3>
+                <div id="pendingReviewsList"></div>
             </div>
-        </div>
-        <div class="dashboard-card" style="margin-top: 30px;">
-            <h2><i class="fas fa-receipt"></i> Recent Orders</h2>
-            <div class="table-container">
-                <table id="orders-table">
-                    <thead><tr><th>Order ID</th><th>Email</th><th>Product</th><th>Status</th><th>Date</th></tr></thead>
-                    <tbody><!-- Order data will be loaded here --></tbody>
+
+            <div class="dashboard-card" style="grid-column: 1 / -1;">
+                <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
+                <table id="ordersTable">
+                    <thead>
+                        <tr><th>Order ID</th><th>Product</th><th>Email</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+                    </thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
     </div>
-  </div>
 
-  <script>
+    <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const loginView = document.getElementById('login-view');
-        const dashboardView = document.getElementById('dashboard-view');
-        const loginForm = document.getElementById('login-form');
-        const loginMessage = document.getElementById('login-message');
-        const logoutBtn = document.getElementById('logout-btn');
+        const loginContainer = document.getElementById('loginContainer');
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        const loginForm = document.getElementById('loginForm');
+        const loginMessage = document.getElementById('loginMessage');
+        const logoutBtn = document.getElementById('logoutBtn');
 
-        // Check if user is already logged in via session storage
-        if (sessionStorage.getItem('admin_authenticated') === 'true') {
-            loginView.style.display = 'none';
-            dashboardView.style.display = 'block';
-            fetchAdminData(sessionStorage.getItem('admin_password'));
+        // Check if user is already logged in (password stored in session)
+        const sessionPassword = sessionStorage.getItem('adminPassword');
+        if (sessionPassword) {
+            fetchAdminData(sessionPassword);
         }
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = document.getElementById('adminPassword').value;
-            loginMessage.textContent = 'Authenticating...';
-            loginMessage.style.color = '#666';
-
-            const success = await fetchAdminData(password);
-
-            if (success) {
-                sessionStorage.setItem('admin_authenticated', 'true');
-                sessionStorage.setItem('admin_password', password); // Store password for reloads
-                loginView.style.display = 'none';
-                dashboardView.style.display = 'block';
-            } else {
-                sessionStorage.removeItem('admin_authenticated');
-                sessionStorage.removeItem('admin_password');
-            }
+            loginMessage.textContent = 'Logging in...';
+            loginMessage.style.color = '#333';
+            await fetchAdminData(password);
         });
 
         logoutBtn.addEventListener('click', () => {
-            sessionStorage.clear();
-            window.location.reload();
+            sessionStorage.removeItem('adminPassword');
+            loginContainer.classList.remove('hidden');
+            dashboardContainer.classList.add('hidden');
         });
 
-        async function fetchAdminData(adminPassword) {
+        async function fetchAdminData(password) {
             try {
-                const response = await fetch('/.netlify/functions/get-admin-data', {
+                const response = await fetch('/api/get-admin-data', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminPassword })
+                    body: JSON.stringify({ adminPassword: password })
                 });
 
                 const result = await response.json();
 
-                if (!response.ok || !result.success) {
-                    throw new Error(result.message || 'An unknown error occurred.');
+                if (!response.ok) {
+                    throw new Error(result.message || 'Incorrect password or server error.');
                 }
-                
-                // If successful, render the data
-                renderDashboard(result.data);
-                return true;
+
+                if (result.success) {
+                    sessionStorage.setItem('adminPassword', password);
+                    loginContainer.classList.add('hidden');
+                    dashboardContainer.classList.remove('hidden');
+                    renderDashboard(result.data);
+                } else {
+                    throw new Error(result.message);
+                }
 
             } catch (error) {
-                loginMessage.textContent = `Error: ${error.message}`;
-                loginMessage.style.color = 'var(--danger)';
-                return false;
+                console.error('Login failed:', error);
+                loginMessage.textContent = error.message;
+                loginMessage.style.color = 'red';
             }
         }
 
         function renderDashboard(data) {
             // Render Inventory
-            const inventoryList = document.getElementById('inventory-list');
-            inventoryList.innerHTML = Object.entries(data.inventory)
-                .map(([productId, count]) => `<li><span>${productId}</span> <strong>${count} keys left</strong></li>`)
-                .join('');
-            if (Object.keys(data.inventory).length === 0) {
-                inventoryList.innerHTML = '<li>No available keys found.</li>';
+            const inventoryBody = document.querySelector('#inventoryTable tbody');
+            if (Object.keys(data.inventory).length > 0) {
+                inventoryBody.innerHTML = Object.entries(data.inventory).map(([productId, count]) => `
+                    <tr>
+                        <td>${productId}</td>
+                        <td>${count}</td>
+                    </tr>
+                `).join('');
+            } else {
+                inventoryBody.innerHTML = '<tr><td colspan="2">No keys in inventory.</td></tr>';
             }
 
             // Render Pending Reviews
-            const reviewsTable = document.getElementById('reviews-table').querySelector('tbody');
-            reviewsTable.innerHTML = data.pendingReviews
-                .map(review => `
-                    <tr>
-                        <td>${review.productId}</td>
-                        <td>${review.authorName}</td>
-                        <td>${'★'.repeat(review.rating)}</td>
-                        <td><button class="btn btn-approve" data-review-id="${review.id}">Approve</button></td>
-                    </tr>
-                `).join('');
+            const reviewsList = document.getElementById('pendingReviewsList');
             if (data.pendingReviews.length === 0) {
-                reviewsTable.innerHTML = '<tr><td colspan="4" style="text-align:center;">No pending reviews.</td></tr>';
+                reviewsList.innerHTML = '<p>No pending reviews.</p>';
+            } else {
+                reviewsList.innerHTML = data.pendingReviews.map(review => `
+                    <div class="review-card" id="review-${review.id}">
+                        <div class="review-header">
+                            <span class="review-author">${review.authorName}</span>
+                            <span class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                        </div>
+                        <p class="review-text">${review.reviewText}</p>
+                        <small>Product: ${review.productId}</small>
+                        <div class="review-actions">
+                            <button class="btn btn-approve" data-id="${review.id}" data-action="approve">Approve</button>
+                            <button class="btn btn-delete" data-id="${review.id}" data-action="delete">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
             }
 
-            // Render Orders
-            const ordersTable = document.getElementById('orders-table').querySelector('tbody');
-            ordersTable.innerHTML = data.orders
-                .map(order => `
+            // Render Recent Orders
+            const ordersBody = document.querySelector('#ordersTable tbody');
+             if (data.orders.length > 0) {
+                ordersBody.innerHTML = data.orders.map(order => `
                     <tr>
                         <td>${order.id}</td>
-                        <td>${order.customerEmail}</td>
                         <td>${order.productId}</td>
-                        <td><span class="status status-${order.status}">${order.status.replace('_', ' ')}</span></td>
+                        <td>${order.customerEmail}</td>
+                        <td>${order.amount} ${order.currency}</td>
+                        <td>${order.status}</td>
                         <td>${new Date(order.createdAt).toLocaleString()}</td>
                     </tr>
                 `).join('');
-            if (data.orders.length === 0) {
-                ordersTable.innerHTML = '<tr><td colspan="5" style="text-align:center;">No recent orders found.</td></tr>';
+            } else {
+                 ordersBody.innerHTML = '<tr><td colspan="6">No recent orders.</td></tr>';
             }
         }
-    });
-  </script>
 
+        // Event listener for review moderation
+        document.getElementById('pendingReviewsList').addEventListener('click', async (e) => {
+            if (e.target.matches('.btn-approve, .btn-delete')) {
+                const button = e.target;
+                const reviewId = button.dataset.id;
+                const action = button.dataset.action;
+                const password = sessionStorage.getItem('adminPassword');
+
+                if (!password || !reviewId || !action) return;
+                
+                button.textContent = '...';
+                button.disabled = true;
+
+                try {
+                    const response = await fetch('/api/moderate-review', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ adminPassword: password, reviewId, action })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+
+                    // Remove the review card from the UI on success
+                    document.getElementById(`review-${reviewId}`).remove();
+
+                } catch (error) {
+                    console.error('Moderation failed:', error);
+                    alert(`Error: ${error.message}`);
+                    button.textContent = action.charAt(0).toUpperCase() + action.slice(1);
+                    button.disabled = false;
+                }
+            }
+        });
+
+    });
+    </script>
 </body>
 </html>

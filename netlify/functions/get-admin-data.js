@@ -1,23 +1,7 @@
-// netlify/functions/get-admin-data.js
 // This secure function fetches all necessary data for the admin dashboard.
 
-const { initializeApp, getApps } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const { credential } = require('firebase-admin');
-
-// Initialize Firebase Admin SDK
-if (!getApps().length) {
-    try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-        initializeApp({
-            credential: credential.cert(serviceAccount),
-        });
-        console.log("Firebase Admin SDK initialized in get-admin-data.");
-    } catch (e) {
-        console.error("Failed to initialize Firebase Admin SDK in get-admin-data:", e);
-    }
-}
-const db = getFirestore();
+// CORRECT: Imports the initialized 'db' instance from the central file.
+const { db } = require('./firebase-admin');
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
@@ -40,8 +24,6 @@ exports.handler = async (event) => {
         }
         // --- End Security Check ---
 
-        console.log("Admin authorized. Fetching dashboard data...");
-
         // --- Fetch Data from Firestore ---
         // 1. Get recent orders
         const ordersRef = db.collection('orders').orderBy('createdAt', 'desc').limit(50);
@@ -53,15 +35,16 @@ exports.handler = async (event) => {
         const reviewsSnapshot = await reviewsRef.get();
         const pendingReviews = reviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
-        // 3. Get key inventory counts (optional but useful)
+        // 3. Get key inventory counts
         const keysRef = db.collection('digital_keys');
         const availableKeysSnapshot = await keysRef.where('status', '==', 'available').get();
         const inventory = {};
         availableKeysSnapshot.docs.forEach(doc => {
             const keyData = doc.data();
-            inventory[keyData.productId] = (inventory[keyData.productId] || 0) + 1;
+            if(keyData.productId) {
+               inventory[keyData.productId] = (inventory[keyData.productId] || 0) + 1;
+            }
         });
-
 
         return {
             statusCode: 200,

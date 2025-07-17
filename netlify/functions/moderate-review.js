@@ -1,23 +1,7 @@
-// netlify/functions/moderate-review.js
 // This secure function handles approving or deleting a review.
 
-const { initializeApp, getApps } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const { credential } = require('firebase-admin');
-
-// Initialize Firebase Admin SDK
-if (!getApps().length) {
-    try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-        initializeApp({
-            credential: credential.cert(serviceAccount),
-        });
-        console.log("Firebase Admin SDK initialized in moderate-review.");
-    } catch (e) {
-        console.error("Failed to initialize Firebase Admin SDK in moderate-review:", e);
-    }
-}
-const db = getFirestore();
+// CORRECT: Imports the initialized 'db' instance.
+const { db } = require('./firebase-admin');
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
