@@ -2,672 +2,215 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>DigiWorld - Products</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigiWorld - Product Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     :root {
-      --daraz-orange: #f57224;
-      --daraz-dark: #212121;
-      --daraz-grey: #fafafa;
+      --primary: #f57224; --primary-dark: #d45703; --accent: #fe724c;
+      --card-bg: #fff; --bg: #f6f6fa; --radius: 18px;
+      --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+      --text-color: #333; --text-light: #666;
     }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: var(--daraz-grey);
-      color: var(--daraz-dark);
-    }
-    /* Header styles */
-    .header {
-      background: var(--daraz-orange);
-      color: #fff;
-      padding: 0 0 4px 0;
-      box-shadow: 0 2px 8px #2221;
-    }
-    .header-main {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 24px 10px 24px;
-    }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.7em;
-      font-weight: bold;
-      letter-spacing: 1.5px;
-      color: #fff;
-      text-decoration: none;
-    }
-    .logo img {
-      width: 44px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px #0002;
-    }
-    nav.nav {
-      display: flex;
-      gap: 20px;
-    }
-    nav.nav a {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 1.02em;
-      transition: color 0.15s;
-      padding-bottom: 2px;
-      border-bottom: 2px solid transparent;
-    }
-    nav.nav a:hover {
-      color: #ffd700;
-      border-bottom: 2px solid #ffd700;
-    }
-    nav.nav .buy {
-      background: #fff;
-      color: var(--daraz-orange) !important;
-      border-radius: 5px;
-      padding: 6px 16px;
-      font-weight: bold;
-      border: none;
-      margin-left: 8px;
-    }
-    nav.nav .buy:hover {
-      background: #ffd700;
-      color: #212121 !important;
-    }
-    /* Page Title */
-    .page-title {
-      max-width: 1200px;
-      margin: 32px auto 20px auto;
-      font-size: 2.4em;
-      font-weight: 700;
-      color: var(--daraz-orange);
-      padding: 0 24px;
-    }
-    /* Search Bar */
-    .search-container {
-      max-width: 1200px;
-      margin: 0 auto 20px auto;
-      padding: 0 24px;
-      text-align: center;
-    }
-    #productSearch {
-      width: 320px;
-      padding: 10px 14px;
-      font-size: 1.1em;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-shadow: 0 1px 3px #ccc;
-      transition: border-color 0.2s;
-    }
-    #productSearch:focus {
-      outline: none;
-      border-color: var(--daraz-orange);
-      box-shadow: 0 0 6px var(--daraz-orange);
-    }
-    /* Product Grid */
-    .product-grid {
-      max-width: 1200px;
-      margin: 0 auto 60px auto;
-      padding: 0 24px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      min-height: 350px;
-    }
-    .product-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px #f5722422;
-      padding: 20px 20px 24px 20px;
-      text-align: left;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: box-shadow 0.15s;
-      min-height: 380px;
-    }
-    .product-card:hover {
-      box-shadow: 0 6px 24px #f5722433;
-    }
-    .product-card img {
-      width: 120px;
-      margin-bottom: 16px;
-      border-radius: 8px;
-      box-shadow: 0 1px 6px #f5722412;
-      align-self: center;
-    }
-    .p-title {
-      font-size: 1.3em;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: var(--daraz-orange);
-      text-align: center;
-    }
-    .p-desc {
-      font-size: 1em;
-      color: #555;
-      margin-bottom: 14px;
-      min-height: 64px;
-      line-height: 1.3;
-    }
-    .p-activation {
-      font-size: 0.9em;
-      color: #777;
-      margin-bottom: 16px;
-      line-height: 1.4;
-      background: #f9f9f9;
-      padding: 10px;
-      border-radius: 6px;
-      width: 100%;
-    }
-    .p-price {
-      font-size: 1.4em;
-      color: #d45703;
-      font-weight: 700;
-      margin-bottom: 14px;
-      text-align: center;
-      width: 100%;
-    }
-    .buy-btn {
-      background: var(--daraz-orange);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 14px 0;
-      width: 100%;
-      font-size: 1.15em;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.17s;
-      text-transform: uppercase;
-    }
-    .buy-btn:hover {
-      background: #ffd700;
-      color: #212121;
-    }
-    /* Pagination */
-    .pagination {
-      max-width: 1200px;
-      margin: 0 auto 40px auto;
-      text-align: center;
-      padding: 0 24px;
-    }
-    .pagination button {
-      background: var(--daraz-orange);
-      color: #fff;
-      border: none;
-      margin: 0 4px;
-      padding: 8px 14px;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1em;
-      transition: background 0.15s;
-    }
-    .pagination button:hover {
-      background: #ffd700;
-      color: #212121;
-    }
-    .pagination button.disabled {
-      background: #ccc;
-      cursor: not-allowed;
-      color: #888;
-    }
-    /* Footer */
-    .footer {
-      width: 100%;
-      background: #d45703;
-      color: #fff9f3;
-      padding: 38px 0 16px 0;
-      text-align: center;
-      font-size: 1em;
-      letter-spacing: 0.1px;
-      margin-top: 60px;
-    }
-    @media (max-width: 900px) {
-      .header-main, .product-grid { max-width: 98vw; }
-    }
-    @media (max-width: 600px) {
-      .header-main { flex-direction: column; align-items: stretch; gap: 12px; padding: 16px 8px 10px 8px; }
-      .product-card img { width: 80px; }
-      .p-title { font-size: 1.1em; }
-      .p-desc, .p-activation { font-size: 0.9em; }
-    }
+    body { background: var(--bg); font-family: 'Nunito Sans', sans-serif; margin: 0; color: var(--text-color); }
+    /* Header, Cart, Footer styles are identical to index.html */
+    .site-header { background: linear-gradient(90deg, #fd7e1a, #ff3a5e); color: #fff; box-shadow: 0 2px 16px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; padding: 10px 16px; }
+    .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo-pro { font-size: 1.8rem; font-weight: 900; color: #fff; text-decoration: none; }
+    .main-nav { display: flex; gap: 15px; }
+    .nav-link-pro { font-size: 1rem; padding: 7px 15px; color: #fff; border-radius: 9px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+    .nav-link-pro.active, .nav-link-pro:hover { background: rgba(255,255,255,0.2); }
+    .header-actions { display: flex; align-items: center; gap: 15px; }
+    .cart-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; position: relative; }
+    .cart-icon-badge { position: absolute; top: -5px; right: -10px; background: var(--accent); color: white; border-radius: 50%; font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
+    .mini-cart-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1010; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+    .mini-cart-overlay.active { opacity: 1; visibility: visible; }
+    .mini-cart-drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 380px; height: 100%; background: white; z-index: 1011; transition: right 0.4s; display: flex; flex-direction: column; }
+    .mini-cart-overlay.active .mini-cart-drawer { right: 0; }
+    .mini-cart-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .mini-cart-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .mini-cart-items { flex-grow: 1; overflow-y: auto; padding: 15px; }
+    .mini-cart-footer { padding: 15px; border-top: 1px solid #eee; }
+    .mini-cart-total { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; }
+    .mini-cart-checkout { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .site-footer { background: #222; color: #ccc; padding: 40px 20px; margin-top: 60px; }
+    .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; }
+    .footer-col h3 { color: white; }
+    .footer-col ul { list-style: none; padding: 0; }
+    .footer-col a { color: #ccc; text-decoration: none; }
+    .footer-bottom { text-align: center; margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; }
+    .dw-bottom-nav { display: none; }
+    @media (max-width: 768px) { .main-nav { display: none; } .dw-bottom-nav { display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; left: 0; width: 100%; height: 55px; background: white; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); z-index: 1000; } .dw-bottom-nav a, .dw-bottom-nav button { background: none; border: none; color: var(--text-light); display: flex; flex-direction: column; align-items: center; text-decoration: none; font-size: 0.8rem; } .dw-bottom-nav .fas { font-size: 1.4rem; } }
+    /* Page Specific Styles */
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 16px; }
+    .back-link { font-size: 1rem; font-weight: 700; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .product-details-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; background: var(--card-bg); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .product-image-container img { width: 100%; border-radius: var(--radius); }
+    .product-title { font-size: 2.2rem; font-weight: 900; color: var(--primary-dark); margin: 0 0 15px 0; }
+    .product-price { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin-bottom: 20px; }
+    .product-description { font-size: 1rem; line-height: 1.7; color: #555; margin-bottom: 30px; }
+    .product-actions { display: flex; gap: 15px; }
+    .action-button { flex-grow: 1; padding: 15px 20px; font-size: 1.1rem; font-weight: 700; border-radius: 12px; border: none; cursor: pointer; text-align: center; text-decoration: none; color: white; }
+    .add-to-cart { background: var(--primary-dark); }
+    .buy-now { background: var(--accent); }
+    .product-info-tabs { margin-top: 30px; background: var(--card-bg); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .tab-buttons { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+    .tab-button { padding: 15px 25px; cursor: pointer; background: none; border: none; font-size: 1.1rem; font-weight: 700; color: #888; position: relative; }
+    .tab-button.active { color: var(--primary-dark); }
+    .tab-button.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 3px; background: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tab-content ul, .tab-content ol { line-height: 1.8; padding-left: 20px; }
+    @media (max-width: 768px) { .product-details-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-main">
-      <a href="index.html" class="logo">
-        <img src="logo.jpg" alt="DigiWorld Logo" /> DigiWorld
-      </a>
-      <nav class="nav">
-        <a href="index.html">Home</a>
-        <a href="faq.html">FAQ</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-        <a href="checkout.html" class="buy">Buy Now</a>
-      </nav>
+
+  <header class="site-header">
+    <div class="header-container">
+        <a href="index.html" class="logo-pro">DigiWorld</a>
+        <nav class="main-nav">
+            <a href="index.html" class="nav-link-pro">Home</a>
+            <a href="index.html#products" class="nav-link-pro">Products</a>
+        </nav>
+        <div class="header-actions">
+            <button class="cart-btn" id="cartBtn">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-icon-badge" id="cartCount">0</span>
+            </button>
+        </div>
     </div>
   </header>
 
-  <h1 class="page-title">Our Products</h1>
-
-  <div class="search-container">
-    <input type="text" id="productSearch" placeholder="Search products..." />
+  <main class="container">
+    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
+    <div id="product-details-container"></div>
+    <div class="product-info-tabs">
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="features">Features</button>
+            <button class="tab-button" data-tab="requirements">Requirements</button>
+            <button class="tab-button" data-tab="activation">Activation</button>
+        </div>
+        <div id="features" class="tab-content active"></div>
+        <div id="requirements" class="tab-content"></div>
+        <div id="activation" class="tab-content"></div>
+    </div>
+  </main>
+  
+  <div class="mini-cart-overlay" id="miniCartOverlay">
+    <div class="mini-cart-drawer">
+      <div class="mini-cart-header">
+        <h3>Your Cart</h3>
+        <button class="mini-cart-close" id="miniCartClose">&times;</button>
+      </div>
+      <div class="mini-cart-items" id="miniCartItems"></div>
+      <div class="mini-cart-footer">
+        <div class="mini-cart-total" id="miniCartTotal"></div>
+        <button class="mini-cart-checkout" onclick="window.location.href='checkout.html'">Checkout</button>
+      </div>
+    </div>
   </div>
 
-  <section class="product-grid" id="productGrid">
-    <!-- Product cards rendered by JS -->
-  </section>
+  <nav class="dw-bottom-nav">
+    <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="index.html#products"><i class="fas fa-th-large"></i><span>Products</span></a>
+    <button id="mobileCartBtn"><i class="fas fa-shopping-cart"></i><span>Cart</span></button>
+    <a href="profile.html"><i class="fas fa-user"></i><span>Account</span></a>
+  </nav>
 
-  <div class="pagination" id="pagination"></div>
+  <script type="module">
+    import { products } from './products.js';
 
-  <footer class="footer">
-    &copy; 2024 DigiWorld | All rights reserved. &bull; Support: support@keyzone.com
-  </footer>
+    document.addEventListener('DOMContentLoaded', () => {
+        const detailsContainer = document.getElementById('product-details-container');
+        let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+        let currentCurrency = 'USD';
+        const currencySymbols = { USD: '$', LKR: 'Rs' };
 
-  <script>
-    const products = [
-  {
-    id: "office365lifetime",
-    name: {
-      en: "Office 365 Lifetime Genuine Account (Up to 5 Devices)",
-      si: "Office 365 ජීවිත කාලීන ගිණුම (ඉහළම උපාංග 5ක්)",
-      ta: "Office 365 வாழ்நாள் கணக்கு (அதிகபட்சம் 5 கருவிகள்)",
-      ru: "Office 365 пожизненная лицензия (до 5 устройств)",
-      zh: "Office 365 永久正版账号（最多5台设备）",
-      es: "Office 365 Cuenta genuina de por vida (Hasta 5 dispositivos)"
-    },
-    price: {
-      LKR: 7700,
-      USD: 23,
-      EUR: 21,
-      GBP: 18,
-      INR: 1900
-    },
-    image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    },
-    desc: {
-      en: "Lifetime activation for up to 5 devices. Full Microsoft Office 365 suite including Word, Excel, PowerPoint and more. No monthly/annual fees. Instant delivery to your email after payment.",
-      si: "ඉහළම උපාංග 5ක් සඳහා ජීවිත කාලීන සක්‍රීය කිරීම. Word, Excel, PowerPoint ඇතුළු සම්පූර්ණ Office 365 එකතුව. මාසික හෝ වාර්ෂික ගාස්තු නොමැත. ගෙවීමෙන් පසු ඔබේ ඊමේල් වෙත ක්ෂණික බෙදාහැරීම.",
-      ta: "5 கருவிகள் வரை வாழ்நாள் செயல்படுத்துதல். Word, Excel, PowerPoint உட்பட முழு Office 365 தொகுப்பு. மாத/வருட கட்டணம் இல்லை. பணம் செலுத்தியவுடன் உங்கள் மின்னஞ்சலில் உடனடி விநியோகம்.",
-      ru: "Пожизненная активация на 5 устройств. Полный пакет Microsoft Office 365: Word, Excel, PowerPoint и др. Без абонплаты. Мгновенная доставка на ваш e-mail после оплаты.",
-      zh: "最多5台设备终身激活。包含Word、Excel、PowerPoint等完整Office 365套装。无月费/年费。付款后立即发送至您的邮箱。",
-      es: "Activación de por vida para hasta 5 dispositivos. Suite completa de Microsoft Office 365, incluye Word, Excel, PowerPoint y más. Sin tarifas mensuales/anuales. Entrega instantánea por correo tras el pago."
-    }
-  },
-  {
-    id: "office365onedrive",
-    name: {
-      en: "Microsoft Office 365 5TB OneDrive Lifetime Account",
-      si: "Microsoft Office 365 5TB OneDrive ජීවිත කාලීන ගිණුම",
-      ta: "Microsoft Office 365 5TB OneDrive வாழ்நாள் கணக்கு",
-      ru: "Office 365 с 5TB OneDrive навсегда",
-      zh: "Office 365 5TB OneDrive 永久账号",
-      es: "Microsoft Office 365 5TB OneDrive cuenta de por vida"
-    },
-    price: {
-      LKR: 5900,
-      USD: 18,
-      EUR: 16,
-      GBP: 14,
-      INR: 1450
-    },
-    image: "https://lk-live-02.slatic.net/p/8f2c61a27b921e538ed4e2d2eaf2c161.jpg",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    },
-    desc: {
-      en: "5TB OneDrive storage plus full Office 365. Lifetime account with instant email delivery. Use on any device, anytime.",
-      si: "5TB OneDrive ගබඩා පහසුකම සහ සම්පූර්ණ Office 365. ජීවිත කාලීන ගිණුමක් ක්ෂණික ඊමේල් බෙදාහැරීම. ඕනෑම උපාංගයක් මත භාවිතා කරන්න.",
-      ta: "5TB OneDrive சேமிப்பு மற்றும் முழு Office 365. வாழ்நாள் கணக்கு உடனடி மின்னஞ்சல் விநியோகம். எந்த சாதனத்திலும் பயன்படுத்தலாம்.",
-      ru: "5ТБ OneDrive + полный Office 365. Аккаунт навсегда, мгновенная доставка на e-mail. Для любого устройства.",
-      zh: "5TB OneDrive云存储及完整Office 365。永久账号，邮箱即时交付。任意设备均可用。",
-      es: "5TB almacenamiento OneDrive y Office 365 completo. Cuenta de por vida con entrega instantánea. Úsalo en cualquier dispositivo."
-    }
-  },
-  {
-    id: "win10pro",
-    name: {
-      en: "Windows 10 Pro Key",
-      si: "Windows 10 Pro යතුර",
-      ta: "Windows 10 Pro விசை",
-      ru: "Ключ Windows 10 Pro",
-      zh: "Windows 10 Pro 激活密钥",
-      es: "Clave Windows 10 Pro"
-    },
-    price: {
-      LKR: 3000,
-      USD: 9,
-      EUR: 8,
-      GBP: 7,
-      INR: 700
-    },
-    image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    },
-    desc: {
-      en: "Genuine Windows 10 Pro lifetime license key. For 1 PC. Instant email delivery. Activate and use worldwide.",
-      si: "ස්ථාවර Windows 10 Pro යතුරක්. එක් පරිගණකයක් සඳහා. ක්ෂණික ඊමේල් බෙදාහැරීම. ලොවපුරා සක්‍රිය කර භාවිතා කරන්න.",
-      ta: "உண்மை Windows 10 Pro வாழ்நாள் விசை. 1 கணினிக்கானது. உடனடி மின்னஞ்சல் விநியோகம். உலகம் முழுவதும் பயன்படுத்தலாம்.",
-      ru: "Настоящий ключ Windows 10 Pro навсегда. Для 1 ПК. Мгновенная e-mail доставка. Для активации по всему миру.",
-      zh: "正版 Windows 10 Pro 终身密钥。1台电脑适用。邮箱即时发货。全球通用。",
-      es: "Licencia genuina Windows 10 Pro de por vida. Para 1 PC. Entrega instantánea por correo. Usable en todo el mundo."
-    }
-  },
-  {
-    id: "win11pro",
-    name: {
-      en: "Windows 11 Pro Key",
-      si: "Windows 11 Pro යතුර",
-      ta: "Windows 11 Pro விசை",
-      ru: "Ключ Windows 11 Pro",
-      zh: "Windows 11 Pro 激活密钥",
-      es: "Clave Windows 11 Pro"
-    },
-    price: {
-      LKR: 3700,
-      USD: 11,
-      EUR: 10,
-      GBP: 8,
-      INR: 860
-    },
-    image: "https://img.drz.lazcdn.com/static/lk/p/4ac77c5340b852dcfe5d0f0ba66fb1ed.png_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    },
-    desc: {
-      en: "Genuine Windows 11 Pro lifetime license key. For 1 PC. Instant email delivery. Use worldwide.",
-      si: "ස්ථාවර Windows 11 Pro යතුරක්. එක් පරිගණකයක් සඳහා. ක්ෂණික ඊමේල් බෙදාහැරීම. ලොවපුරා සක්‍රිය කර භාවිතා කරන්න.",
-      ta: "உண்மை Windows 11 Pro வாழ்நாள் விசை. 1 கணினிக்கானது. உடனடி மின்னஞ்சல் விநியோகம். உலகம் முழுவதும் பயன்படுத்தலாம்.",
-      ru: "Настоящий ключ Windows 11 Pro навсегда. Для 1 ПК. Мгновенная e-mail доставка. Для активации по всему миру.",
-      zh: "正版 Windows 11 Pro 终身密钥。1台电脑适用。邮箱即时发货。全球通用。",
-      es: "Licencia genuina Windows 11 Pro de por vida. Para 1 PC. Entrega instantánea por correo. Usable en todo el mundo."
-    }
-  },
-  {
-    id: "office2019",
-    name: {
-      en: "Office 2019 Pro Plus Key",
-      si: "Office 2019 Pro Plus යතුර",
-      ta: "Office 2019 Pro Plus விசை",
-      ru: "Ключ Office 2019 Pro Plus",
-      zh: "Office 2019 Pro Plus 激活密钥",
-      es: "Clave Office 2019 Pro Plus"
-    },
-    price: {
-      LKR: 3600,
-      USD: 10,
-      EUR: 9,
-      GBP: 8,
-      INR: 800
-    },
-    image: "https://lk-live-02.slatic.net/p/1112ca384c290b94df58f6c6dc7c7d81.jpg",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    },
-    desc: {
-      en: "Lifetime activation for 1 PC. Full Office 2019 suite (Word, Excel, PowerPoint, Outlook). Genuine product. Instant email delivery.",
-      si: "එක් පරිගණකයක් සඳහා ජීවිත කාලීන සක්‍රීය කිරීම. සම්පූර්ණ Office 2019 එකතුව. සත්‍ය නිෂ්පාදනයක්. ක්ෂණික ඊමේල් බෙදාහැරීම.",
-      ta: "1 கணினிக்கான வாழ்நாள் செயல்படுத்துதல். முழு Office 2019 தொகுப்பு. உண்மை தயாரிப்பு. உடனடி மின்னஞ்சல் விநியோகம்.",
-      ru: "Пожизненная активация для 1 ПК. Весь пакет Office 2019 (Word, Excel, PowerPoint, Outlook). Настоящий продукт. Мгновенная доставка.",
-      zh: "1台电脑终身激活。包含Word、Excel、PowerPoint、Outlook等完整Office 2019。正版产品。邮箱即时发货。",
-      es: "Activación de por vida para 1 PC. Suite completa Office 2019. Producto genuino. Entrega instantánea."
-    }
-  },
-  {
-    id: "office2016",
-    name: {
-      en: "Office 2016 Pro Plus Key",
-      si: "Office 2016 Pro Plus යතුර",
-      ta: "Office 2016 Pro Plus விசை",
-      ru: "Ключ Office 2016 Pro Plus",
-      zh: "Office 2016 Pro Plus 激活密钥",
-      es: "Clave Office 2016 Pro Plus"
-    },
-    price: {
-      LKR: 2500,
-      USD: 7,
-      EUR: 7,
-      GBP: 6,
-      INR: 550
-    },
-    image: "https://lk-live-02.slatic.net/p/083dfb41348b223e88090c10c5cb1fcf.jpg",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    },
-    desc: {
-      en: "Genuine Office 2016 Pro Plus key for 1 PC, lifetime use. All Office apps. Instant email delivery.",
-      si: "එක් පරිගණකයක් සඳහා ජීවිත කාලීන Office 2016 Pro Plus යතුර. සියළුම Office යෙදුම්. ක්ෂණික ඊමේල් බෙදාහැරීම.",
-      ta: "1 கணினிக்கான Office 2016 Pro Plus வாழ்நாள் விசை. அனைத்து Office செயலிகள். உடனடி மின்னஞ்சல் விநியோகம்.",
-      ru: "Настоящий ключ Office 2016 Pro Plus навсегда для 1 ПК. Все приложения Office. Мгновенная доставка.",
-      zh: "1台电脑终身正版Office 2016 Pro Plus密钥。全部Office应用。邮箱即时发货。",
-      es: "Clave genuina Office 2016 Pro Plus de por vida para 1 PC. Todas las apps. Entrega instantánea."
-    }
-  },
-  {
-    id: "win10home",
-    name: {
-      en: "Windows 10 Home Key",
-      si: "Windows 10 Home යතුර",
-      ta: "Windows 10 Home விசை",
-      ru: "Ключ Windows 10 Home",
-      zh: "Windows 10 Home 激活密钥",
-      es: "Clave Windows 10 Home"
-    },
-    price: {
-      LKR: 2500,
-      USD: 7,
-      EUR: 7,
-      GBP: 6,
-      INR: 550
-    },
-    image: "https://lk-live-02.slatic.net/p/156b0a52a51e2835acb135aafad0c4c8.jpg",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    },
-    desc: {
-      en: "Genuine Windows 10 Home license key. For 1 PC. Lifetime use. Instant email delivery.",
-      si: "එක් පරිගණකයක් සඳහා ජීවිත කාලීන Windows 10 Home යතුර. ක්ෂණික ඊමේල් බෙදාහැරීම.",
-      ta: "1 கணினிக்கான Windows 10 Home வாழ்நாள் விசை. உடனடி மின்னஞ்சல் விநியோகம்.",
-      ru: "Ключ Windows 10 Home навсегда для 1 ПК. Мгновенная e-mail доставка.",
-      zh: "1台电脑终身正版Windows 10 Home密钥。邮箱即时发货。",
-      es: "Clave genuina Windows 10 Home de por vida para 1 PC. Entrega instantánea."
-    }
-  },
-  {
-    id: "project2019",
-    name: {
-      en: "Microsoft Project Pro 2019 Key",
-      si: "Microsoft Project Pro 2019 යතුර",
-      ta: "Microsoft Project Pro 2019 விசை",
-      ru: "Ключ Project Pro 2019",
-      zh: "Project Pro 2019 激活密钥",
-      es: "Clave Project Pro 2019"
-    },
-    price: {
-      LKR: 4800,
-      USD: 14,
-      EUR: 13,
-      GBP: 11,
-      INR: 1100
-    },
-    image: "https://img.drz.lazcdn.com/g/kf/S418dd45f61604ef8a7be51cd7190ffec3.jpg_400x400q75.avif",
-    delivery: {
-      en: "Instant Delivery",
-      si: "ක්ෂණික බෙදාහැරීම",
-      ta: "உடனடி விநியோகம்",
-      ru: "Мгновенная доставка",
-      zh: "即时发货",
-      es: "Entrega instantánea"
-    },
-    desc: {
-      en: "Microsoft Project Pro 2019 genuine key. Lifetime activation for 1 PC. Instant delivery to your email.",
-      si: "Microsoft Project Pro 2019 සත්‍ය යතුර. එක් පරිගණකයක් සඳහා ජීවිත කාලීන සක්‍රීය කිරීම. ක්ෂණික ඊමේල් බෙදාහැරීම.",
-      ta: "Microsoft Project Pro 2019 உண்மை விசை. 1 கணினிக்கான வாழ்நாள் செயல்படுத்துதல். உடனடி மின்னஞ்சல் விநியோகம்.",
-      ru: "Настоящий ключ Project Pro 2019. Пожизненная активация для 1 ПК. Мгновенная e-mail доставка.",
-      zh: "Microsoft Project Pro 2019 正版密钥。1台电脑终身激活。邮箱即时发货。",
-      es: "Clave genuina Project Pro 2019. Activación de por vida para 1 PC. Entrega instantánea."
-    }
-  }
-];
-    const productsPerPage = 4;
-    let currentPage = 1;
-    let filteredProducts = [...products];
-
-    const productGrid = document.getElementById("productGrid");
-    const pagination = document.getElementById("pagination");
-    const searchInput = document.getElementById("productSearch");
-    // --- THIS IS THE NEW PART ---
-    try {
-        const response = await fetch('/.netlify/functions/get-products');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        // Cart functions (same as index.html)
+        const cartBtn = document.getElementById('cartBtn');
+        const mobileCartBtn = document.getElementById('mobileCartBtn');
+        const miniCartOverlay = document.getElementById('miniCartOverlay');
+        const miniCartClose = document.getElementById('miniCartClose');
+        const cartCountBadge = document.getElementById('cartCount');
+        
+        function updateCartUI() {
+            const count = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+            cartCountBadge.textContent = count;
         }
-        allProducts = await response.json();
-        filteredProducts = [...allProducts];
-        renderProducts();
-      } catch (error) {
-        console.error("Could not fetch products:", error);
-        productGrid.innerHTML = "<p>Error loading products. Please try again later.</p>";
-      }
-      // --- END OF NEW PART ---
-
-    function renderProducts() {
-      productGrid.innerHTML = "";
-      const startIndex = (currentPage - 1) * productsPerPage;
-      const endIndex = startIndex + productsPerPage;
-      const pageProducts = filteredProducts.slice(startIndex, endIndex);
-
-      if (pageProducts.length === 0) {
-        productGrid.innerHTML = "<p>No products found.</p>";
-        pagination.innerHTML = "";
-        return;
-      }
-
-      pageProducts.forEach(product => {
-        const card = document.createElement("div");
-        card.className = "product-card";
-        card.setAttribute("data-name", product.name);
-
-        card.innerHTML = `
-          <img src="${product.img}" alt="${product.name}" />
-          <div class="p-title">${product.name}</div>
-          <div class="p-desc">${product.desc}</div>
-          <div class="p-activation"><strong>How to activate:</strong><br>${product.activation}</div>
-          <div class="p-price">${product.price}</div>
-          <button class="buy-btn" onclick="buyProduct('${product.id}')">Buy Now</button>
-        `;
-
-        productGrid.appendChild(card);
-      });
-
-      renderPagination();
-    }
-
-    function renderPagination() {
-      pagination.innerHTML = "";
-      const pageCount = Math.ceil(filteredProducts.length / productsPerPage);
-
-      if (pageCount <= 1) return;
-
-      const prevBtn = document.createElement("button");
-      prevBtn.textContent = "Prev";
-      prevBtn.disabled = currentPage === 1;
-      prevBtn.className = prevBtn.disabled ? "disabled" : "";
-      prevBtn.onclick = () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderProducts();
-          window.scrollTo(0, 0);
+        function saveCart() {
+            localStorage.setItem('digiworldCart', JSON.stringify(cart));
+            updateCartUI();
         }
-      };
-      pagination.appendChild(prevBtn);
-
-      for (let i = 1; i <= pageCount; i++) {
-        const pageBtn = document.createElement("button");
-        pageBtn.textContent = i;
-        pageBtn.className = i === currentPage ? "disabled" : "";
-        pageBtn.disabled = i === currentPage;
-        pageBtn.onclick = () => {
-          currentPage = i;
-          renderProducts();
-          window.scrollTo(0, 0);
-        };
-        pagination.appendChild(pageBtn);
-      }
-
-      const nextBtn = document.createElement("button");
-      nextBtn.textContent = "Next";
-      nextBtn.disabled = currentPage === pageCount;
-      nextBtn.className = nextBtn.disabled ? "disabled" : "";
-      nextBtn.onclick = () => {
-        if (currentPage < pageCount) {
-          currentPage++;
-          renderProducts();
-          window.scrollTo(0, 0);
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            if (cart[productId]) {
+                cart[productId].quantity++;
+            } else {
+                cart[productId] = { id: product.id, name: product.name.en, image: product.image, quantity: 1 };
+            }
+            saveCart();
         }
-      };
-      pagination.appendChild(nextBtn);
-    }
+        cartBtn.addEventListener('click', () => miniCartOverlay.classList.add('active'));
+        mobileCartBtn.addEventListener('click', () => miniCartOverlay.classList.add('active'));
+        miniCartClose.addEventListener('click', () => miniCartOverlay.classList.remove('active'));
+        miniCartOverlay.addEventListener('click', (e) => {
+            if (e.target === miniCartOverlay) miniCartOverlay.classList.remove('active');
+        });
 
-    function filterProducts() {
-      const query = searchInput.value.toLowerCase();
-      filteredProducts = products.filter(p =>
-        p.name.toLowerCase().includes(query)
-      );
-      currentPage = 1;
-      renderProducts();
-    }
+        // Page specific logic
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+        const product = products.find(p => p.id === productId);
 
-    function buyProduct(productId) {
-      window.location.href = `checkout.html?product=${encodeURIComponent(productId)}`;
-    }
+        if (product) {
+            const currencySymbol = currencySymbols[currentCurrency] || '$';
+            const price = (product.price[currentCurrency] || product.price.USD).toFixed(2);
+            document.title = `DigiWorld - ${product.name.en}`;
+            
+            detailsContainer.innerHTML = `
+                <div class="product-details-grid">
+                    <div class="product-image-container"><img src="${product.image}" alt="${product.name.en}"></div>
+                    <div class="product-info">
+                        <h1 class="product-title">${product.name.en}</h1>
+                        <p class="product-price">${currencySymbol}${price}</p>
+                        <div class="product-description">${product.desc.en}</div>
+                        <div class="product-actions">
+                            <button class="action-button add-to-cart" data-id="${product.id}">Add to Cart</button>
+                            <a href="checkout.html?product=${product.id}" class="action-button buy-now">Buy Now</a>
+                        </div>
+                    </div>
+                </div>`;
+            
+            document.getElementById('features').innerHTML = `<ul>${product.features.en.map(f => `<li>${f}</li>`).join('')}</ul>`;
+            document.getElementById('requirements').innerHTML = `<ul>${product.requirements.en.map(r => `<li>${r}</li>`).join('')}</ul>`;
+            document.getElementById('activation').innerHTML = `<ol>${product.activation.en.map(a => `<li>${a}</li>`).join('')}</ol>`;
 
-    searchInput.addEventListener("input", filterProducts);
+        } else {
+            detailsContainer.innerHTML = `<p>Product not found.</p>`;
+        }
 
-    renderProducts();
+        document.body.addEventListener('click', (e) => {
+            if (e.target.classList.contains('add-to-cart')) {
+                addToCart(e.target.dataset.id);
+            }
+        });
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    if(content.id === button.dataset.tab) content.classList.add('active');
+                });
+            });
+        });
+
+        updateCartUI();
+    });
   </script>
 </body>
 </html>

@@ -1,28 +1,844 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DigiWorld - Product Details</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>DigiWorld - Product Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #f57224;
+      --primary-dark: #d45703;
+      --accent: #fe724c;
+      --card-bg: #fff;
+      --bg: #f6f6fa;
+      --radius: 18px;
+      --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+      --star-color: #ffc107;
+      --star-color-inactive: #ddd;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      color: #333;
+    }
+    /* --- HEADER, CART, AND FOOTER STYLES FROM INDEX.HTML --- */
+    header {
+      background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
+      color: #fff;
+      box-shadow: 0 2px 16px #f5722433;
+      border-radius: 0 0 18px 18px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding-bottom: 6px;
+    }
+    .header-main-pro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 16px 9px 16px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .logo-pro {
+      font-size: 2.3rem; font-weight: 900; letter-spacing: -2px;
+      color: #fff; text-shadow: 0 3px 12px #0002;
+      cursor: pointer; text-decoration: none;
+    }
+    header nav {
+      display: flex; align-items: center; gap: 10px;
+      flex-grow: 1; justify-content: center;
+    }
+    .nav-link-pro {
+      font-size: 1.05rem; padding: 7px 17px; color: #fff;
+      border-radius: 11px; font-weight: 700; text-decoration: none;
+      background: none; transition: background 0.17s, color 0.13s;
+    }
+    .nav-link-pro:hover, .nav-link-pro.active {
+      background: rgba(255, 255, 255, 0.837); color: #fe724c;
+    }
+    .search-bar-modern {
+      position: relative;
+      z-index: 9;
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 24px;
+      padding: 2px 10px;
+      box-shadow: 0 2px 12px #0001;
+      margin: 12px auto 16px auto;
+      max-width: 600px;
+    }
+    .search-suggestions {
+      position: absolute;
+      top: 110%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 6px 24px #f5722414;
+      z-index: 99;
+      max-height: 260px;
+      overflow-y: auto;
+      border-top: 1px solid #f5722433;
+      font-size: 1.08rem;
+      padding-top: 6px;
+      padding-bottom: 4px;
+      display: none;
+    }
+    .suggestion-item {
+      padding: 13px 22px;
+      cursor: pointer;
+      color: #222;
+      border-radius: 7px;
+      font-weight: 600;
+      transition: background 0.13s, color 0.12s;
+    }
+    .suggestion-item:hover {
+      background: #ffe4d1;
+      color: #d45703;
+    }
+    .dropdown { position: relative; }
+    .dropdown-toggle {
+        background: rgba(255, 255, 255, 0.884); border: none; font-size: 0.98em; font-weight: 700;
+        display: flex; align-items: center; gap: 5px; cursor: pointer;
+        color: #fe724c; border-radius: 7px; padding: 3px 10px;
+        transition: background 0.12s; user-select: none;
+    }
+    .dropdown-toggle:hover { background: #fff; }
+    .dropdown-menu {
+      position: absolute; top: 110%; left: 0; min-width: 124px;
+      background: #fff; border-radius: 10px; box-shadow: 0 4px 24px #fe724c26;
+      z-index: 50; display: none; margin-top: 2px; padding: 5px 0;
+    }
+    .dropdown.open .dropdown-menu { display: block; }
+    .dropdown-item {
+      padding: 8px 17px; cursor: pointer; font-weight: 700;
+      display: flex; align-items: center; gap: 7px;
+      color: #fe724c; transition: background 0.12s, color 0.13s;
+      border-radius: 7px; white-space: nowrap;
+    }
+    .dropdown-item:hover { background: #ffe4d1; color: #d45703; }
+    .cart-btn {
+      background: #fff3; color: #fff; border: none; border-radius: 50px;
+      padding: 8px 19px 8px 11px; font-size: 1.1rem; font-weight: 700;
+      display: flex; align-items: center; gap: 7px; cursor: pointer;
+      box-shadow: 0 2px 8px #f5722422; transition: background 0.13s;
+    }
+    .cart-btn:hover { background: #fff5; }
+    .cart-icon-badge {
+      background: #fff; color: var(--primary); border-radius: 50%;
+      font-size: 0.91em; padding: 2px 8px; font-weight: bold;
+    }
+    .mini-cart-overlay {
+      position: fixed; z-index: 2100; left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); 
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    .mini-cart-overlay.active { 
+      opacity: 1;
+      visibility: visible;
+    }
+    .mini-cart-drawer {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 390px;
+      max-width: 90vw;
+      max-height: 80vh;
+      background: #fff;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      z-index: 2200;
+      border-radius: var(--radius);
+      display: flex; flex-direction: column;
+      transform: translate(-50%, -50%) scale(0.8);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.4, 1.5, 0.6, 1), opacity 0.3s;
+    }
+    .mini-cart-overlay.active .mini-cart-drawer {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    .mini-cart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 25px; border-bottom: 1.6px solid #eee;
+      font-size: 1.25em; font-weight: 900;
+    }
+    .mini-cart-close { cursor: pointer; font-size: 1.5em; color: #aaa; transition: color 0.2s; background:none; border:none; padding:0; }
+    .mini-cart-close:hover { color: var(--primary); }
+    .mini-cart-items { flex: 1; overflow-y: auto; padding: 20px 25px 0 25px; }
+    .mini-cart-item { 
+        display: flex; align-items: center; gap: 15px; margin-bottom: 20px; 
+    }
+    .mini-cart-item-img { width: 50px; height: 50px; object-fit: contain; border-radius: 8px; border: 1px solid #eee; }
+    .mini-cart-item-details { flex: 1; min-width: 0; text-align: left; }
+    .mini-cart-item-title {
+      font-weight: 700; color: #333; font-size: 1rem; margin-bottom: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mini-cart-item-price { font-weight: 700; color: var(--primary); font-size: 1rem; }
+    .mini-cart-item-remove { cursor: pointer; color: #ff3a5e; font-size: 1.1em; transition: color 0.2s; }
+    .mini-cart-footer { border-top: 1.7px solid #eee; background: #fafafa; padding: 20px 25px; border-radius: 0 0 var(--radius) var(--radius); }
+    .mini-cart-total { font-weight: 900; color: #333; font-size: 1.2em; margin-bottom: 15px; display: flex; justify-content: space-between; }
+    .mini-cart-checkout {
+      background: linear-gradient(90deg,#fe724c,#fd7e1a); color: #fff;
+      padding: 14px; border: none; border-radius: 12px; cursor: pointer;
+      font-weight: 700; font-size: 1.1em; transition: all 0.2s; width: 100%;
+    }
+    .mini-cart-checkout:hover { transform: scale(1.03); box-shadow: 0 4px 15px rgba(245,114,36,0.3); }
+
+    .site-footer {
+        background: #fff;
+        color: #4a4a4a;
+        padding: 50px 20px;
+        margin-top: 40px;
+        border-top: 4px solid var(--primary);
+    }
+    .footer-grid {
+        max-width: 1200px; margin: 0 auto; display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px;
+    }
+    .footer-col h3 { font-size: 1.2rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 15px; }
+    .footer-col ul { list-style: none; padding: 0; margin: 0; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul a { color: #555; text-decoration: none; font-weight: 700; transition: color 0.2s; }
+    .footer-col ul a:hover { color: var(--primary); }
+    .payment-methods-logos { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .payment-methods-logos img { height: 30px; opacity: 0.8; }
+    .footer-bottom {
+        max-width: 1200px; margin: 40px auto 0 auto; padding-top: 20px;
+        border-top: 1px solid #eee; text-align: center; font-weight: 700; color: #999;
+    }
+    .dw-bottom-nav {
+        position: fixed; z-index: 1111; left: 0; right: 0; bottom: 0;
+        height: 56px; background: #fff; border-top: 1.5px solid #f2e2d6;
+        box-shadow: 0 -2px 12px #f5722413;
+        justify-content: space-around; align-items: center;
+    }
+    @media (max-width: 900px) {
+        .header-main-pro nav, .header-main-pro .lang-currency-wrap, .header-main-pro .search-bar-modern { display: none; }
+        .dw-bottom-nav { display: flex; }
+        body { padding-bottom: 60px; }
+    }
+    @media (min-width: 901px) {
+        .dw-bottom-nav { display: none; }
+    }
+    .dw-bottom-nav a, .dw-bottom-nav button {
+        flex: 1 1 auto; height: 100%; display: flex; flex-direction: column;
+        justify-content: center; align-items: center; font-size: 0.96em;
+        font-weight: 700; color: #fd7e1a; text-decoration: none;
+        background: none; border: none;
+    }
+    .dw-bottom-nav .dw-nav-cart {
+        flex: 0 0 auto; color: #fff !important;
+        background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
+        border-radius: 50%; width: 44px; height: 44px; margin-top: -6px;
+    }
+
+    /* --- PAGE SPECIFIC STYLES --- */
+    .container { max-width: 1100px; margin: 40px auto; padding: 20px; }
+    .back-link {
+        font-size: 1rem; font-weight: 700; color: var(--primary);
+        text-decoration: none; display: inline-flex; align-items: center;
+        gap: 8px; margin-bottom: 20px; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--primary-dark); }
+    .product-details-grid {
+      display: grid; grid-template-columns: 1fr 1.2fr; gap: 50px;
+      background: var(--card-bg); padding: 40px; border-radius: var(--radius);
+      box-shadow: var(--shadow); align-items: flex-start;
+    }
+    .product-image-container {
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .product-image-container img {
+      width: 100%; height: auto; display: block;
+      transition: transform 0.4s ease;
+    }
+    .product-image-container:hover img { transform: scale(1.05); }
+    .product-info {
+      display: flex; flex-direction: column;
+    }
+    .product-title {
+      font-size: 2.2rem; font-weight: 900; color: var(--primary-dark);
+      line-height: 1.2; margin: 0 0 10px 0;
+    }
+    .product-delivery {
+      font-weight: 700; color: #32cb89; margin-bottom: 20px;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .product-price { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin-bottom: 20px; }
+    .product-description {
+      font-size: 1rem; line-height: 1.7; color: #555;
+      margin-bottom: 30px; border-left: 4px solid var(--primary);
+      padding-left: 15px;
+    }
+    .product-actions { display: flex; gap: 15px; margin-top: auto; }
+    .action-button {
+      flex-grow: 1; padding: 15px 20px; font-size: 1.1rem;
+      font-weight: 700; border-radius: 12px; border: none;
+      cursor: pointer; text-align: center; text-decoration: none;
+      color: white; transition: all 0.3s ease;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 10px; position: relative; overflow: hidden;
+    }
+    .add-to-cart { background: var(--primary-dark); }
+    .buy-now { background: var(--accent); }
+    .action-button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+    .action-button::before {
+        content: ''; position: absolute; top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s ease;
+    }
+    .action-button:hover::before { left: 100%; }
+    #loadingState, #errorState { text-align: center; padding: 50px; font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); }
+    
+    /* === STYLES FOR TABS & REVIEWS === */
+    .product-info-tabs, .reviews-container {
+        margin-top: 40px;
+        background: var(--card-bg);
+        padding: 40px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+    }
+    .tab-buttons {
+        display: flex;
+        border-bottom: 2px solid #eee;
+        margin-bottom: 30px;
+    }
+    .tab-button {
+        padding: 15px 25px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #888;
+        position: relative;
+        transition: color 0.3s;
+    }
+    .tab-button::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary);
+        transform: scaleX(0);
+        transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .tab-button.active {
+        color: var(--primary-dark);
+    }
+    .tab-button.active::after {
+        transform: scaleX(1);
+    }
+    .tab-content {
+        display: none;
+        animation: fadeInContent 0.6s ease;
+    }
+    @keyframes fadeInContent { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .tab-content.active {
+        display: block;
+    }
+    .tab-content ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    .tab-content li {
+        padding: 10px 0 10px 25px;
+        position: relative;
+        font-size: 1.05rem;
+    }
+    .tab-content li::before {
+        content: '✓';
+        color: var(--primary);
+        font-weight: 900;
+        position: absolute;
+        left: 0;
+    }
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--primary-dark);
+        border-bottom: 3px solid var(--primary);
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+    }
+    .review-card {
+        border-bottom: 1px solid #eee;
+        padding: 25px 0;
+    }
+    .review-card:last-child { border-bottom: none; }
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+    .review-author-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .review-author-info i {
+        font-size: 1.5rem;
+        color: var(--primary);
+        background-color: #fef4f0;
+        padding: 8px;
+        border-radius: 50%;
+    }
+    .review-author {
+        font-weight: 900;
+        font-size: 1.1rem;
+    }
+    .review-date {
+        font-size: 0.85rem;
+        color: #888;
+    }
+    .star-rating {
+        color: var(--star-color);
+        font-size: 1.2rem;
+    }
+    .review-text {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #555;
+        padding-left: 54px;
+    }
+    #review-form {
+        background: #fdfdfd;
+        border: 1px solid #eee;
+        border-radius: var(--radius);
+        padding: 30px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 700; margin-bottom: 8px; }
+    .form-group input, .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(245, 114, 36, 0.2);
+    }
+    .form-group textarea { min-height: 120px; resize: vertical; }
+    .star-rating-input {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+    .star-rating-input input { display: none; }
+    .star-rating-input label {
+        font-size: 2rem;
+        color: var(--star-color-inactive);
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .star-rating-input input:checked ~ label,
+    .star-rating-input label:hover,
+    .star-rating-input label:hover ~ label {
+        color: var(--star-color);
+    }
+    .submit-button {
+        background-color: var(--primary-dark);
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .submit-button:hover { background-color: var(--primary); }
+    #form-message {
+        margin-top: 15px;
+        font-weight: 700;
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 900px) {
+        .product-details-grid { grid-template-columns: 1fr; gap: 30px; padding: 25px; }
+        .product-title { font-size: 1.8rem; }
+        .product-price { font-size: 2rem; }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Header will be loaded here -->
-    <div id="header-placeholder"></div>
+  <header class="site-header">
+    <div class="header-main-pro">
+      <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
+      <nav>
+        <a href="index.html" class="nav-link-pro">Home</a>
+        <a href="index.html#products" class="nav-link-pro">Products</a>
+        <a href="contact.html" class="nav-link-pro">Contact</a>
+      </nav>
+      <div class="lang-currency-wrap">
+        <div class="dropdown" id="currencyDropdown">
+          <button class="dropdown-toggle" type="button"><span id="currentCurrLabel">USD</span></button>
+          <div class="dropdown-menu" id="currencyMenu"></div>
+        </div>
+        <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Cart</span>
+          <span class="cart-icon-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
 
-    <main class="main-section" id="product-details-page">
-        <p>Loading Product...</p>
-    </main>
+  <main class="container" id="product-details-page">
+    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
+    
+    <div id="product-details-container">
+        <div id="loadingState">Loading product...</div>
+        <div id="errorState" style="display: none;">Product not found.</div>
+    </div>
 
-    <!-- Placeholder for Reviews Section -->
-    <section class="main-section" id="reviews-section-placeholder">
-    </section>
+    <div class="product-info-tabs">
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="features">Key Features</button>
+            <button class="tab-button" data-tab="requirements">Requirements</button>
+            <button class="tab-button" data-tab="activation">Activation</button>
+        </div>
+        <div id="features" class="tab-content active"></div>
+        <div id="requirements" class="tab-content"></div>
+        <div id="activation" class="tab-content"></div>
+    </div>
 
-    <!-- Footer will be loaded here -->
-    <div id="footer-placeholder"></div>
+    <div class="reviews-container">
+        <h2 class="section-title">Customer Reviews</h2>
+        <div id="reviews-list"></div>
+        <div id="review-form-section">
+            <h3 class="section-title" style="font-size: 1.5rem; margin-top: 40px;">Leave a Review</h3>
+            <form id="review-form">
+                <div class="form-group">
+                    <label for="authorName">Your Name</label>
+                    <input type="text" id="authorName" name="authorName" required>
+                </div>
+                <div class="form-group">
+                    <label for="rating">Your Rating</label>
+                    <div class="star-rating-input">
+                        <input type="radio" id="star5" name="rating" value="5" required><label for="star5" title="5 stars">★</label>
+                        <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+                        <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+                        <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+                        <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reviewText">Your Review</label>
+                    <textarea id="reviewText" name="reviewText" required></textarea>
+                </div>
+                <button type="submit" class="submit-button">Submit Review</button>
+                <div id="form-message"></div>
+            </form>
+        </div>
+    </div>
+  </main>
 
-    <script src="main.js" type="module"></script>
+  <footer class="site-footer">
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h3>Customer Care</h3>
+            <ul>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="#">How to Buy</a></li>
+                <li><a href="refund-policy.html">Refund Policy</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3>About DigiWorld</h3>
+            <ul>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+                <li><a href="#">Terms & Conditions</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3>We Accept</h3>
+            <div class="payment-methods-logos">
+                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" title="PayPal and Credit Cards">
+                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" title="NowPayments Crypto">
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        &copy; 2025 DigiWorld. All rights reserved.
+    </div>
+  </footer>
+  
+  <div class="mini-cart-overlay" id="miniCartOverlay">
+    <div class="mini-cart-drawer" id="miniCartDrawer">
+      <div class="mini-cart-header">
+        <span>Your Cart</span>
+        <button class="mini-cart-close" id="miniCartClose">&times;</button>
+      </div>
+      <div class="mini-cart-items" id="miniCartItems"></div>
+      <div class="mini-cart-footer">
+        <div class="mini-cart-total" id="miniCartTotal"></div>
+        <button class="mini-cart-checkout" onclick="window.location.href='checkout.html'">Checkout</button>
+      </div>
+    </div>
+  </div>
+  <nav class="dw-bottom-nav">
+    <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="index.html#products"><i class="fas fa-th-large"></i><span>Products</span></a>
+    <button id="mobileCartBtn"><i class="fas fa-shopping-cart"></i></button>
+    <a href="account.html"><i class="fas fa-user"></i><span>Account</span></a>
+  </nav>
+
+<script src="products.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+        let currentProduct = null;
+        let currentCurr = 'USD';
+        const currencySymbols = { USD: '$', LKR: 'Rs ' };
+        const detailsContainer = document.getElementById('product-details-container');
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        
+        // --- MERGED JAVASCRIPT LOGIC ---
+        const cartBtn = document.getElementById('cartBtn');
+        const cartCountBadge = document.getElementById('cartCount');
+        const mobileCartBtn = document.getElementById('mobileCartBtn');
+        const miniCartOverlay = document.getElementById('miniCartOverlay');
+        const miniCartDrawer = document.getElementById('miniCartDrawer');
+        const miniCartClose = document.getElementById('miniCartClose');
+        const miniCartItemsContainer = document.getElementById('miniCartItems');
+        const miniCartTotalEl = document.getElementById('miniCartTotal');
+        let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+        
+        const updateCartBadge = () => {
+            const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
+            cartCountBadge.textContent = count;
+        };
+        const saveCart = () => {
+            localStorage.setItem('digiworldCart', JSON.stringify(cart));
+            updateCartBadge(); 
+        };
+        const openMiniCart = () => {
+            updateMiniCartContent();
+            miniCartOverlay.classList.add('active');
+            miniCartDrawer.classList.add('active');
+        };
+        const closeMiniCart = () => {
+            miniCartOverlay.classList.remove('active');
+            miniCartDrawer.classList.remove('active');
+        };
+        const updateMiniCartContent = () => {
+            let total = 0;
+            const currencySymbol = currencySymbols[currentCurr];
+            if (Object.keys(cart).length === 0) {
+                miniCartItemsContainer.innerHTML = '<p style="padding: 20px; text-align: center;">Your cart is empty.</p>';
+            } else {
+                miniCartItemsContainer.innerHTML = Object.entries(cart).map(([id, quantity]) => {
+                    const product = products.find(p => p.id === id);
+                    if (!product) return '';
+                    const price = product.price[currentCurr] || product.price.USD;
+                    total += price * quantity;
+                    return `
+                        <div class="mini-cart-item" data-id="${id}">
+                            <img src="${product.image}" class="mini-cart-item-img" alt="${product.name?.en}">
+                            <div class="mini-cart-item-details">
+                                <div class="mini-cart-item-title">${product.name?.en}</div>
+                                <div class="mini-cart-item-price">${quantity} x ${currencySymbol}${price.toFixed(2)}</div>
+                            </div>
+                            <span class="mini-cart-item-remove" data-id="${id}">&times;</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+            miniCartTotalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
+        };
+
+        if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
+        if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
+        if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
+        if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => {
+            if(e.target === miniCartOverlay) closeMiniCart();
+        });
+        if (miniCartItemsContainer) miniCartItemsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('mini-cart-item-remove')) {
+                const itemId = e.target.dataset.id;
+                delete cart[itemId];
+                saveCart();
+                updateMiniCartContent();
+            }
+        });
+        
+        const renderProduct = (product) => {
+            currentProduct = product;
+            // Use optional chaining (?.) to prevent crashes if a property is missing.
+            const name = product.name?.en || 'Product Name';
+            const image = product.image || 'https://placehold.co/600x400?text=No+Image';
+            const delivery = product.delivery?.en || 'Standard Delivery';
+            const price = product.price[currentCurr] || product.price.USD;
+            const description = product.desc?.en || 'No description available.';
+            const currencySymbol = currencySymbols[currentCurr];
+            
+            document.title = `DigiWorld - ${name}`;
+            
+            detailsContainer.innerHTML = `
+                <div class="product-details-grid">
+                    <div class="product-image-container"><img src="${image}" alt="${name}"></div>
+                    <div class="product-info">
+                        <h1 class="product-title">${name}</h1>
+                        <p class="product-delivery"><i class="fas fa-check-circle"></i> ${delivery}</p>
+                        <p class="product-price">${currencySymbol}${price.toFixed(2)}</p>
+                        <div class="product-description">${description}</div>
+                        <div class="product-actions">
+                            <button class="action-button add-to-cart" data-id="${product.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                            <a href="checkout.html?product=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            renderInfoTabs(product);
+
+            detailsContainer.querySelector('.add-to-cart').addEventListener('click', (e) => {
+                const prodId = e.target.dataset.id;
+                cart[prodId] = (cart[prodId] || 0) + 1;
+                saveCart();
+                openMiniCart();
+            });
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('id');
+        
+        if (typeof products !== 'undefined') {
+            const product = products.find(p => p.id === productId);
+            if (product) { 
+                renderProduct(product); 
+                fetchAndRenderReviews(productId);
+            } else { 
+                // Only manipulate style if the container wasn't replaced
+                if (loadingState) loadingState.style.display = 'none'; 
+                if (errorState) errorState.style.display = 'block'; 
+            }
+        }
+        
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === button.dataset.tab) {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        const reviewForm = document.getElementById('review-form');
+        const formMessage = document.getElementById('form-message');
+        if(reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                formMessage.textContent = 'Submitting...';
+                const ratingValue = document.querySelector('input[name="rating"]:checked')?.value;
+                if (!ratingValue) {
+                    formMessage.textContent = 'Please select a star rating.';
+                    return;
+                }
+                const formData = {
+                    productId: productId,
+                    authorName: document.getElementById('authorName').value,
+                    rating: parseInt(ratingValue, 10),
+                    reviewText: document.getElementById('reviewText').value
+                };
+                try {
+                    const response = await fetch('/.netlify/functions/submit-review', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+                    formMessage.style.color = 'green';
+                    formMessage.textContent = result.message;
+                    reviewForm.reset();
+                } catch (error) {
+                    formMessage.style.color = 'red';
+                    formMessage.textContent = `Error: ${error.message}`;
+                }
+            });
+        }
+        updateCartBadge();
+    });
+
+    function renderInfoTabs(product) {
+        const lang = 'en';
+        // Use optional chaining (?.) to prevent crashes
+        const features = product.features?.[lang] || ['No features listed.'];
+        const requirements = product.requirements?.[lang] || ['No requirements listed.'];
+        const activation = product.activation?.[lang] || ['No activation steps listed.'];
+        document.getElementById('features').innerHTML = `<ul>${features.map(f => `<li>${f}</li>`).join('')}</ul>`;
+        document.getElementById('requirements').innerHTML = `<ul>${requirements.map(r => `<li>${r}</li>`).join('')}</ul>`;
+        document.getElementById('activation').innerHTML = `<ul>${activation.map(a => `<li>${a}</li>`).join('')}</ul>`;
+    }
+
+    async function fetchAndRenderReviews(productId) {
+        const reviewsList = document.getElementById('reviews-list');
+        reviewsList.innerHTML = '<p>Loading reviews...</p>';
+        try {
+            const response = await fetch(`/.netlify/functions/get-reviews?productId=${productId}`);
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message);
+            if (result.reviews.length === 0) {
+                reviewsList.innerHTML = '<p>Be the first to review this product!</p>';
+                return;
+            }
+            reviewsList.innerHTML = result.reviews.map(review => {
+                const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                const reviewDate = new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                return `
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-author-info">
+                                <i class="fas fa-user-circle"></i>
+                                <div>
+                                    <div class="review-author">${review.authorName}</div>
+                                    <div class="review-date">${reviewDate}</div>
+                                </div>
+                            </div>
+                            <div class="star-rating">${stars}</div>
+                        </div>
+                        <p class="review-text">${review.reviewText}</p>
+                    </div>
+                `;
+            }).join('');
+        } catch (error) {
+            reviewsList.innerHTML = `<p style="color: red;">Could not load reviews: ${error.message}</p>`;
+        }
+    }
+  </script>
 </body>
 </html>
