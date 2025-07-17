@@ -11,6 +11,7 @@ const currencySymbols = { USD: '$', LKR: 'Rs', EUR: '€', GBP: '£', INR: '₹'
 
 /**
  * Fetches the product list from the server. Uses a cached version after the first load.
+ * This function is now cleaner and only handles data fetching, not UI updates.
  * @returns {Promise<Array>} A promise that resolves to the array of products.
  */
 async function fetchAllProducts() {
@@ -24,17 +25,14 @@ async function fetchAllProducts() {
         }
         const data = await response.json();
         if (data.success && Array.isArray(data.products)) {
-            allProducts = data.products; // Cache the result
+            allProducts = data.products; // Populate the global cache
             return allProducts;
         } else {
             throw new Error("Invalid data format from product API.");
         }
     } catch (error) {
         console.error("Could not fetch products:", error);
-        const grid = document.getElementById('productGrid');
-        if (grid) {
-            grid.innerHTML = `<p class="error-message">Could not load products. Please try again later.</p>`;
-        }
+        // Return an empty array on failure. The UI function will handle the message.
         return [];
     }
 }
@@ -106,13 +104,18 @@ function showNotification(message) {
     }, 3000);
 }
 
-function renderProductGrid(products, gridElement) {
-    if (!products || products.length === 0) {
+/**
+ * Renders the product grid on the homepage.
+ * It now reads from the global 'allProducts' cache.
+ * @param {HTMLElement} gridElement - The DOM element to render the grid into.
+ */
+function renderProductGrid(gridElement) {
+    if (!allProducts || allProducts.length === 0) {
         gridElement.innerHTML = '<p>No products found.</p>';
         return;
     }
     const symbol = currencySymbols[currentCurrency] || '$';
-    gridElement.innerHTML = products.map(prod => `
+    gridElement.innerHTML = allProducts.map(prod => `
         <div class="product-card">
             <a href="product-details.html?id=${prod.id}" class="product-link">
                 <div class="card-image-container">
@@ -131,9 +134,14 @@ function renderProductGrid(products, gridElement) {
     `).join('');
 }
 
-function renderProductDetailsPage(products, pageElement) {
+/**
+ * Renders the product details page.
+ * It now reads from the global 'allProducts' cache.
+ * @param {HTMLElement} pageElement - The DOM element to render the page content into.
+ */
+function renderProductDetailsPage(pageElement) {
     const productId = new URLSearchParams(window.location.search).get('id');
-    const product = products.find(p => p.id === productId);
+    const product = allProducts.find(p => p.id === productId);
 
     if (!product) {
         pageElement.innerHTML = `<p class="error-message">Sorry, this product could not be found.</p>`;
@@ -174,7 +182,6 @@ function renderProductDetailsPage(products, pageElement) {
         </div>
     `;
 
-    // After rendering the main product info, fetch and render its reviews.
     fetchAndRenderReviews(productId);
 }
 
@@ -202,7 +209,6 @@ async function fetchAndRenderReviews(productId) {
         reviews.forEach(r => totalRating += r.rating);
         const averageRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : 0;
 
-        // Star rendering helper
         const renderStars = (rating) => {
             let stars = '';
             for (let i = 1; i <= 5; i++) {
@@ -211,11 +217,9 @@ async function fetchAndRenderReviews(productId) {
             return stars;
         };
 
-        // Build the full reviews section HTML
         placeholder.innerHTML = `
             <div class="reviews-container">
                 <h2>Customer Reviews</h2>
-                
                 <div class="reviews-summary">
                     <div class="summary-box">
                         <div class="big-number">${averageRating}</div>
@@ -223,7 +227,6 @@ async function fetchAndRenderReviews(productId) {
                         <div class="label">Based on ${reviewCount} reviews</div>
                     </div>
                 </div>
-
                 <div class="reviews-grid">
                     ${reviews.length > 0 ? reviews.map(review => `
                         <div class="review-card">
@@ -236,7 +239,6 @@ async function fetchAndRenderReviews(productId) {
                         </div>
                     `).join('') : '<p>No reviews yet. Be the first to write one!</p>'}
                 </div>
-
                 <div class="review-form-container">
                     <h3>Write a Review</h3>
                     <form class="review-form" id="reviewForm" data-product-id="${productId}">
@@ -264,7 +266,6 @@ async function fetchAndRenderReviews(productId) {
             </div>
         `;
         
-        // Add the event listener to the newly created form
         setupReviewForm(productId);
 
     } catch (error) {
@@ -326,15 +327,12 @@ function setupReviewForm(productId) {
 
 function setupGlobalEventListeners() {
     document.body.addEventListener('click', (e) => {
-        // Add to Cart
         if (e.target.matches('.add-to-cart')) {
             addToCart(e.target.dataset.id);
         }
 
-        // Tab switching on product details page
         if (e.target.matches('.tab-link')) {
             const tabId = e.target.dataset.tab;
-            // Find the closest container to scope the query
             const container = e.target.closest('.product-tabs');
             if(container) {
                 container.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
@@ -353,27 +351,23 @@ function setupGlobalEventListeners() {
  * Initializes the entire application.
  */
 async function main() {
-    // Load header and footer first
     await Promise.all([
         loadComponent('#header-placeholder', 'header.html'),
         loadComponent('#footer-placeholder', 'footer.html')
     ]);
 
-    // Then fetch data
-    const products = await fetchAllProducts();
+    await fetchAllProducts();
     
-    // Determine which page we are on and render accordingly
     const productGrid = document.getElementById('productGrid');
     const productDetailsPage = document.getElementById('product-details-page');
-    // Add other page checks here if needed, e.g., for cart.html
 
     if (productGrid) {
-        renderProductGrid(products, productGrid);
-        document.addEventListener('currencyChanged', () => renderProductGrid(products, productGrid));
+        renderProductGrid(productGrid);
+        document.addEventListener('currencyChanged', () => renderProductGrid(productGrid));
     }
     if (productDetailsPage) {
-        renderProductDetailsPage(products, productDetailsPage);
-        document.addEventListener('currencyChanged', () => renderProductDetailsPage(products, productDetailsPage));
+        renderProductDetailsPage(productDetailsPage);
+        document.addEventListener('currencyChanged', () => renderProductDetailsPage(productDetailsPage));
     }
     
     setupGlobalEventListeners();
