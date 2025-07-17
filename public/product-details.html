@@ -4,68 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DigiWorld - Product Details</title>
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+    <!-- Header will be loaded here -->
     <div id="header-placeholder"></div>
 
-    <main id="product-details-container">
-        <div id="loadingState">Loading product...</div>
+    <!-- Main container for the product details -->
+    <main class="main-section" id="product-details-page">
+        <!-- JavaScript will render the product details here. -->
+        <p>Loading Product...</p>
     </main>
 
+    <!-- NEW: Placeholder for the Reviews Section -->
+    <section class="main-section" id="reviews-section-placeholder">
+        <!-- The entire reviews section will be loaded here by JavaScript -->
+    </section>
+
+    <!-- Footer will be loaded here -->
     <div id="footer-placeholder"></div>
 
+    <!-- Main JavaScript file -->
     <script src="main.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('product-details-container');
-
-            const renderProductDetails = () => {
-                const params = new URLSearchParams(window.location.search);
-                const productId = params.get('id');
-                const product = products.find(p => p.id === productId);
-                const currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
-                const currencySymbols = { USD: '$', LKR: 'Rs' };
-
-                if (!product) {
-                    container.innerHTML = '<div id="errorState">Product not found.</div>';
-                    return;
-                }
-
-                const price = product.price[currentCurr] || product.price.USD;
-                document.title = `DigiWorld - ${product.name.en}`;
-                
-                container.innerHTML = `
-                    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
-                    <div class="product-details-grid">
-                        <div class="product-image-container">
-                            <img src="${product.image}" alt="${product.name.en}">
-                        </div>
-                        <div class="product-info">
-                            <h1 class="product-title">${product.name.en}</h1>
-                            <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
-                            <div class="product-description">
-                                A high-quality digital product key for instant activation. Full support provided.
-                            </div>
-                            <div class="product-actions">
-                                <button class="action-button add-to-cart" data-id="${product.id}">
-                                    <i class="fas fa-shopping-cart"></i> Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            };
-
-            // Initial render
-            renderProductDetails();
-
-            // Listen for the currency change event from main.js to update the price
-            document.addEventListener('currencyChanged', renderProductDetails);
-        });
-    </script>
 </body>
 </html>

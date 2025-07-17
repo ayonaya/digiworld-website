@@ -1,253 +1,384 @@
-// main.js
+// /public/main.js
 
-// This is your product data. In a real application, you would fetch this from a server.
-const products = [
-    { id: "office365lifetime", category: "Office", name: { en: "Office 365 Lifetime Account (5 Devices)"}, price: { LKR: 7700, USD: 23 }, image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg" },
-    { id: "win10pro", category: "Windows", name: { en: "Windows 10 Pro Key" }, price: { LKR: 3000, USD: 9 }, image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif" },
-    { id: "win11pro", category: "Windows", name: { en: "Windows 11 Pro Key" }, price: { LKR: 3700, USD: 11 }, image: "https://img.drz.lazcdn.com/static/lk/p/4ac77c5340b852dcfe5d0f0ba66fb1ed.png_400x400q75.avif" },
-    { id: "office2021", category: "Office", name: { en: "Office 2021 Pro Plus Key" }, price: { LKR: 4500, USD: 13 }, image: "https://img.drz.lazcdn.com/g/kf/Sb9bc8d1802a04d8394d16f951736c65a2.jpg_400x400q75.avif" },
-];
-
-document.addEventListener('DOMContentLoaded', () => {
-
-    // --- GLOBAL APP STATE & UTILS ---
-    let currentCurr = localStorage.getItem('digiworld_curr') || 'USD';
-    const currencySymbols = { USD: '$', LKR: 'Rs' };
-    let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
-
-    // --- COMPONENT LOADER ---
-    // Fetches and injects reusable HTML like the header and footer
-    const loadComponent = (selector, url) => {
-        fetch(url)
-            .then(response => response.ok ? response.text() : Promise.reject('File not found'))
-            .then(data => {
-                document.querySelector(selector).innerHTML = data;
-                // Re-run initialization for newly loaded content
-                initializeSharedComponents();
-            })
-            .catch(error => console.error(`Failed to load ${url}:`, error));
-    };
-    
-    loadComponent('#header-placeholder', 'header.html');
-    loadComponent('#footer-placeholder', 'footer.html');
+// --- App State & Data Cache ---
+let allProducts = []; // This will cache the product list once fetched.
+let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+let currentCurrency = localStorage.getItem('digiworldCurrency') || 'USD';
+const currencySymbols = { USD: '$', LKR: 'Rs', EUR: '€', GBP: '£', INR: '₹' };
 
 
-    // --- SHARED INITIALIZATION ---
-    // This function runs after components are loaded to make them interactive
-    const initializeSharedComponents = () => {
-        // Dropdown Logic
-        setupDropdown('currencyDropdown', (newCurr) => {
-            currentCurr = newCurr;
-            localStorage.setItem('digiworld_curr', newCurr);
-            // We need a way to tell the page to re-render prices.
-            // A custom event is perfect for this.
-            document.dispatchEvent(new Event('currencyChanged'));
-        });
+// --- Core Functions ---
 
-        // Cart Logic
-        const cartBtn = document.getElementById('cartBtn');
-        const mobileCartBtn = document.getElementById('mobileCartBtn');
-        if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
-        if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
-        
-        const miniCartClose = document.getElementById('miniCartClose');
-        const miniCartOverlay = document.getElementById('miniCartOverlay');
-        if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
-        if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => {
-            if (e.target === miniCartOverlay) closeMiniCart();
-        });
-
-        // Search Logic
-        const searchInput = document.getElementById('searchInput');
-        if(searchInput) searchInput.addEventListener('input', handleSearch);
-
-        updateUICurrency();
-        updateCartBadge();
-    };
-
-
-    // --- CURRENCY DROPDOWN ---
-    const setupDropdown = (dropdownId, onSelect) => {
-        const dropdown = document.getElementById(dropdownId);
-        if (!dropdown) return;
-
-        const toggle = dropdown.querySelector('.dropdown-toggle');
-        const menu = dropdown.querySelector('.dropdown-menu');
-
-        // Populate menu
-        menu.innerHTML = Object.keys(currencySymbols).map(curr => 
-            `<div class="dropdown-item" data-value="${curr}">${currencySymbols[curr]} ${curr}</div>`
-        ).join('');
-        
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle('open');
-        });
-
-        menu.addEventListener('click', (e) => {
-            if (e.target.matches('.dropdown-item')) {
-                onSelect(e.target.dataset.value);
-                dropdown.classList.remove('open');
-            }
-        });
-    };
-
-    const updateUICurrency = () => {
-        const currLabel = document.getElementById('currentCurrLabel');
-        const currSymbol = document.getElementById('currentCurrSymbol');
-        if (currLabel) currLabel.textContent = currentCurr;
-        if (currSymbol) currSymbol.textContent = currencySymbols[currentCurr] || '$';
-    };
-
-
-    // --- CART LOGIC ---
-    const updateCartBadge = () => {
-        const count = Object.keys(cart).length;
-        const cartCountBadge = document.getElementById('cartCount');
-        if (cartCountBadge) cartCountBadge.textContent = count;
-    };
-
-    const saveCart = () => {
-        localStorage.setItem('digiworldCart', JSON.stringify(cart));
-        updateCartBadge();
-    };
-
-    const openMiniCart = () => {
-        updateMiniCartContent();
-        document.getElementById('miniCartOverlay')?.classList.add('active');
-    };
-
-    const closeMiniCart = () => {
-        document.getElementById('miniCartOverlay')?.classList.remove('active');
-    };
-    
-    const updateMiniCartContent = () => {
-        const container = document.getElementById('miniCartItems');
-        const totalEl = document.getElementById('miniCartTotal');
-        if (!container || !totalEl) return;
-        
-        let total = 0;
-        const currencySymbol = currencySymbols[currentCurr] || '$';
-        
-        if (Object.keys(cart).length === 0) {
-            container.innerHTML = '<p style="padding: 20px; text-align: center;">Your cart is empty.</p>';
-            totalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}0.00</span>`;
-            return;
+/**
+ * Fetches the product list from the server. Uses a cached version after the first load.
+ * @returns {Promise<Array>} A promise that resolves to the array of products.
+ */
+async function fetchAllProducts() {
+    if (allProducts.length > 0) {
+        return allProducts; // Return from cache if available
+    }
+    try {
+        const response = await fetch('/.netlify/functions/get-products');
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.statusText}`);
         }
-        
-        container.innerHTML = Object.entries(cart).map(([id, quantity]) => {
-            const product = products.find(p => p.id === id);
-            if (!product) return '';
-            const price = product.price[currentCurr] || product.price.USD;
-            total += price * quantity;
-            return `
-                <div class="mini-cart-item" data-id="${id}">
-                    <img src="${product.image}" class="mini-cart-item-img" alt="${product.name.en}">
-                    <div class="mini-cart-item-details">
-                        <div class="mini-cart-item-title">${product.name.en}</div>
-                        <div class="mini-cart-item-price">${quantity} x ${currencySymbol}${price.toFixed(2)}</div>
-                    </div>
-                    <span class="mini-cart-item-remove" data-id="${id}">&times;</span>
+        const data = await response.json();
+        if (data.success && Array.isArray(data.products)) {
+            allProducts = data.products; // Cache the result
+            return allProducts;
+        } else {
+            throw new Error("Invalid data format from product API.");
+        }
+    } catch (error) {
+        console.error("Could not fetch products:", error);
+        const grid = document.getElementById('productGrid');
+        if (grid) {
+            grid.innerHTML = `<p class="error-message">Could not load products. Please try again later.</p>`;
+        }
+        return [];
+    }
+}
+
+/**
+ * Loads reusable HTML components like the header and footer into the page.
+ * @param {string} selector - The CSS selector for the placeholder element.
+ * @param {string} url - The URL of the HTML file to load.
+ */
+async function loadComponent(selector, url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Could not load ${url}`);
+        const data = await response.text();
+        const element = document.querySelector(selector);
+        if (element) {
+            element.innerHTML = data;
+        }
+    } catch (error) {
+        console.error(`Failed to load component: ${error.message}`);
+    }
+}
+
+
+// --- Cart Management ---
+
+function saveCart() {
+    localStorage.setItem('digiworldCart', JSON.stringify(cart));
+    updateCartBadge();
+}
+
+function addToCart(productId) {
+    cart[productId] = (cart[productId] || 0) + 1;
+    saveCart();
+    const product = allProducts.find(p => p.id === productId);
+    showNotification(`${product?.name.en || 'Item'} added to cart!`);
+}
+
+function removeFromCart(productId) {
+    if (cart[productId]) {
+        delete cart[productId];
+        saveCart();
+    }
+}
+
+
+// --- UI Rendering Functions ---
+
+function updateCartBadge() {
+    const count = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
+    const badge = document.getElementById('cartCount');
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'block' : 'none';
+    }
+}
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'cart-notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+function renderProductGrid(products, gridElement) {
+    if (!products || products.length === 0) {
+        gridElement.innerHTML = '<p>No products found.</p>';
+        return;
+    }
+    const symbol = currencySymbols[currentCurrency] || '$';
+    gridElement.innerHTML = products.map(prod => `
+        <div class="product-card">
+            <a href="product-details.html?id=${prod.id}" class="product-link">
+                <div class="card-image-container">
+                    <img class="card-image" src="${prod.image}" alt="${prod.name.en}" loading="lazy">
+                    ${prod.isHot ? '<span class="product-badge hot">HOT</span>' : ''}
                 </div>
-            `;
-        }).join('');
+                <div class="card-content-wrapper">
+                    <h3 class="product-name">${prod.name.en}</h3>
+                    <p class="product-price">${symbol}${(prod.price[currentCurrency] || 0).toFixed(2)}</p>
+                </div>
+            </a>
+            <div class="card-buttons">
+                <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
+            </div>
+        </div>
+    `).join('');
+}
 
-        totalEl.innerHTML = `<span>Total:</span> <span>${currencySymbol}${total.toFixed(2)}</span>`;
-    };
-    
-    // Global event listener for adding to cart and removing from mini-cart
-    document.addEventListener('click', (e) => {
-        // Add to cart from product card or product details page
-        if (e.target.matches('.add-to-cart')) {
-            const prodId = e.target.dataset.id;
-            if (prodId) {
-                cart[prodId] = (cart[prodId] || 0) + 1;
-                saveCart();
-                animateImageToCart(e.target);
-                openMiniCart();
+function renderProductDetailsPage(products, pageElement) {
+    const productId = new URLSearchParams(window.location.search).get('id');
+    const product = products.find(p => p.id === productId);
+
+    if (!product) {
+        pageElement.innerHTML = `<p class="error-message">Sorry, this product could not be found.</p>`;
+        return;
+    }
+
+    document.title = `DigiWorld - ${product.name.en}`;
+    const symbol = currencySymbols[currentCurrency] || '$';
+    const price = product.price[currentCurrency] || 0;
+
+    pageElement.innerHTML = `
+        <div class="product-details-container">
+            <div class="product-hero">
+                <div class="product-details-image">
+                    <img src="${product.image}" alt="${product.name.en}">
+                </div>
+                <div class="product-details-info">
+                    <h1>${product.name.en}</h1>
+                    <p class="product-details-price">${symbol}${price.toFixed(2)}</p>
+                    <p class="short-desc">${product.desc.en}</p>
+                    <div class="product-actions">
+                        <button class="btn-primary add-to-cart" data-id="${product.id}">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="product-tabs">
+                <nav class="tab-nav">
+                    <button class="tab-link active" data-tab="features">Features</button>
+                    <button class="tab-link" data-tab="requirements">Requirements</button>
+                    <button class="tab-link" data-tab="activation">Activation Guide</button>
+                </nav>
+                <div id="features" class="tab-content active"><ul>${product.features.en.map(f => `<li>${f}</li>`).join('')}</ul></div>
+                <div id="requirements" class="tab-content"><ul>${product.requirements.en.map(r => `<li>${r}</li>`).join('')}</ul></div>
+                <div id="activation" class="tab-content"><ol>${product.activation.en.map(a => `<li>${a}</li>`).join('')}</ol></div>
+            </div>
+        </div>
+    `;
+
+    // After rendering the main product info, fetch and render its reviews.
+    fetchAndRenderReviews(productId);
+}
+
+/**
+ * Fetches and renders the entire reviews section for a given product.
+ * @param {string} productId - The ID of the product to fetch reviews for.
+ */
+async function fetchAndRenderReviews(productId) {
+    const placeholder = document.getElementById('reviews-section-placeholder');
+    if (!placeholder) return;
+
+    placeholder.innerHTML = `<p>Loading reviews...</p>`;
+
+    try {
+        const response = await fetch(`/.netlify/functions/get-reviews?productId=${productId}`);
+        if (!response.ok) throw new Error('Could not fetch reviews.');
+        
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message);
+
+        const reviews = data.reviews;
+        let totalRating = 0;
+        const reviewCount = reviews.length;
+        
+        reviews.forEach(r => totalRating += r.rating);
+        const averageRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : 0;
+
+        // Star rendering helper
+        const renderStars = (rating) => {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="fas fa-star ${i <= rating ? '' : 'far'}"></i>`;
             }
-        }
+            return stars;
+        };
 
-        // Remove from mini-cart
-        if (e.target.matches('.mini-cart-item-remove')) {
-            const itemId = e.target.dataset.id;
-            delete cart[itemId];
-            saveCart();
-            updateMiniCartContent(); // Re-render the cart content
-        }
+        // Build the full reviews section HTML
+        placeholder.innerHTML = `
+            <div class="reviews-container">
+                <h2>Customer Reviews</h2>
+                
+                <div class="reviews-summary">
+                    <div class="summary-box">
+                        <div class="big-number">${averageRating}</div>
+                        <div class="stars">${renderStars(Math.round(averageRating))}</div>
+                        <div class="label">Based on ${reviewCount} reviews</div>
+                    </div>
+                </div>
 
-        // Close dropdowns if clicking outside
-        if (!e.target.closest('.dropdown')) {
-            document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+                <div class="reviews-grid">
+                    ${reviews.length > 0 ? reviews.map(review => `
+                        <div class="review-card">
+                            <div class="review-card-header">
+                                <span class="author">${review.authorName}</span>
+                                <span class="stars">${renderStars(review.rating)}</span>
+                            </div>
+                            <p class="review-text">${review.reviewText}</p>
+                            <p class="review-date">${new Date(review.createdAt).toLocaleDateString()}</p>
+                        </div>
+                    `).join('') : '<p>No reviews yet. Be the first to write one!</p>'}
+                </div>
+
+                <div class="review-form-container">
+                    <h3>Write a Review</h3>
+                    <form class="review-form" id="reviewForm" data-product-id="${productId}">
+                        <div class="form-group form-group-full star-rating-input">
+                            <input type="radio" id="star5" name="rating" value="5" required><label for="star5" title="5 stars">★</label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
+                            <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
+                        </div>
+                        <div class="form-group">
+                            <label for="authorName">Your Name</label>
+                            <input type="text" id="authorName" name="authorName" required>
+                        </div>
+                         <div class="form-group form-group-full">
+                            <label for="reviewText">Your Review</label>
+                            <textarea id="reviewText" name="reviewText" required minlength="10"></textarea>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <button type="submit" class="btn-primary">Submit Review</button>
+                        </div>
+                        <div class="form-message" id="reviewFormMessage"></div>
+                    </form>
+                </div>
+            </div>
+        `;
+        
+        // Add the event listener to the newly created form
+        setupReviewForm(productId);
+
+    } catch (error) {
+        placeholder.innerHTML = `<p class="error-message">Could not load reviews. ${error.message}</p>`;
+    }
+}
+
+/**
+ * Adds the submit event listener to the review form.
+ * @param {string} productId - The ID of the product the form is for.
+ */
+function setupReviewForm(productId) {
+    const reviewForm = document.getElementById('reviewForm');
+    if (!reviewForm) return;
+
+    reviewForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formMessage = document.getElementById('reviewFormMessage');
+        const submitButton = reviewForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting...';
+
+        const formData = new FormData(reviewForm);
+        const reviewData = {
+            productId: productId,
+            authorName: formData.get('authorName'),
+            rating: parseInt(formData.get('rating'), 10),
+            reviewText: formData.get('reviewText')
+        };
+
+        try {
+            const response = await fetch('/.netlify/functions/submit-review', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reviewData)
+            });
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'An unknown error occurred.');
+            }
+
+            formMessage.className = 'form-message success';
+            formMessage.textContent = result.message;
+            reviewForm.reset();
+
+        } catch (error) {
+            formMessage.className = 'form-message error';
+            formMessage.textContent = error.message;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit Review';
         }
     });
+}
 
-    // --- ANIMATIONS ---
-    const animateImageToCart = (button) => {
-        const cartIcon = document.getElementById('cartBtn');
-        const card = button.closest('.product-card') || button.closest('.product-details-grid');
-        if (!card || !cartIcon) return;
-        
-        const productImage = card.querySelector('img');
-        if (!productImage) return;
 
-        const startRect = productImage.getBoundingClientRect();
-        const endRect = cartIcon.getBoundingClientRect();
+// --- Event Delegation & Listeners ---
 
-        const flyingImage = productImage.cloneNode(true);
-        flyingImage.classList.add('flying-image');
-        
-        Object.assign(flyingImage.style, {
-            left: `${startRect.left}px`,
-            top: `${startRect.top}px`,
-            width: `${startRect.width}px`,
-            height: `${startRect.height}px`,
-        });
-
-        document.body.appendChild(flyingImage);
-
-        requestAnimationFrame(() => {
-            Object.assign(flyingImage.style, {
-                left: `${endRect.left + endRect.width / 2}px`,
-                top: `${endRect.top + endRect.height / 2}px`,
-                width: '20px',
-                height: '20px',
-                transform: 'scale(0.1)',
-                opacity: '0',
-            });
-        });
-
-        flyingImage.addEventListener('transitionend', () => {
-            flyingImage.remove();
-            cartIcon.classList.add('animated');
-            setTimeout(() => cartIcon.classList.remove('animated'), 430);
-        });
-    };
-
-    // --- SEARCH LOGIC ---
-    const handleSearch = () => {
-        const input = document.getElementById('searchInput');
-        const suggestions = document.getElementById('searchSuggestions');
-        if (!input || !suggestions) return;
-
-        const query = input.value.trim().toLowerCase();
-        
-        if (query.length < 2) {
-            suggestions.style.display = 'none';
-            return;
+function setupGlobalEventListeners() {
+    document.body.addEventListener('click', (e) => {
+        // Add to Cart
+        if (e.target.matches('.add-to-cart')) {
+            addToCart(e.target.dataset.id);
         }
 
-        const results = products.filter(p => p.name.en.toLowerCase().includes(query));
-
-        if (results.length > 0) {
-            suggestions.innerHTML = results.map(p => `
-                <div class="suggestion-item" onclick="window.location.href='product-details.html?id=${p.id}'">
-                    ${p.name.en}
-                </div>
-            `).join('');
-            suggestions.style.display = 'block';
-        } else {
-            suggestions.style.display = 'none';
+        // Tab switching on product details page
+        if (e.target.matches('.tab-link')) {
+            const tabId = e.target.dataset.tab;
+            // Find the closest container to scope the query
+            const container = e.target.closest('.product-tabs');
+            if(container) {
+                container.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+                container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                e.target.classList.add('active');
+                container.querySelector(`#${tabId}`).classList.add('active');
+            }
         }
-    };
-});
+    });
+}
+
+
+// --- Main Execution ---
+
+/**
+ * Initializes the entire application.
+ */
+async function main() {
+    // Load header and footer first
+    await Promise.all([
+        loadComponent('#header-placeholder', 'header.html'),
+        loadComponent('#footer-placeholder', 'footer.html')
+    ]);
+
+    // Then fetch data
+    const products = await fetchAllProducts();
+    
+    // Determine which page we are on and render accordingly
+    const productGrid = document.getElementById('productGrid');
+    const productDetailsPage = document.getElementById('product-details-page');
+    // Add other page checks here if needed, e.g., for cart.html
+
+    if (productGrid) {
+        renderProductGrid(products, productGrid);
+        document.addEventListener('currencyChanged', () => renderProductGrid(products, productGrid));
+    }
+    if (productDetailsPage) {
+        renderProductDetailsPage(products, productDetailsPage);
+        document.addEventListener('currencyChanged', () => renderProductDetailsPage(products, productDetailsPage));
+    }
+    
+    setupGlobalEventListeners();
+    updateCartBadge();
+}
+
+// Run the application once the DOM is ready
+document.addEventListener('DOMContentLoaded', main);
