@@ -1,4 +1,3 @@
-// /public/main.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
@@ -165,65 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         `).join('') : '<p style="text-align:center; grid-column: 1 / -1;">No reviews yet. Be the first to write one!</p>'}
                     </div>
-                    <div class="review-form-container">
-                        <h3>Write a Review</h3>
-                        <form class="review-form" id="reviewForm">
-                            <div class="form-group form-group-full star-rating-input">
-                                <input type="radio" id="star5" name="rating" value="5" required><label for="star5" title="5 stars">★</label>
-                                <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
-                                <input type="radio" id="star3" name="rating" value="3"><label for="star3" title="3 stars">★</label>
-                                <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
-                                <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
-                            </div>
-                            <div class="form-group"><label for="authorName">Your Name</label><input type="text" id="authorName" name="authorName" required></div>
-                            <div class="form-group form-group-full"><label for="reviewText">Your Review</label><textarea id="reviewText" name="reviewText" required minlength="10"></textarea></div>
-                            <div class="form-group form-group-full"><button type="submit" class="btn-primary">Submit Review</button></div>
-                            <div class="form-message" id="reviewFormMessage"></div>
-                        </form>
-                    </div>
                 </div>`;
-            setupReviewForm(productId);
         } catch (error) {
             placeholder.innerHTML = `<p class="error-message">Could not load reviews.</p>`;
         }
-    }
-
-    function setupReviewForm(productId) {
-        const reviewForm = document.getElementById('reviewForm');
-        if (!reviewForm) return;
-        reviewForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formMessage = document.getElementById('reviewFormMessage');
-            const submitButton = reviewForm.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Submitting...';
-
-            const reviewData = {
-                productId: productId,
-                authorName: reviewForm.authorName.value,
-                rating: parseInt(reviewForm.rating.value, 10),
-                reviewText: reviewForm.reviewText.value
-            };
-
-            try {
-                const response = await fetch('/.netlify/functions/submit-review', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(reviewData)
-                });
-                const result = await response.json();
-                if (!response.ok || !result.success) throw new Error(result.message);
-                formMessage.className = 'form-message success';
-                formMessage.textContent = result.message;
-                reviewForm.reset();
-            } catch (error) {
-                formMessage.className = 'form-message error';
-                formMessage.textContent = error.message;
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Submit Review';
-            }
-        });
     }
 
     // --- COMPONENT LOGIC ---
@@ -266,61 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showSlide(0);
     }
     
-    // --- CART & NOTIFICATION LOGIC ---
-    function saveCart() {
-        localStorage.setItem('digiworldCart', JSON.stringify(cart));
-        updateCartBadge();
-    }
-
-    function addToCart(productId) {
-        cart[productId] = (cart[productId] || 0) + 1;
-        saveCart();
-        const product = allProducts.find(p => p.id === productId);
-        showNotification(`${product?.name.en || 'Item'} added to cart!`);
-    }
-
-    function updateCartBadge() {
-        const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
-        const badges = document.querySelectorAll('.cart-icon-badge');
-        badges.forEach(badge => {
-            if(badge) {
-                badge.textContent = count;
-                badge.style.display = count > 0 ? 'inline-block' : 'none';
-            }
-        });
-    }
-
-    function showNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'cart-notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.classList.add('show'), 10);
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 500);
-        }, 3000);
-    }
-    
-    // --- EVENT LISTENERS ---
-    function setupGlobalEventListeners() {
-        document.body.addEventListener('click', (e) => {
-            if (e.target.matches('.add-to-cart')) {
-                addToCart(e.target.dataset.id);
-            }
-            if (e.target.matches('.tab-link')) {
-                const tabId = e.target.dataset.tab;
-                const container = e.target.closest('.product-tabs');
-                if (container) {
-                    container.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
-                    container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    e.target.classList.add('active');
-                    container.querySelector(`#${tabId}`).classList.add('active');
-                }
-            }
-        });
-    }
-
     // --- INITIALIZATION ---
     async function main() {
         await Promise.all([
@@ -341,8 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         setupBannerSlider();
-        setupGlobalEventListeners();
-        updateCartBadge();
     }
 
     main();
