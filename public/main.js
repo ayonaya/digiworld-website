@@ -1,46 +1,34 @@
 // /public/main.js
 
 // --- App State & Data Cache ---
-let allProducts = []; // This will cache the product list once fetched.
+let allProducts = [];
 let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
 let currentCurrency = localStorage.getItem('digiworldCurrency') || 'USD';
 const currencySymbols = { USD: '$', LKR: 'Rs', EUR: '€', GBP: '£', INR: '₹' };
-
 
 // --- Core Functions ---
 
 /**
  * Fetches the product list from the server. Uses a cached version after the first load.
- * This function is now cleaner and only handles data fetching, not UI updates.
- * @returns {Promise<Array>} A promise that resolves to the array of products.
  */
 async function fetchAllProducts() {
-    if (allProducts.length > 0) {
-        return allProducts; // Return from cache if available
-    }
+    if (allProducts.length > 0) return allProducts;
     try {
         const response = await fetch('/.netlify/functions/get-products');
-        if (!response.ok) {
-            throw new Error(`API Error: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
         const data = await response.json();
         if (data.success && Array.isArray(data.products)) {
-            allProducts = data.products; // Populate the global cache
+            allProducts = data.products;
             return allProducts;
-        } else {
-            throw new Error("Invalid data format from product API.");
         }
     } catch (error) {
         console.error("Could not fetch products:", error);
-        // Return an empty array on failure. The UI function will handle the message.
-        return [];
     }
+    return [];
 }
 
 /**
- * Loads reusable HTML components like the header and footer into the page.
- * @param {string} selector - The CSS selector for the placeholder element.
- * @param {string} url - The URL of the HTML file to load.
+ * Loads reusable HTML components like the header and footer.
  */
 async function loadComponent(selector, url) {
     try {
@@ -48,14 +36,11 @@ async function loadComponent(selector, url) {
         if (!response.ok) throw new Error(`Could not load ${url}`);
         const data = await response.text();
         const element = document.querySelector(selector);
-        if (element) {
-            element.innerHTML = data;
-        }
+        if (element) element.innerHTML = data;
     } catch (error) {
         console.error(`Failed to load component: ${error.message}`);
     }
 }
-
 
 // --- Cart Management ---
 
@@ -71,23 +56,15 @@ function addToCart(productId) {
     showNotification(`${product?.name.en || 'Item'} added to cart!`);
 }
 
-function removeFromCart(productId) {
-    if (cart[productId]) {
-        delete cart[productId];
-        saveCart();
-    }
-}
-
-
-// --- UI Rendering Functions ---
+// --- UI Rendering ---
 
 function updateCartBadge() {
-    const count = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
-    const badge = document.getElementById('cartCount');
-    if (badge) {
+    const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
+    const badges = document.querySelectorAll('.cart-icon-badge');
+    badges.forEach(badge => {
         badge.textContent = count;
-        badge.style.display = count > 0 ? 'block' : 'none';
-    }
+        badge.style.display = count > 0 ? 'inline-block' : 'none';
+    });
 }
 
 function showNotification(message) {
@@ -95,23 +72,16 @@ function showNotification(message) {
     notification.className = 'cart-notification';
     notification.textContent = message;
     document.body.appendChild(notification);
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
+    setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => notification.remove(), 500);
     }, 3000);
 }
 
-/**
- * Renders the product grid on the homepage.
- * It now reads from the global 'allProducts' cache.
- * @param {HTMLElement} gridElement - The DOM element to render the grid into.
- */
 function renderProductGrid(gridElement) {
     if (!allProducts || allProducts.length === 0) {
-        gridElement.innerHTML = '<p>No products found.</p>';
+        gridElement.innerHTML = '<p>No products found at this time. Please check back later.</p>';
         return;
     }
     const symbol = currencySymbols[currentCurrency] || '$';
@@ -134,11 +104,6 @@ function renderProductGrid(gridElement) {
     `).join('');
 }
 
-/**
- * Renders the product details page.
- * It now reads from the global 'allProducts' cache.
- * @param {HTMLElement} pageElement - The DOM element to render the page content into.
- */
 function renderProductDetailsPage(pageElement) {
     const productId = new URLSearchParams(window.location.search).get('id');
     const product = allProducts.find(p => p.id === productId);
@@ -181,41 +146,24 @@ function renderProductDetailsPage(pageElement) {
             </div>
         </div>
     `;
-
     fetchAndRenderReviews(productId);
 }
 
-/**
- * Fetches and renders the entire reviews section for a given product.
- * @param {string} productId - The ID of the product to fetch reviews for.
- */
 async function fetchAndRenderReviews(productId) {
     const placeholder = document.getElementById('reviews-section-placeholder');
     if (!placeholder) return;
-
     placeholder.innerHTML = `<p>Loading reviews...</p>`;
 
     try {
         const response = await fetch(`/.netlify/functions/get-reviews?productId=${productId}`);
         if (!response.ok) throw new Error('Could not fetch reviews.');
-        
         const data = await response.json();
         if (!data.success) throw new Error(data.message);
 
         const reviews = data.reviews;
-        let totalRating = 0;
         const reviewCount = reviews.length;
-        
-        reviews.forEach(r => totalRating += r.rating);
-        const averageRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : 0;
-
-        const renderStars = (rating) => {
-            let stars = '';
-            for (let i = 1; i <= 5; i++) {
-                stars += `<i class="fas fa-star ${i <= rating ? '' : 'far'}"></i>`;
-            }
-            return stars;
-        };
+        const averageRating = reviewCount > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1) : 0;
+        const renderStars = (rating) => Array.from({length: 5}, (_, i) => `<i class="fa-star ${i < Math.round(rating) ? 'fas' : 'far'}"></i>`).join('');
 
         placeholder.innerHTML = `
             <div class="reviews-container">
@@ -223,7 +171,7 @@ async function fetchAndRenderReviews(productId) {
                 <div class="reviews-summary">
                     <div class="summary-box">
                         <div class="big-number">${averageRating}</div>
-                        <div class="stars">${renderStars(Math.round(averageRating))}</div>
+                        <div class="stars">${renderStars(averageRating)}</div>
                         <div class="label">Based on ${reviewCount} reviews</div>
                     </div>
                 </div>
@@ -237,11 +185,11 @@ async function fetchAndRenderReviews(productId) {
                             <p class="review-text">${review.reviewText}</p>
                             <p class="review-date">${new Date(review.createdAt).toLocaleDateString()}</p>
                         </div>
-                    `).join('') : '<p>No reviews yet. Be the first to write one!</p>'}
+                    `).join('') : '<p style="text-align:center; grid-column: 1 / -1;">No reviews yet. Be the first to write one!</p>'}
                 </div>
                 <div class="review-form-container">
                     <h3>Write a Review</h3>
-                    <form class="review-form" id="reviewForm" data-product-id="${productId}">
+                    <form class="review-form" id="reviewForm">
                         <div class="form-group form-group-full star-rating-input">
                             <input type="radio" id="star5" name="rating" value="5" required><label for="star5" title="5 stars">★</label>
                             <input type="radio" id="star4" name="rating" value="4"><label for="star4" title="4 stars">★</label>
@@ -249,38 +197,22 @@ async function fetchAndRenderReviews(productId) {
                             <input type="radio" id="star2" name="rating" value="2"><label for="star2" title="2 stars">★</label>
                             <input type="radio" id="star1" name="rating" value="1"><label for="star1" title="1 star">★</label>
                         </div>
-                        <div class="form-group">
-                            <label for="authorName">Your Name</label>
-                            <input type="text" id="authorName" name="authorName" required>
-                        </div>
-                         <div class="form-group form-group-full">
-                            <label for="reviewText">Your Review</label>
-                            <textarea id="reviewText" name="reviewText" required minlength="10"></textarea>
-                        </div>
-                        <div class="form-group form-group-full">
-                            <button type="submit" class="btn-primary">Submit Review</button>
-                        </div>
+                        <div class="form-group"><label for="authorName">Your Name</label><input type="text" id="authorName" name="authorName" required></div>
+                        <div class="form-group form-group-full"><label for="reviewText">Your Review</label><textarea id="reviewText" name="reviewText" required minlength="10"></textarea></div>
+                        <div class="form-group form-group-full"><button type="submit" class="btn-primary">Submit Review</button></div>
                         <div class="form-message" id="reviewFormMessage"></div>
                     </form>
                 </div>
-            </div>
-        `;
-        
+            </div>`;
         setupReviewForm(productId);
-
     } catch (error) {
-        placeholder.innerHTML = `<p class="error-message">Could not load reviews. ${error.message}</p>`;
+        placeholder.innerHTML = `<p class="error-message">Could not load reviews.</p>`;
     }
 }
 
-/**
- * Adds the submit event listener to the review form.
- * @param {string} productId - The ID of the product the form is for.
- */
 function setupReviewForm(productId) {
     const reviewForm = document.getElementById('reviewForm');
     if (!reviewForm) return;
-
     reviewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formMessage = document.getElementById('reviewFormMessage');
@@ -288,12 +220,11 @@ function setupReviewForm(productId) {
         submitButton.disabled = true;
         submitButton.textContent = 'Submitting...';
 
-        const formData = new FormData(reviewForm);
         const reviewData = {
             productId: productId,
-            authorName: formData.get('authorName'),
-            rating: parseInt(formData.get('rating'), 10),
-            reviewText: formData.get('reviewText')
+            authorName: reviewForm.authorName.value,
+            rating: parseInt(reviewForm.rating.value, 10),
+            reviewText: reviewForm.reviewText.value
         };
 
         try {
@@ -303,15 +234,10 @@ function setupReviewForm(productId) {
                 body: JSON.stringify(reviewData)
             });
             const result = await response.json();
-
-            if (!response.ok || !result.success) {
-                throw new Error(result.message || 'An unknown error occurred.');
-            }
-
+            if (!response.ok || !result.success) throw new Error(result.message);
             formMessage.className = 'form-message success';
             formMessage.textContent = result.message;
             reviewForm.reset();
-
         } catch (error) {
             formMessage.className = 'form-message error';
             formMessage.textContent = error.message;
@@ -322,19 +248,55 @@ function setupReviewForm(productId) {
     });
 }
 
+// --- Component Logic ---
 
-// --- Event Delegation & Listeners ---
+function setupBannerSlider() {
+    const banner = document.getElementById('bannerSlider');
+    if (!banner) return;
+    const slides = banner.querySelectorAll('.banner-slide');
+    const controls = banner.querySelector('.banner-slider-controls');
+    if (slides.length <= 1) return;
+
+    let currentSlide = 0;
+    let slideInterval = setInterval(nextSlide, 5000);
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+        if (controls) Array.from(controls.children).forEach((dot, i) => dot.classList.toggle('active', i === index));
+        currentSlide = index;
+    }
+
+    function nextSlide() {
+        showSlide((currentSlide + 1) % slides.length);
+    }
+
+    if (controls) {
+        controls.innerHTML = '';
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'banner-slider-dot';
+            dot.addEventListener('click', () => {
+                showSlide(i);
+                clearInterval(slideInterval);
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+            controls.appendChild(dot);
+        });
+    }
+    showSlide(0);
+}
+
+// --- Event Listeners ---
 
 function setupGlobalEventListeners() {
     document.body.addEventListener('click', (e) => {
         if (e.target.matches('.add-to-cart')) {
             addToCart(e.target.dataset.id);
         }
-
         if (e.target.matches('.tab-link')) {
             const tabId = e.target.dataset.tab;
             const container = e.target.closest('.product-tabs');
-            if(container) {
+            if (container) {
                 container.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
                 container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 e.target.classList.add('active');
@@ -344,12 +306,8 @@ function setupGlobalEventListeners() {
     });
 }
 
-
 // --- Main Execution ---
 
-/**
- * Initializes the entire application.
- */
 async function main() {
     await Promise.all([
         loadComponent('#header-placeholder', 'header.html'),
@@ -372,7 +330,7 @@ async function main() {
     
     setupGlobalEventListeners();
     updateCartBadge();
+    setupBannerSlider();
 }
 
-// Run the application once the DOM is ready
 document.addEventListener('DOMContentLoaded', main);
