@@ -100,50 +100,6 @@
             align-items: center;
             gap: 10px;
         }
-        /* New Form Styles */
-        .admin-form .form-group {
-            margin-bottom: 20px;
-        }
-        .admin-form label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #555;
-        }
-        .admin-form input[type="text"],
-        .admin-form input[type="number"],
-        .admin-form input[type="url"],
-        .admin-form textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-        }
-        .admin-form .submit-btn {
-            width: 100%;
-            background: var(--accent);
-            color: white;
-            font-weight: 700;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .admin-form .submit-btn:hover {
-            background: var(--primary-dark);
-        }
-        .form-message {
-            margin-top: 15px;
-            font-weight: 600;
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -179,48 +135,10 @@
     <div class="admin-container hidden" id="dashboardContainer">
         <div class="admin-header">
             <h1>Admin Dashboard</h1>
-            <button id="logoutBtn" class="btn btn-delete" style="background-color: #dc3545; color: white;">Logout</button>
+            <button id="logoutBtn" class="btn btn-delete" style="background-color: #dc3545; color:white;">Logout</button>
         </div>
         
         <div class="dashboard">
-            <div class="dashboard-card" style="grid-column: 1 / -1;">
-                <h3><i class="fas fa-plus-circle"></i> Create New Product</h3>
-                <form id="createProductForm" class="admin-form">
-                    <div class="form-group">
-                        <label for="productId">Product ID (e.g., "win11-home-key")</label>
-                        <input type="text" id="productId" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productName">Product Name</label>
-                        <input type="text" id="productName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productDesc">Description</label>
-                        <textarea id="productDesc" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="productPriceUSD">Price (USD)</label>
-                        <input type="number" id="productPriceUSD" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productCategory">Category (e.g., "Windows", "Office")</label>
-                        <input type="text" id="productCategory" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productImage">Image URL</label>
-                        <input type="url" id="productImage" required>
-                    </div>
-                    <div class="form-group">
-                        <label style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="productIsHot" style="width: auto;">
-                            Mark as "Hot Deal"?
-                        </label>
-                    </div>
-                    <button type="submit" class="submit-btn">Create Product</button>
-                    <div id="createProductMessage" class="form-message"></div>
-                </form>
-            </div>
-            
             <div class="dashboard-card">
                 <h3><i class="fas fa-key"></i> Key Inventory</h3>
                 <table id="inventoryTable">
@@ -256,7 +174,6 @@
         const loginMessage = document.getElementById('loginMessage');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        // Check if user is already logged in
         const sessionPassword = sessionStorage.getItem('adminPassword');
         if (sessionPassword) {
             fetchAdminData(sessionPassword);
@@ -275,51 +192,6 @@
             loginContainer.classList.remove('hidden');
             dashboardContainer.classList.add('hidden');
         });
-
-        // --- [NEW] Handle Create Product Form ---
-        const createProductForm = document.getElementById('createProductForm');
-        const createProductMessage = document.getElementById('createProductMessage');
-
-        if (createProductForm) {
-            createProductForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                createProductMessage.textContent = 'Creating product...';
-                createProductMessage.style.color = '#333';
-
-                const productData = {
-                    id: document.getElementById('productId').value,
-                    name: document.getElementById('productName').value,
-                    desc: document.getElementById('productDesc').value,
-                    priceUSD: document.getElementById('productPriceUSD').value,
-                    category: document.getElementById('productCategory').value,
-                    image: document.getElementById('productImage').value,
-                    isHot: document.getElementById('productIsHot').checked,
-                };
-
-                try {
-                    // CHANGE HERE: Add /api/ prefix
-                    const response = await fetch('/api/create-product', {
-                        method: 'POST',
-                        body: JSON.stringify(productData),
-                        headers: { 'Content-Type': 'application/json' },
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        createProductMessage.textContent = result.message;
-                        createProductMessage.style.color = 'green';
-                        createProductForm.reset();
-                    } else {
-                        throw new Error(result.message || 'Failed to create product.');
-                    }
-                } catch (error) {
-                    createProductMessage.textContent = `Error: ${error.message}`;
-                    createProductMessage.style.color = 'red';
-                }
-            });
-        }
-        // --- End of New Code ---
 
         async function fetchAdminData(password) {
             try {
@@ -341,7 +213,7 @@
                     dashboardContainer.classList.remove('hidden');
                     renderDashboard(result.data);
                 } else {
-                    throw new Error(result.message);
+                    throw new Error(result..message);
                 }
 
             } catch (error) {
@@ -352,7 +224,6 @@
         }
 
         function renderDashboard(data) {
-            // Render Inventory
             const inventoryBody = document.querySelector('#inventoryTable tbody');
             if (Object.keys(data.inventory).length > 0) {
                 inventoryBody.innerHTML = Object.entries(data.inventory).map(([productId, count]) => `
@@ -364,83 +235,6 @@
             } else {
                 inventoryBody.innerHTML = '<tr><td colspan="2">No keys in inventory.</td></tr>';
             }
-
-            // Render Pending Reviews (assuming this element exists)
-            const reviewsList = document.getElementById('pendingReviewsList');
-            if (reviewsList) {
-                if (data.pendingReviews.length === 0) {
-                    reviewsList.innerHTML = '<p>No pending reviews.</p>';
-                } else {
-                    reviewsList.innerHTML = data.pendingReviews.map(review => `
-                        <div class="review-card" id="review-${review.id}">
-                            <div class="review-header">
-                                <span class="review-author">${review.authorName}</span>
-                                <span class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
-                            </div>
-                            <p class="review-text">${review.reviewText}</p>
-                            <small>Product: ${review.productId}</small>
-                            <div class="review-actions">
-                                <button class="btn btn-approve" data-id="${review.id}" data-action="approve">Approve</button>
-                                <button class="btn btn-delete" data-id="${review.id}" data-action="delete">Delete</button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            }
-
-
-            // Render Recent Orders
-            const ordersBody = document.querySelector('#ordersTable tbody');
-                 if (data.orders.length > 0) {
-                     ordersBody.innerHTML = data.orders.map(order => `
-                         <tr>
-                             <td>${order.id}</td>
-                             <td>${order.productId}</td>
-                             <td>${order.customerEmail}</td>
-                             <td>${order.amount} ${order.currency}</td>
-                             <td>${order.status}</td>
-                             <td>${new Date(order.createdAt).toLocaleString()}</td>
-                         </tr>
-                     `).join('');
-             } else {
-                      ordersBody.innerHTML = '<tr><td colspan="6">No recent orders.</td></tr>';
-             }
-        }
-
-        // Event listener for review moderation
-        const pendingReviewsList = document.getElementById('pendingReviewsList');
-        if (pendingReviewsList) {
-            pendingReviewsList.addEventListener('click', async (e) => {
-                if (e.target.matches('.btn-approve, .btn-delete')) {
-                    const button = e.target;
-                    const reviewId = button.dataset.id;
-                    const action = button.dataset.action;
-                    const password = sessionStorage.getItem('adminPassword');
-
-                    if (!password || !reviewId || !action) return;
-                    
-                    button.textContent = '...';
-                    button.disabled = true;
-
-                    try {
-                        const response = await fetch('/api/moderate-review', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ adminPassword: password, reviewId, action })
-                        });
-                        const result = await response.json();
-                        if (!response.ok) throw new Error(result.message);
-
-                        document.getElementById(`review-${reviewId}`).remove();
-
-                    } catch (error) {
-                        console.error('Moderation failed:', error);
-                        alert(`Error: ${error.message}`);
-                        button.textContent = action.charAt(0).toUpperCase() + action.slice(1);
-                        button.disabled = false;
-                    }
-                }
-            });
         }
     });
     </script>
