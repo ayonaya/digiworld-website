@@ -7,13 +7,14 @@
 [dev]
   publish = "public"
 
+# This section tells Netlify to include our secret key file with the functions
+[functions]
+  included_files = ["netlify/functions/*.json"]
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
 
-# NEW: Scheduled function for stock checking
 [functions."check-stock"]
-  # This cron expression means "at 9:00 AM UTC every day".
-  # You can change the schedule if you like.
   schedule = "0 9 * * *"
