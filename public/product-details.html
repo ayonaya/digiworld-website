@@ -720,15 +720,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentCurr = localStorage.getItem('userCurrency') || 'USD';
     const currencySymbols = { USD: '$', LKR: 'Rs ', EUR: '€', GBP: '£', INR: '₹' };
     let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
-    let allProducts = [];
+    let allProducts = []; // This will be used for related products
 
     // --- SEO FUNCTION ---
     function addProductSchema(product, reviews) {
         const oldSchema = document.getElementById('product-schema');
         if (oldSchema) { oldSchema.remove(); }
         const schema = {
-            "@context": "https://schema.org/",
-            "@type": "Product",
+            "@context": "https://schema.org/", "@type": "Product",
             "name": product.name.en, "image": product.image, "description": product.desc.en, "sku": product.id,
             "brand": { "@type": "Brand", "name": "DigiWorld" },
             "offers": { "@type": "Offer", "url": window.location.href, "priceCurrency": "USD", "price": product.price.USD, "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition" }
@@ -768,7 +767,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const currencySymbol = currencySymbols[currentCurr] || '$';
         const hotBadgeHTML = product.isHot ? `<div class="hot-badge"><i class="fas fa-fire"></i> Hot Deal</div>` : '';
         
-        // This replaces the skeleton with the real product content
         detailsContainer.innerHTML = `
             <div class="product-details-grid">
                 <div class="product-image-container">
@@ -787,7 +785,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             </div>
         `;
-        // Show the other sections now that we have data
         document.querySelector('.product-info-tabs').style.display = 'block';
         document.querySelector('.reviews-container').style.display = 'block';
         document.querySelector('.related-products-container').style.display = 'block';
@@ -801,7 +798,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // --- Main Execution Logic ---
+    // --- ✨ CORRECTED MAIN EXECUTION LOGIC ✨ ---
     const params = new URLSearchParams(window.location.search);
     const productId = params.get('id');
 
@@ -811,21 +808,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetch('/api/get-products');
-        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-        const data = await response.json();
-        if (!data.success || !data.products) throw new Error('API did not return successful product data.');
-        allProducts = data.products;
-
-        const product = allProducts.find(p => p.id === productId);
-        
-        if (product) {
-            renderProduct(product);
-            fetchAndRenderReviews(productId);
-            renderRelatedProducts(product, allProducts);
-        } else {
-            throw new Error('Product not found in the database.');
+        // Fetch the single product using the ID
+        const response = await fetch(`/api/get-products?id=${productId}`);
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || `Network response was not ok: ${response.statusText}`);
         }
+        const data = await response.json();
+        if (!data.success || !data.product) {
+            throw new Error('API did not return a valid product.');
+        }
+
+        const product = data.product;
+        
+        renderProduct(product); // This will replace the skeleton
+        fetchAndRenderReviews(productId);
+
+        // Now, fetch all products in the background for the "related products" section
+        fetch('/api/get-products')
+            .then(res => res.json())
+            .then(allData => {
+                if(allData.success && allData.products) {
+                    allProducts = allData.products;
+                    renderRelatedProducts(product, allProducts);
+                }
+            });
 
     } catch (error) {
         console.error("Fatal Error fetching data:", error);
@@ -843,7 +850,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         updateMiniCartContent();
     };
-    
     const updateCartBadge = () => {
         const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
         cartCountBadge.textContent = count;
