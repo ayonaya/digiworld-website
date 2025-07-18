@@ -1,15 +1,20 @@
 // /netlify/functions/firebase-admin.js
 
 const admin = require('firebase-admin');
-const path = require('path');
 
 try {
   if (!admin.apps.length) {
-    // This looks for the key file in the function's root directory,
-    // which is where Netlify will place it with our new config.
-    const serviceAccountPath = path.resolve(process.cwd(), 'digiworld-46a1e-firebase-adminsdk-fbsvc-5542dd28ef.json');
-    const serviceAccount = require(serviceAccountPath);
+    // Get the specially formatted JSON from the environment variable
+    const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    
+    if (!serviceAccountString) {
+      throw new Error('Firebase service account key is not set in environment variables.');
+    }
 
+    // Parse the JSON string into an object
+    const serviceAccount = JSON.parse(serviceAccountString);
+
+    // Initialize the SDK with the parsed credentials
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
