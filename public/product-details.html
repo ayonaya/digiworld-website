@@ -6,7 +6,7 @@
   <title>DigiWorld - Product Details</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     :root {
@@ -222,7 +222,7 @@
       box-shadow: var(--shadow); align-items: flex-start;
     }
     .product-image-container {
-      position: relative; /* Needed for positioning the badge */
+      position: relative;
       border-radius: var(--radius); overflow: hidden;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
@@ -529,7 +529,6 @@
         <a href="contact.html" class="nav-link-pro">Contact</a>
       </nav>
       <div class="header-controls">
-        <!-- Currency Dropdown for Desktop -->
         <div class="dropdown" id="currencyDropdown">
           <button class="dropdown-toggle" type="button">
             <span id="currentCurrLabel">USD</span> <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
@@ -542,7 +541,6 @@
             <a href="#" class="dropdown-item" data-currency="INR">INR</a>
           </div>
         </div>
-        <!-- Cart Button -->
         <button class="cart-btn" id="cartBtn" aria-label="Open cart">
           <i class="fas fa-shopping-cart"></i>
           <span>Cart</span>
@@ -601,12 +599,9 @@
         </div>
     </div>
 
-    <!-- NEW: RELATED PRODUCTS SECTION -->
     <div class="related-products-container">
         <h2 class="section-title">You Might Also Like</h2>
-        <div id="related-products-list" class="products-grid">
-            <!-- Related products will be injected here by JavaScript -->
-        </div>
+        <div id="related-products-list" class="products-grid"></div>
     </div>
   </main>
 
@@ -688,6 +683,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
     let allProducts = [];
 
+    // --- NEW SEO FUNCTION ---
+    function addProductSchema(product, reviews) {
+        // Remove any old schema
+        const oldSchema = document.getElementById('product-schema');
+        if (oldSchema) {
+            oldSchema.remove();
+        }
+
+        const schema = {
+            "@context": "https://schema.org/",
+            "@type": "Product",
+            "name": product.name.en,
+            "image": product.image,
+            "description": product.desc.en,
+            "sku": product.id,
+            "brand": {
+                "@type": "Brand",
+                "name": "DigiWorld"
+            },
+            "offers": {
+                "@type": "Offer",
+                "url": window.location.href,
+                "priceCurrency": "USD", // Base currency for schema
+                "price": product.price.USD,
+                "availability": "https://schema.org/InStock",
+                "itemCondition": "https://schema.org/NewCondition"
+            }
+        };
+
+        if (reviews && reviews.length > 0) {
+            schema.aggregateRating = {
+                "@type": "AggregateRating",
+                "ratingValue": (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1),
+                "reviewCount": reviews.length
+            };
+            schema.review = reviews.map(review => ({
+                "@type": "Review",
+                "author": {"@type": "Person", "name": review.authorName},
+                "datePublished": review.createdAt,
+                "reviewBody": review.reviewText,
+                "reviewRating": {
+                    "@type": "Rating",
+                    "ratingValue": review.rating
+                }
+            }));
+        }
+
+        const script = document.createElement('script');
+        script.id = 'product-schema';
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify(schema);
+        document.head.appendChild(script);
+    }
+
     // --- Currency Functions ---
     const setCurrency = (newCurrency) => {
         currentCurr = newCurrency;
@@ -695,7 +744,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentCurrLabel.textContent = newCurrency;
         if (currentProduct) {
             renderProduct(currentProduct);
-            renderRelatedProducts(currentProduct, allProducts); // Re-render related products with new currency
+            renderRelatedProducts(currentProduct, allProducts);
         }
         updateMiniCartContent();
     };
@@ -746,6 +795,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Page Rendering Functions ---
     const renderProduct = (product) => {
         currentProduct = product;
+
+        // ✨ --- SEO Part: Update Title and Meta Description --- ✨
+        const nameForSeo = product.name?.en || 'Product';
+        const descriptionForSeo = product.desc?.en || '';
+        const priceForSeo = product.price?.USD;
+
+        // 1. Set the page title dynamically for better SEO
+        document.title = `Buy ${nameForSeo} | DigiWorld`;
+
+        // 2. Find or create the meta description tag
+        let metaDescription = document.querySelector('meta[name="description"]');
+        if (!metaDescription) {
+            metaDescription = document.createElement('meta');
+            metaDescription.name = 'description';
+            document.head.appendChild(metaDescription);
+        }
+
+        // 3. Set dynamic content for the meta description
+        const descriptionContent = `Purchase ${nameForSeo} for just $${priceForSeo}. Get your genuine digital key delivered instantly. ${descriptionForSeo}`;
+        metaDescription.content = descriptionContent.substring(0, 160);
+        // ✨ --- End of SEO Part --- ✨
+        
         const name = product.name?.en || 'Product Name';
         const image = product.image || 'https://placehold.co/600x400?text=No+Image';
         const delivery = product.delivery?.en || 'Standard Delivery';
@@ -753,8 +824,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const description = product.desc?.en || 'No description available.';
         const currencySymbol = currencySymbols[currentCurr] || '$';
         const hotBadgeHTML = product.isHot ? `<div class="hot-badge"><i class="fas fa-fire"></i> Hot Deal</div>` : '';
-        
-        document.title = `DigiWorld - ${name}`;
         
         detailsContainer.innerHTML = `
             <div class="product-details-grid">
@@ -801,6 +870,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
             if (!result.success) throw new Error(result.message);
+
+            if (currentProduct) {
+                addProductSchema(currentProduct, result.reviews);
+            }
+
             if (result.reviews.length === 0) {
                 reviewsList.innerHTML = '<p>Be the first to review this product!</p>';
                 return;
@@ -834,20 +908,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         const relatedListContainer = document.getElementById('related-products-list');
         const relatedContainer = document.querySelector('.related-products-container');
         if (!relatedListContainer || !relatedContainer) return;
-
         const relatedProducts = allProducts.filter(p =>
             p.category === currentProduct.category && p.id !== currentProduct.id
         );
-
         if (relatedProducts.length === 0) {
             relatedContainer.style.display = 'none';
             return;
         }
-
         relatedContainer.style.display = 'block';
         const productsToDisplay = relatedProducts.slice(0, 4);
         const currencySymbol = currencySymbols[currentCurr] || '$';
-
         relatedListContainer.innerHTML = productsToDisplay.map(product => {
             const price = product.price[currentCurr] || product.price.USD;
             const hotBadgeHTML = product.isHot ? `<div class="hot-badge"><i class="fas fa-fire"></i> Hot Deal</div>` : '';
@@ -866,10 +936,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Main Execution Logic ---
     
-    // 1. Set initial currency display
     currentCurrLabel.textContent = currentCurr;
 
-    // 2. Fetch all products from the server
     try {
         const response = await fetch('/api/get-products');
         if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -886,7 +954,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 3. Get the product ID from the URL and find the product
     const params = new URLSearchParams(window.location.search);
     const productId = params.get('id');
 
@@ -897,7 +964,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const product = allProducts.find(p => p.id === productId);
         if (product) {
             renderProduct(product);
-            fetchAndRenderReviews(productId);
+            fetchAndRenderReviews(productId); // This now also adds the schema
             renderRelatedProducts(product, allProducts);
         } else {
             if (loadingState) loadingState.style.display = 'none';
@@ -905,7 +972,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 4. Set up event listeners
+    // --- Event Listeners ---
     if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
     if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
     if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
@@ -921,7 +988,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Desktop Currency Dropdown Listeners
     currencyDropdown.addEventListener('click', (event) => {
         event.stopPropagation();
         currencyDropdown.classList.toggle('open');
@@ -989,10 +1055,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Initialize the cart badge and content on page load
     updateCartBadge();
     updateMiniCartContent();
 });
 </script>
-</body>
-</html>
