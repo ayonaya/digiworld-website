@@ -12,7 +12,6 @@ try {
 
     const serviceAccount = JSON.parse(serviceAccountString);
 
-    // ✨ THIS IS THE FINAL FIX ✨
     // This line correctly formats the private key's newline characters.
     serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 
