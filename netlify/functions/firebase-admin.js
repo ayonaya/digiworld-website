@@ -1,12 +1,14 @@
 // /netlify/functions/firebase-admin.js
 
 const admin = require('firebase-admin');
+const path = require('path');
 
 try {
-  // Check if the app is already initialized to prevent errors
   if (!admin.apps.length) {
-    // This will now work because netlify.toml ensures the file is included
-    const serviceAccount = require('./digiworld-46a1e-firebase-adminsdk-fbsvc-5542dd28ef.json'); // Ensure this filename is exact
+    // This looks for the key file in the function's root directory,
+    // which is where Netlify will place it with our new config.
+    const serviceAccountPath = path.resolve(process.cwd(), 'digiworld-46a1e-firebase-adminsdk-fbsvc-5542dd28ef.json');
+    const serviceAccount = require(serviceAccountPath);
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)

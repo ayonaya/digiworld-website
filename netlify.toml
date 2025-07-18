@@ -7,9 +7,9 @@
 [dev]
   publish = "public"
 
-# This section tells Netlify to include all .json files from the functions directory
+# This now correctly includes the key file from the root directory
 [functions]
-  included_files = ["netlify/functions/*.json"]
+  included_files = ["digiworld-46a1e-firebase-adminsdk-fbsvc-5542dd28ef.json"]
 
 [[redirects]]
   from = "/api/*"
