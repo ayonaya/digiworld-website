@@ -267,7 +267,6 @@
         transition: left 0.6s ease;
     }
     .action-button:hover::before { left: 100%; }
-    #loadingState, #errorState { text-align: center; padding: 50px; font-size: 1.2rem; font-weight: 700; color: var(--primary-dark); }
     
     /* === STYLES FOR TABS & REVIEWS === */
     .product-info-tabs, .reviews-container {
@@ -515,11 +514,46 @@
         .product-title { font-size: 1.8rem; }
         .product-price { font-size: 2rem; }
     }
+    
+    /* --- ✨ NEW SKELETON STYLES ✨ --- */
+    .skeleton-details-grid {
+        display: grid; grid-template-columns: 1fr; gap: 30px;
+        background: var(--card-bg); padding: 40px; border-radius: var(--radius);
+        box-shadow: var(--shadow); align-items: flex-start;
+    }
+    @media (min-width: 900px) {
+        .skeleton-details-grid { grid-template-columns: 1fr 1.2fr; gap: 50px; }
+    }
+    .skeleton-image-container {
+        width: 100%; padding-top: 100%;
+        background-color: #eef0f2; border-radius: var(--radius);
+        animation: pulse 1.5s infinite ease-in-out;
+    }
+    .skeleton-info { padding-top: 10px; }
+    .skeleton-line {
+        height: 1em; background-color: #eef0f2;
+        border-radius: 4px; margin-bottom: 20px;
+        animation: pulse 1.5s infinite ease-in-out;
+    }
+    .skeleton-line.title { height: 2.2em; width: 85%; }
+    .skeleton-line.price { width: 45%; height: 2.5em; margin-bottom: 30px; }
+    .skeleton-line.text { width: 100%; height: 1em; }
+    .skeleton-line.text-short { width: 90%; }
+    .skeleton-button {
+        height: 52px; width: 220px;
+        background-color: #eef0f2; border-radius: 12px;
+        margin-top: 30px; animation: pulse 1.5s infinite ease-in-out;
+    }
+    @keyframes pulse {
+        0% { background-color: #eef0f2; }
+        50% { background-color: #e2e5e7; }
+        100% { background-color: #eef0f2; }
+    }
+
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header class="site-header">
     <div class="header-main-pro">
       <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
@@ -554,11 +588,20 @@
     <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
     
     <div id="product-details-container">
-        <div id="loadingState">Loading product...</div>
-        <div id="errorState" style="display: none;">Product not found.</div>
+        <div class="skeleton-details-grid">
+            <div class="skeleton-image-container"></div>
+            <div class="skeleton-info">
+                <div class="skeleton-line title"></div>
+                <div class="skeleton-line price"></div>
+                <div class="skeleton-line text"></div>
+                <div class="skeleton-line text"></div>
+                <div class="skeleton-line text-short"></div>
+                <div class="skeleton-button"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="product-info-tabs">
+    <div class="product-info-tabs" style="display: none;">
         <div class="tab-buttons">
             <button class="tab-button active" data-tab="features">Key Features</button>
             <button class="tab-button" data-tab="requirements">Requirements</button>
@@ -569,7 +612,7 @@
         <div id="activation" class="tab-content"></div>
     </div>
 
-    <div class="reviews-container">
+    <div class="reviews-container" style="display: none;">
         <h2 class="section-title">Customer Reviews</h2>
         <div id="reviews-list"></div>
         <div id="review-form-section">
@@ -599,13 +642,12 @@
         </div>
     </div>
 
-    <div class="related-products-container">
+    <div class="related-products-container" style="display: none;">
         <h2 class="section-title">You Might Also Like</h2>
         <div id="related-products-list" class="products-grid"></div>
     </div>
   </main>
 
-  <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-grid">
         <div class="footer-col">
@@ -637,7 +679,6 @@
     </div>
   </footer>
   
-  <!-- Mini-cart and mobile nav -->
   <div class="mini-cart-overlay" id="miniCartOverlay">
     <div class="mini-cart-drawer" id="miniCartDrawer">
       <div class="mini-cart-header">
@@ -662,8 +703,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // Define all necessary element variables
     const detailsContainer = document.getElementById('product-details-container');
-    const loadingState = document.getElementById('loadingState');
-    const errorState = document.getElementById('errorState');
     const cartBtn = document.getElementById('cartBtn');
     const cartCountBadge = document.getElementById('cartCount');
     const mobileCartBtn = document.getElementById('mobileCartBtn');
@@ -683,53 +722,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
     let allProducts = [];
 
-    // --- NEW SEO FUNCTION ---
+    // --- SEO FUNCTION ---
     function addProductSchema(product, reviews) {
-        // Remove any old schema
         const oldSchema = document.getElementById('product-schema');
-        if (oldSchema) {
-            oldSchema.remove();
-        }
-
+        if (oldSchema) { oldSchema.remove(); }
         const schema = {
             "@context": "https://schema.org/",
             "@type": "Product",
-            "name": product.name.en,
-            "image": product.image,
-            "description": product.desc.en,
-            "sku": product.id,
-            "brand": {
-                "@type": "Brand",
-                "name": "DigiWorld"
-            },
-            "offers": {
-                "@type": "Offer",
-                "url": window.location.href,
-                "priceCurrency": "USD", // Base currency for schema
-                "price": product.price.USD,
-                "availability": "https://schema.org/InStock",
-                "itemCondition": "https://schema.org/NewCondition"
-            }
+            "name": product.name.en, "image": product.image, "description": product.desc.en, "sku": product.id,
+            "brand": { "@type": "Brand", "name": "DigiWorld" },
+            "offers": { "@type": "Offer", "url": window.location.href, "priceCurrency": "USD", "price": product.price.USD, "availability": "https://schema.org/InStock", "itemCondition": "https://schema.org/NewCondition" }
         };
-
         if (reviews && reviews.length > 0) {
-            schema.aggregateRating = {
-                "@type": "AggregateRating",
-                "ratingValue": (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1),
-                "reviewCount": reviews.length
-            };
-            schema.review = reviews.map(review => ({
-                "@type": "Review",
-                "author": {"@type": "Person", "name": review.authorName},
-                "datePublished": review.createdAt,
-                "reviewBody": review.reviewText,
-                "reviewRating": {
-                    "@type": "Rating",
-                    "ratingValue": review.rating
-                }
-            }));
+            schema.aggregateRating = { "@type": "AggregateRating", "ratingValue": (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1), "reviewCount": reviews.length };
+            schema.review = reviews.map(r => ({ "@type": "Review", "author": {"@type": "Person", "name": r.authorName}, "datePublished": r.createdAt, "reviewBody": r.reviewText, "reviewRating": { "@type": "Rating", "ratingValue": r.rating } }));
         }
-
         const script = document.createElement('script');
         script.id = 'product-schema';
         script.type = 'application/ld+json';
@@ -737,7 +744,95 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.head.appendChild(script);
     }
 
-    // --- Currency Functions ---
+    // --- Page Rendering Functions ---
+    const renderProduct = (product) => {
+        currentProduct = product;
+        const nameForSeo = product.name?.en || 'Product';
+        const descriptionForSeo = product.desc?.en || '';
+        const priceForSeo = product.price?.USD;
+
+        document.title = `Buy ${nameForSeo} | DigiWorld`;
+        let metaDescription = document.querySelector('meta[name="description"]');
+        if (!metaDescription) {
+            metaDescription = document.createElement('meta');
+            metaDescription.name = 'description';
+            document.head.appendChild(metaDescription);
+        }
+        metaDescription.content = `Purchase ${nameForSeo} for just $${priceForSeo}. Get your genuine digital key delivered instantly. ${descriptionForSeo.substring(0, 100)}`;
+        
+        const name = product.name?.en || 'Product Name';
+        const image = product.image || 'https://placehold.co/600x400?text=No+Image';
+        const delivery = product.delivery?.en || 'Standard Delivery';
+        const price = product.price[currentCurr] || product.price.USD;
+        const description = product.desc?.en || 'No description available.';
+        const currencySymbol = currencySymbols[currentCurr] || '$';
+        const hotBadgeHTML = product.isHot ? `<div class="hot-badge"><i class="fas fa-fire"></i> Hot Deal</div>` : '';
+        
+        // This replaces the skeleton with the real product content
+        detailsContainer.innerHTML = `
+            <div class="product-details-grid">
+                <div class="product-image-container">
+                    ${hotBadgeHTML}
+                    <img src="${image}" alt="${name}">
+                </div>
+                <div class="product-info">
+                    <h1 class="product-title">${name}</h1>
+                    <p class="product-delivery"><i class="fas fa-check-circle"></i> ${delivery}</p>
+                    <p class="product-price">${currencySymbol}${price.toFixed(2)}</p>
+                    <div class="product-description">${description}</div>
+                    <div class="product-actions">
+                        <button class="action-button add-to-cart" data-id="${product.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                        <a href="checkout.html?product=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
+                    </div>
+                </div>
+            </div>
+        `;
+        // Show the other sections now that we have data
+        document.querySelector('.product-info-tabs').style.display = 'block';
+        document.querySelector('.reviews-container').style.display = 'block';
+        document.querySelector('.related-products-container').style.display = 'block';
+
+        renderInfoTabs(product);
+        detailsContainer.querySelector('.add-to-cart').addEventListener('click', (e) => {
+            const prodId = e.target.dataset.id;
+            cart[prodId] = (cart[prodId] || 0) + 1;
+            saveCart();
+            openMiniCart();
+        });
+    };
+
+    // --- Main Execution Logic ---
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+
+    if (!productId) {
+        detailsContainer.innerHTML = '<p style="text-align:center; padding: 50px; font-weight: 700;">No product ID provided.</p>';
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/get-products');
+        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+        const data = await response.json();
+        if (!data.success || !data.products) throw new Error('API did not return successful product data.');
+        allProducts = data.products;
+
+        const product = allProducts.find(p => p.id === productId);
+        
+        if (product) {
+            renderProduct(product);
+            fetchAndRenderReviews(productId);
+            renderRelatedProducts(product, allProducts);
+        } else {
+            throw new Error('Product not found in the database.');
+        }
+
+    } catch (error) {
+        console.error("Fatal Error fetching data:", error);
+        detailsContainer.innerHTML = `<p style="text-align:center; padding: 50px; color: red; font-weight: 700;">${error.message}</p>`;
+    }
+    
+    // --- ALL YOUR ORIGINAL FUNCTIONS AND EVENT LISTENERS ARE PRESERVED BELOW ---
     const setCurrency = (newCurrency) => {
         currentCurr = newCurrency;
         localStorage.setItem('userCurrency', newCurrency);
@@ -749,7 +844,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateMiniCartContent();
     };
     
-    // --- Cart Functions ---
     const updateCartBadge = () => {
         const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
         cartCountBadge.textContent = count;
@@ -791,67 +885,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeMiniCart = () => {
         miniCartOverlay.classList.remove('active');
     };
-
-    // --- Page Rendering Functions ---
-    const renderProduct = (product) => {
-        currentProduct = product;
-
-        // ✨ --- SEO Part: Update Title and Meta Description --- ✨
-        const nameForSeo = product.name?.en || 'Product';
-        const descriptionForSeo = product.desc?.en || '';
-        const priceForSeo = product.price?.USD;
-
-        // 1. Set the page title dynamically for better SEO
-        document.title = `Buy ${nameForSeo} | DigiWorld`;
-
-        // 2. Find or create the meta description tag
-        let metaDescription = document.querySelector('meta[name="description"]');
-        if (!metaDescription) {
-            metaDescription = document.createElement('meta');
-            metaDescription.name = 'description';
-            document.head.appendChild(metaDescription);
-        }
-
-        // 3. Set dynamic content for the meta description
-        const descriptionContent = `Purchase ${nameForSeo} for just $${priceForSeo}. Get your genuine digital key delivered instantly. ${descriptionForSeo}`;
-        metaDescription.content = descriptionContent.substring(0, 160);
-        // ✨ --- End of SEO Part --- ✨
-        
-        const name = product.name?.en || 'Product Name';
-        const image = product.image || 'https://placehold.co/600x400?text=No+Image';
-        const delivery = product.delivery?.en || 'Standard Delivery';
-        const price = product.price[currentCurr] || product.price.USD;
-        const description = product.desc?.en || 'No description available.';
-        const currencySymbol = currencySymbols[currentCurr] || '$';
-        const hotBadgeHTML = product.isHot ? `<div class="hot-badge"><i class="fas fa-fire"></i> Hot Deal</div>` : '';
-        
-        detailsContainer.innerHTML = `
-            <div class="product-details-grid">
-                <div class="product-image-container">
-                    ${hotBadgeHTML}
-                    <img src="${image}" alt="${name}">
-                </div>
-                <div class="product-info">
-                    <h1 class="product-title">${name}</h1>
-                    <p class="product-delivery"><i class="fas fa-check-circle"></i> ${delivery}</p>
-                    <p class="product-price">${currencySymbol}${price.toFixed(2)}</p>
-                    <div class="product-description">${description}</div>
-                    <div class="product-actions">
-                        <button class="action-button add-to-cart" data-id="${product.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
-                        <a href="checkout.html?product=${product.id}" class="action-button buy-now"><i class="fas fa-bolt"></i> Buy Now</a>
-                    </div>
-                </div>
-            </div>
-        `;
-        renderInfoTabs(product);
-        detailsContainer.querySelector('.add-to-cart').addEventListener('click', (e) => {
-            const prodId = e.target.dataset.id;
-            cart[prodId] = (cart[prodId] || 0) + 1;
-            saveCart();
-            openMiniCart();
-        });
-    };
-
     const renderInfoTabs = (product) => {
         const lang = 'en';
         const features = product.features?.[lang] || ['No features listed.'];
@@ -861,7 +894,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('requirements').innerHTML = `<ul>${requirements.map(r => `<li>${r}</li>`).join('')}</ul>`;
         document.getElementById('activation').innerHTML = `<ul>${activation.map(a => `<li>${a}</li>`).join('')}</ul>`;
     }
-
     const fetchAndRenderReviews = async (productId) => {
         const reviewsList = document.getElementById('reviews-list');
         reviewsList.innerHTML = '<p>Loading reviews...</p>';
@@ -870,11 +902,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const result = await response.json();
             if (!result.success) throw new Error(result.message);
-
             if (currentProduct) {
                 addProductSchema(currentProduct, result.reviews);
             }
-
             if (result.reviews.length === 0) {
                 reviewsList.innerHTML = '<p>Be the first to review this product!</p>';
                 return;
@@ -903,14 +933,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             reviewsList.innerHTML = `<p style="color: red;">Could not load reviews.</p>`;
         }
     }
-
     const renderRelatedProducts = (currentProduct, allProducts) => {
         const relatedListContainer = document.getElementById('related-products-list');
         const relatedContainer = document.querySelector('.related-products-container');
         if (!relatedListContainer || !relatedContainer) return;
-        const relatedProducts = allProducts.filter(p =>
-            p.category === currentProduct.category && p.id !== currentProduct.id
-        );
+        const relatedProducts = allProducts.filter(p => p.category === currentProduct.category && p.id !== currentProduct.id);
         if (relatedProducts.length === 0) {
             relatedContainer.style.display = 'none';
             return;
@@ -933,52 +960,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }).join('');
     };
-
-    // --- Main Execution Logic ---
     
-    currentCurrLabel.textContent = currentCurr;
-
-    try {
-        const response = await fetch('/api/get-products');
-        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-        const data = await response.json();
-        if (!data.success || !data.products) throw new Error('API did not return successful product data.');
-        allProducts = data.products;
-    } catch (error) {
-        console.error("Fatal Error: Could not fetch products.", error);
-        if (loadingState) loadingState.style.display = 'none';
-        if (errorState) {
-            errorState.textContent = 'Could not load product data. Please try again later.';
-            errorState.style.display = 'block';
-        }
-        return;
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const productId = params.get('id');
-
-    if (!productId) {
-        if (loadingState) loadingState.style.display = 'none';
-        if (errorState) errorState.style.display = 'block';
-    } else {
-        const product = allProducts.find(p => p.id === productId);
-        if (product) {
-            renderProduct(product);
-            fetchAndRenderReviews(productId); // This now also adds the schema
-            renderRelatedProducts(product, allProducts);
-        } else {
-            if (loadingState) loadingState.style.display = 'none';
-            if (errorState) errorState.style.display = 'block';
-        }
-    }
-
     // --- Event Listeners ---
     if (cartBtn) cartBtn.addEventListener('click', openMiniCart);
     if (mobileCartBtn) mobileCartBtn.addEventListener('click', openMiniCart);
     if (miniCartClose) miniCartClose.addEventListener('click', closeMiniCart);
-    if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => {
-        if (e.target === miniCartOverlay) closeMiniCart();
-    });
+    if (miniCartOverlay) miniCartOverlay.addEventListener('click', (e) => { if (e.target === miniCartOverlay) closeMiniCart(); });
     if (miniCartItemsContainer) miniCartItemsContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('mini-cart-item-remove')) {
             const itemId = e.target.dataset.id;
@@ -987,16 +974,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateMiniCartContent();
         }
     });
-
-    currencyDropdown.addEventListener('click', (event) => {
-        event.stopPropagation();
-        currencyDropdown.classList.toggle('open');
-    });
-    document.addEventListener('click', () => {
-        if (currencyDropdown.classList.contains('open')) {
-            currencyDropdown.classList.remove('open');
-        }
-    });
+    currencyDropdown.addEventListener('click', (event) => { event.stopPropagation(); currencyDropdown.classList.toggle('open'); });
+    document.addEventListener('click', () => { if (currencyDropdown.classList.contains('open')) { currencyDropdown.classList.remove('open'); } });
     currencyMenu.addEventListener('click', (e) => {
         if (e.target.matches('.dropdown-item')) {
             e.preventDefault();
@@ -1004,7 +983,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             setCurrency(newCurrency);
         }
     });
-
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
     tabButtons.forEach(button => {
@@ -1013,13 +991,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.classList.add('active');
             tabContents.forEach(content => {
                 content.classList.remove('active');
-                if (content.id === button.dataset.tab) {
-                    content.classList.add('active');
-                }
+                if (content.id === button.dataset.tab) { content.classList.add('active'); }
             });
         });
     });
-
     const reviewForm = document.getElementById('review-form');
     if(reviewForm) {
         reviewForm.addEventListener('submit', async (e) => {
@@ -1027,10 +1002,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const formMessage = document.getElementById('form-message');
             formMessage.textContent = 'Submitting...';
             const ratingValue = document.querySelector('input[name="rating"]:checked')?.value;
-            if (!ratingValue) {
-                formMessage.textContent = 'Please select a star rating.';
-                return;
-            }
+            if (!ratingValue) { formMessage.textContent = 'Please select a star rating.'; return; }
             const formData = {
                 productId: productId,
                 authorName: document.getElementById('authorName').value,
@@ -1038,11 +1010,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 reviewText: document.getElementById('reviewText').value
             };
             try {
-                const response = await fetch('/api/submit-review', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
+                const response = await fetch('/api/submit-review', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.message);
                 formMessage.style.color = 'green';
@@ -1054,8 +1022,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
-
     updateCartBadge();
     updateMiniCartContent();
 });
 </script>
+</body>
+</html>
