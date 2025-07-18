@@ -3,6 +3,7 @@
 const admin = require('firebase-admin');
 
 try {
+  // Check if the app is already initialized to prevent errors
   if (!admin.apps.length) {
     const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
     
@@ -12,6 +13,7 @@ try {
 
     const serviceAccount = JSON.parse(serviceAccountString);
 
+    // ✨ THIS IS THE FINAL FIX ✨
     // This line correctly formats the private key's newline characters.
     serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
 
