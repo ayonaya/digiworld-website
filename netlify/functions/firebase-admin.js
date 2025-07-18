@@ -5,17 +5,8 @@ const admin = require('firebase-admin');
 try {
   // Check if the app is already initialized to prevent errors
   if (!admin.apps.length) {
-    const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-    
-    if (!serviceAccountString) {
-      throw new Error('Firebase service account key is not set in environment variables.');
-    }
-
-    const serviceAccount = JSON.parse(serviceAccountString);
-
-    // ✨ THIS IS THE FINAL FIX ✨
-    // This line correctly formats the private key's newline characters.
-    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+    // This will now work because netlify.toml ensures the file is included.
+    const serviceAccount = require('./digiworld-46a1e-firebase-adminsdk-fbsvc-0bde804ae9.json');
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
@@ -25,4 +16,5 @@ try {
   console.error('CRITICAL: Firebase admin initialization failed.', error);
 }
 
+// Export the initialized database instance for use in other functions
 module.exports = { db: admin.firestore() };
