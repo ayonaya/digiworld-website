@@ -7,7 +7,7 @@
 [dev]
   publish = "public"
 
-# This section tells Netlify to include our secret key file with the functions
+# This section tells Netlify to include all .json files from the functions directory
 [functions]
   included_files = ["netlify/functions/*.json"]
 
