@@ -1,71 +1,66 @@
-// This secure function fetches all necessary data for the admin dashboard.
+// /netlify/functions/get-admin-data.js
 
-// CORRECT: Imports the initialized 'db' instance from the central file.
 const { db } = require('./firebase-admin');
 
-exports.handler = async (event) => {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+exports.handler = async (event, context) => {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' };
+  }
+
+  try {
+    const { adminPassword } = JSON.parse(event.body);
+
+    // IMPORTANT: Basic password check. Replace with more secure auth in a real app.
+    if (adminPassword !== process.env.ADMIN_PASSWORD) {
+      return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Incorrect password.' }) };
     }
 
-    try {
-        const { adminPassword } = JSON.parse(event.body);
-        const SERVER_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+    // Fetch all data in parallel for efficiency
+    const [
+      inventorySnapshot,
+      reviewsSnapshot,
+      ordersSnapshot,
+      productsSnapshot // ✨ NEW: Fetching products
+    ] = await Promise.all([
+      db.collection('keys').get(),
+      db.collection('reviews').where('status', '==', 'pending').get(),
+      db.collection('orders').orderBy('createdAt', 'desc').limit(20).get(),
+      db.collection('products').orderBy('name.en').get() // ✨ NEW: Fetching products
+    ]);
 
-        // --- Security Check ---
-        if (!SERVER_ADMIN_PASSWORD) {
-            console.error("ADMIN_PASSWORD environment variable is not set.");
-            return { statusCode: 500, body: JSON.stringify({ success: false, message: 'Admin authentication is not configured.' }) };
+    // Process inventory
+    const inventory = {};
+    inventorySnapshot.forEach(doc => {
+      inventory[doc.id] = doc.data().keys.length;
+    });
+
+    // Process pending reviews
+    const pendingReviews = reviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Process recent orders
+    const orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // ✨ NEW: Process products
+    const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        success: true,
+        data: {
+          inventory,
+          pendingReviews,
+          orders,
+          products // ✨ NEW: Including products in the response
         }
+      }),
+    };
 
-        if (adminPassword !== SERVER_ADMIN_PASSWORD) {
-            console.warn("Incorrect admin password attempt.");
-            return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Unauthorized: Incorrect password.' }) };
-        }
-        // --- End Security Check ---
-
-        // --- Fetch Data from Firestore ---
-        // 1. Get recent orders
-        const ordersRef = db.collection('orders').orderBy('createdAt', 'desc').limit(50);
-        const ordersSnapshot = await ordersRef.get();
-        const orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-        // 2. Get unapproved reviews
-        const reviewsRef = db.collection('reviews').where('isApproved', '==', false).orderBy('createdAt', 'desc');
-        const reviewsSnapshot = await reviewsRef.get();
-        const pendingReviews = reviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        // 3. Get key inventory counts
-        const keysRef = db.collection('digital_keys');
-        const availableKeysSnapshot = await keysRef.where('status', '==', 'available').get();
-        const inventory = {};
-        availableKeysSnapshot.docs.forEach(doc => {
-            const keyData = doc.data();
-            if(keyData.productId) {
-               inventory[keyData.productId] = (inventory[keyData.productId] || 0) + 1;
-            }
-        });
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                success: true,
-                data: {
-                    orders: orders,
-                    pendingReviews: pendingReviews,
-                    inventory: inventory
-                }
-            }),
-        };
-
-    } catch (error) {
-        console.error('Error in get-admin-data function:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                success: false,
-                message: 'An error occurred while fetching admin data.'
-            }),
-        };
-    }
+  } catch (error) {
+    console.error('Error fetching admin data:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ success: false, message: 'Failed to fetch admin data.' }),
+    };
+  }
 };

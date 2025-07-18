@@ -1,0 +1,10 @@
+# Allow all search engines
+User-agent: *
+
+# Block access to pages that shouldn't be in search results
+Disallow: /admin.html
+Disallow: /checkout.html
+Disallow: /functions/
+
+# Provide the location of the sitemap
+Sitemap: https://digiworldnew.com/sitemap.xml
