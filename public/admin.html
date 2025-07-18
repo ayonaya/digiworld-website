@@ -297,7 +297,8 @@
                 };
 
                 try {
-                    const response = await fetch('/.netlify/functions/create-product', {
+                    // CHANGE HERE: Add /api/ prefix
+                    const response = await fetch('/api/create-product', {
                         method: 'POST',
                         body: JSON.stringify(productData),
                         headers: { 'Content-Type': 'application/json' },
