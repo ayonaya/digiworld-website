@@ -1,3 +1,5 @@
+// public/products.js
+
 const products = [
   {
     id: "office365lifetime",
@@ -98,3 +100,5 @@ const products = [
     activation: { en: [ "Download and install Visio Professional 2021 from the official link.", "Open Microsoft Visio.", "Enter the 25-digit product key you received via email.", "Follow the on-screen prompts to complete activation." ] }
   }
 ];
+
+module.exports = { products }; // <--- ADD THIS LINE

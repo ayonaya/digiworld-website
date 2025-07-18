@@ -1,51 +1,51 @@
-// File: import-products.js
+// import-products.js
 
-// 1. Import necessary modules
 const admin = require('firebase-admin');
-// ✨ FIX: We now correctly pull the 'products' array from the required file
-const { products: productsData } = require('./netlify/functions/_data/products-data.js');
+const products = require('./public/products').products; // Assuming products are exported from public/products.js
 
-// 2. !!! IMPORTANT !!!
-// REPLACE 'YOUR_SERVICE_ACCOUNT_KEY_FILE.json' WITH THE ACTUAL FILENAME YOU DOWNLOADED
-const serviceAccount = require('./digiworld-46a1e-firebase-adminsdk-fbsvc-5542dd28ef.json');
+// This path assumes your service account key is in a 'config' folder
+// at the root of your project, with the exact filename you uploaded.
+const serviceAccount = require('./config/digiworld-46a1e-firebase-adminsdk-fbsvc-0bde804ae9.json');
 
-// 3. Initialize the Firebase Admin SDK
 try {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-  console.log('Firebase Admin SDK initialized successfully.');
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  }
 } catch (error) {
-  console.error('Error initializing Firebase Admin SDK:', error);
+  console.error('Firebase admin initialization failed.', error);
   process.exit(1); // Exit if initialization fails
 }
 
-// 4. Get a reference to the Firestore database
 const db = admin.firestore();
-const productsCollection = db.collection('products');
 
-// 5. The main function to import the data
 async function importProducts() {
-  // The rest of the code is now correct because 'productsData' is the array
-  console.log(`Starting import of ${productsData.length} products...`);
-
-  const batch = db.batch();
-
-  productsData.forEach((product) => {
-    const docRef = productsCollection.doc(product.id);
-    batch.set(docRef, product);
-    console.log(`- Staging product for import: ${product.name.en}`);
-  });
-
-  try {
-    await batch.commit();
-    console.log('\n✅ All products have been successfully imported to Firestore!');
-  } catch (error) {
-    console.error('\n❌ Error committing batch:', error);
+  console.log('Starting product import...');
+  if (!products || products.length === 0) {
+    console.log('No products found to import.');
+    return;
   }
+
+  const productsCollection = db.collection('products');
+  let importedCount = 0;
+
+  for (const product of products) {
+    try {
+      // Use the product ID as the document ID in Firestore for easier retrieval
+      await productsCollection.doc(product.id).set(product); // This line was missing in your pasted code, adding it back.
+      console.log(`Imported product: ${product.name.en} (ID: ${product.id})`);
+      importedCount++;
+    } catch (error) {
+      console.error(`Error importing product ${product.id}:`, error);
+    }
+  }
+  console.log(`Product import finished. Total imported: ${importedCount}`);
 }
 
-// 6. Run the import function
-importProducts().catch(error => {
-    console.error("An unexpected error occurred:", error);
-});
+importProducts()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error('Unhandled error during import:', error);
+    process.exit(1);
+  });

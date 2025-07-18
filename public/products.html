@@ -120,13 +120,33 @@
   </nav>
 
   <script type="module">
-    import { products } from './products.js';
+    // Remove the direct import: import { products } from './products.js';
 
-    document.addEventListener('DOMContentLoaded', () => {
+    let products = []; // Declare products globally but initialize as empty
+
+    document.addEventListener('DOMContentLoaded', async () => { // Add async here
         const detailsContainer = document.getElementById('product-details-container');
         let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
         let currentCurrency = 'USD';
         const currencySymbols = { USD: '$', LKR: 'Rs' };
+
+        // Fetch products from Netlify function
+        try {
+            const response = await fetch('/.netlify/functions/get-products');
+            const data = await response.json();
+            if (data.success) {
+                products = data.products; // Assign fetched products to the global variable
+                console.log('Products loaded from Firestore:', products);
+            } else {
+                console.error('Failed to fetch products:', data.message);
+                detailsContainer.innerHTML = `<p>Failed to load products. ${data.message}</p>`;
+                return; // Stop execution if products can't be loaded
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            detailsContainer.innerHTML = `<p>Error connecting to product server. Please try again later.</p>`;
+            return; // Stop execution on network error
+        }
 
         // Cart functions (same as index.html)
         const cartBtn = document.getElementById('cartBtn');
@@ -145,7 +165,10 @@
         }
         function addToCart(productId) {
             const product = products.find(p => p.id === productId);
-            if (!product) return;
+            if (!product) {
+                console.error('Product not found for addToCart:', productId);
+                return;
+            }
             if (cart[productId]) {
                 cart[productId].quantity++;
             } else {
