@@ -7,3 +7,4 @@ node_modules
 # Environment variables & Secret Keys - DO NOT COMMIT
 .env
 digiworld-46a1e-firebase-adminsdk-fbsvc-5542dd28ef.json
+.env.local
