@@ -1,18 +1,5 @@
 // netlify/functions/firestore-key-manager.js
-const { initializeApp, getApps } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const { credential } = require('firebase-admin');
-
-if (!getApps().length) {
-    try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-        initializeApp({ credential: credential.cert(serviceAccount) });
-        console.log("Firebase Admin SDK initialized.");
-    } catch (e) {
-        console.error("Failed to initialize Firebase Admin SDK:", e);
-    }
-}
-const db = getFirestore();
+const { db } = require('./firebase-admin'); // Modified: Import db from firebase-admin.js
 
 /**
  * UPGRADED: Retrieves a key for a SPECIFIC product.

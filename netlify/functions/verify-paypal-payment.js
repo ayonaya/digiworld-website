@@ -2,23 +2,9 @@
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const { getAndMarkKeyAsUsed } = require('./firestore-key-manager'); 
-const { initializeApp, getApps } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const { credential } = require('firebase-admin');
+const { db } = require('./firebase-admin'); // Modified: Import db from firebase-admin.js
 
-if (!getApps().length) {
-    try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-        initializeApp({
-            credential: credential.cert(serviceAccount),
-        });
-        console.log("Firebase Admin SDK initialized in verify-paypal-payment.");
-    } catch (e) {
-        console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY or initialize Firebase Admin SDK in verify-paypal-payment:", e);
-    }
-}
-const db = getFirestore();
-
+// Configure the email transporter using environment variables
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {

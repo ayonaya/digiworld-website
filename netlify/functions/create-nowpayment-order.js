@@ -1,22 +1,6 @@
 // netlify/functions/create-nowpayment-order.js
 const axios = require('axios');
-const { initializeApp, getApps } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-const { credential } = require('firebase-admin');
-
-// Initialize Firebase Admin SDK only once
-if (!getApps().length) {
-    try {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-        initializeApp({
-            credential: credential.cert(serviceAccount),
-        });
-        console.log("Firebase Admin SDK initialized in create-nowpayment-order.");
-    } catch (e) {
-        console.error("Failed to initialize Firebase Admin SDK in create-nowpayment-order:", e);
-    }
-}
-const db = getFirestore();
+const { db } = require('./firebase-admin'); // Modified: Import db from firebase-admin.js
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
