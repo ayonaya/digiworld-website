@@ -6,5 +6,9 @@ node_modules
 
 # Environment variables & Secret Keys - DO NOT COMMIT
 .env
-digiworld-46a1e-firebase-adminsdk-fbsvc-5542dd28ef.json
 .env.local
+
+# Explicitly ignore your Firebase service account key
+config/digiworld-46a1e-firebase-adminsdk-fbsvc-0bde804ae9.json
+# Or, to ignore ANY .json file in the config folder:
+# config/*.json
