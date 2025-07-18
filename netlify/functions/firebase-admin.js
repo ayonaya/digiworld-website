@@ -1,4 +1,4 @@
-// /netlify/functions/firebase-admin.js
+// netlify/functions/firebase-admin.js
 
 const admin = require('firebase-admin');
 
@@ -13,9 +13,9 @@ try {
 
     const serviceAccount = JSON.parse(serviceAccountString);
 
-    // ✨ THIS IS THE FINAL FIX ✨
-    // This line correctly formats the private key's newline characters.
-    serviceAccount.private_key = serviceAccount.private_key.replace(/\\\\n/g, '\\n');
+    // ✨ CORRECTED FIX: This line now correctly formats the private key's newline characters. ✨
+    // It replaces literal '\n' sequences (common from environment variables) with actual newlines.
+    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n'); //
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
