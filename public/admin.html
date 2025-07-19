@@ -4,239 +4,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DigiWorld - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root {
-            --primary: #f57224;
-            --primary-dark: #d45703;
-            --accent: #fe724c;
-            --card-bg: #fff;
-            --bg: #f0f2f5;
-            --radius: 12px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            color: #333;
+            background-color: #f0f2f5;
         }
-        .admin-container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 20px;
-        }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        .admin-header h1 {
-            font-weight: 900;
-            color: var(--primary-dark);
-            margin: 0;
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 40px;
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            text-align: center;
-        }
-        .login-container h2 {
-            margin-top: 0;
-            font-weight: 700;
-        }
-        .login-container input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0 20px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-        .dashboard {
-            display: none; /* Hidden by default */
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-        }
-        .dashboard-card {
-            background-color: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-        }
-        .dashboard-card h3 {
-            margin-top: 0;
-            font-weight: 700;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            font-size: 0.95rem;
-        }
-        th {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: #888;
-            text-transform: uppercase;
-        }
-        .hidden {
-            display: none !important;
+        .gradient-bg {
+            background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-100">
 
-    <div class="login-container" id="loginContainer">
-        <h2>Admin Login</h2>
-        <form id="loginForm">
-            <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
-        <div id="loginMessage"></div>
+    <!-- Login Section -->
+    <div id="login-section" class="flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
+            <h1 class="text-3xl font-bold text-center text-gray-800">Admin Login</h1>
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="password" class="text-sm font-semibold text-gray-600">Password</label>
+                    <input type="password" id="password" name="password" required
+                        class="w-full px-4 py-2 mt-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                </div>
+                <div>
+                    <button type="submit"
+                        class="w-full px-4 py-2 font-semibold text-white gradient-bg rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
+                        Login
+                    </button>
+                </div>
+                <p id="login-message" class="text-sm text-center text-red-500"></p>
+            </form>
+        </div>
     </div>
 
-    <div class="admin-container hidden" id="dashboardContainer">
-        <div class="admin-header">
-            <h1>Admin Dashboard</h1>
-            <button id="logoutBtn" class="btn btn-delete" style="background-color: #dc3545; color:white;">Logout</button>
-        </div>
-        
-        <div class="dashboard">
-            <div class="dashboard-card">
-                <h3><i class="fas fa-key"></i> Key Inventory</h3>
-                <table id="inventoryTable">
-                    <thead>
-                        <tr><th>Product ID</th><th>Available</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+    <!-- Admin Dashboard Section (Hidden by default) -->
+    <div id="dashboard-section" class="hidden">
+        <header class="gradient-bg shadow-md">
+            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-white">DigiWorld Dashboard</h1>
+                <button id="logout-button" class="px-4 py-2 font-semibold text-orange-500 bg-white rounded-lg hover:bg-gray-100">Logout</button>
+            </div>
+        </header>
+
+        <main class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Add Keys Card -->
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-plus-circle text-orange-500"></i> Add New Keys</h3>
+                    <form id="add-keys-form" class="space-y-4">
+                        <div>
+                            <label for="productId" class="block text-sm font-medium text-gray-700">Product</label>
+                            <select id="productId" name="productId" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
+                                <!-- Product options will be loaded here -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="keys" class="block text-sm font-medium text-gray-700">Product Keys (one per line)</label>
+                            <textarea id="keys" name="keys" rows="5" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full px-4 py-2 font-semibold text-white gradient-bg rounded-lg hover:opacity-90">Add Keys</button>
+                        </div>
+                        <p id="add-keys-message" class="text-sm text-center"></p>
+                    </form>
+                </div>
+                 <!-- Pending Reviews Card -->
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-star text-orange-500"></i> Pending Reviews</h3>
+                    <div id="pending-reviews-list" class="space-y-4"></div>
+                </div>
             </div>
 
-            <div class="dashboard-card">
-                <h3><i class="fas fa-star"></i> Pending Reviews</h3>
-                <div id="pendingReviewsList"></div>
+            <!-- Right Column -->
+            <div class="lg:col-span-1">
+                <div class="bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-key text-orange-500"></i> Key Inventory</h3>
+                    <table id="inventory-table" class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="py-3 px-6">Product ID</th>
+                                <th scope="col" class="py-3 px-6">Available</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Inventory will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
-            <div class="dashboard-card" style="grid-column: 1 / -1;">
-                <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
-                <table id="ordersTable">
-                    <thead>
-                        <tr><th>Order ID</th><th>Product</th><th>Email</th><th>Amount</th><th>Status</th><th>Date</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
+        </main>
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const loginContainer = document.getElementById('loginContainer');
-        const dashboardContainer = document.getElementById('dashboardContainer');
-        const loginForm = document.getElementById('loginForm');
-        const loginMessage = document.getElementById('loginMessage');
-        const logoutBtn = document.getElementById('logoutBtn');
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginSection = document.getElementById('login-section');
+            const dashboardSection = document.getElementById('dashboard-section');
+            const loginForm = document.getElementById('login-form');
+            const passwordInput = document.getElementById('password');
+            const loginMessage = document.getElementById('login-message');
+            const logoutButton = document.getElementById('logout-button');
+            const addKeysForm = document.getElementById('add-keys-form');
+            const addKeysMessage = document.getElementById('add-keys-message');
+            const productSelect = document.getElementById('productId');
+            const inventoryTableBody = document.querySelector('#inventory-table tbody');
+            const pendingReviewsList = document.getElementById('pending-reviews-list');
 
-        const sessionPassword = sessionStorage.getItem('adminPassword');
-        if (sessionPassword) {
-            fetchAdminData(sessionPassword);
-        }
+            const CORRECT_PASSWORD = "DigiWorLdadmin2025!";
 
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = document.getElementById('adminPassword').value;
-            loginMessage.textContent = 'Logging in...';
-            loginMessage.style.color = '#333';
-            await fetchAdminData(password);
-        });
+            function showDashboard() {
+                loginSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                fetchAdminData();
+            }
 
-        logoutBtn.addEventListener('click', () => {
-            sessionStorage.removeItem('adminPassword');
-            loginContainer.classList.remove('hidden');
-            dashboardContainer.classList.add('hidden');
-        });
+            if (sessionStorage.getItem('adminPassword') === CORRECT_PASSWORD) {
+                showDashboard();
+            }
 
-        async function fetchAdminData(password) {
-            try {
-                const response = await fetch('/api/get-admin-data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminPassword: password })
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || 'Incorrect password or server error.');
-                }
-
-                if (result.success) {
-                    sessionStorage.setItem('adminPassword', password);
-                    loginContainer.classList.add('hidden');
-                    dashboardContainer.classList.remove('hidden');
-                    renderDashboard(result.data);
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                loginMessage.textContent = '';
+                if (passwordInput.value === CORRECT_PASSWORD) {
+                    sessionStorage.setItem('adminPassword', CORRECT_PASSWORD);
+                    showDashboard();
                 } else {
-                    throw new Error(result..message);
+                    loginMessage.textContent = 'Incorrect password.';
+                    passwordInput.value = '';
                 }
+            });
 
-            } catch (error) {
-                console.error('Login failed:', error);
-                loginMessage.textContent = error.message;
-                loginMessage.style.color = 'red';
-            }
-        }
+            logoutButton.addEventListener('click', () => {
+                sessionStorage.removeItem('adminPassword');
+                loginSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                passwordInput.value = '';
+            });
 
-        function renderDashboard(data) {
-            const inventoryBody = document.querySelector('#inventoryTable tbody');
-            if (Object.keys(data.inventory).length > 0) {
-                inventoryBody.innerHTML = Object.entries(data.inventory).map(([productId, count]) => `
-                    <tr>
-                        <td>${productId}</td>
-                        <td>${count}</td>
-                    </tr>
-                `).join('');
-            } else {
-                inventoryBody.innerHTML = '<tr><td colspan="2">No keys in inventory.</td></tr>';
+            async function fetchAdminData() {
+                try {
+                    const response = await fetch('/.netlify/functions/get-admin-data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ adminPassword: CORRECT_PASSWORD })
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+                    
+                    // Populate Products Dropdown
+                    productSelect.innerHTML = result.data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+                    
+                    // Populate Inventory Table
+                    inventoryTableBody.innerHTML = Object.entries(result.data.inventory).map(([id, count]) => `
+                        <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
+                    `).join('');
+
+                    // Populate Pending Reviews
+                    if(result.data.reviews.length > 0) {
+                        pendingReviewsList.innerHTML = result.data.reviews.map(r => `<div>...review html...</div>`).join('');
+                    } else {
+                        pendingReviewsList.innerHTML = `<p class="text-gray-500">No pending reviews.</p>`;
+                    }
+
+                } catch (error) {
+                    console.error('Failed to fetch admin data:', error);
+                    alert('Could not load admin data. ' + error.message);
+                }
             }
-        }
-    });
+
+            addKeysForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                addKeysMessage.textContent = 'Adding keys...';
+                addKeysMessage.className = 'text-sm text-center text-gray-500';
+
+                const formData = {
+                    adminPassword: CORRECT_PASSWORD,
+                    productId: document.getElementById('productId').value,
+                    keys: document.getElementById('keys').value,
+                };
+
+                try {
+                    const response = await fetch('/.netlify/functions/add-keys', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+
+                    addKeysMessage.textContent = result.message;
+                    addKeysMessage.className = 'text-sm text-center text-green-600';
+                    addKeysForm.reset();
+                    fetchAdminData(); // Refresh inventory
+                } catch (error) {
+                    addKeysMessage.textContent = `Error: ${error.message}`;
+                    addKeysMessage.className = 'text-sm text-center text-red-500';
+                }
+            });
+        });
     </script>
+
 </body>
 </html>
