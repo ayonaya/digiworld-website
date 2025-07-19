@@ -193,7 +193,7 @@
 
       <div id="nowpayments-button-container">
         <button id="nowpayments-button">
-            <i class="fas fa-bitcoin"></i> Pay with Crypto
+            <i class="fab fa-bitcoin"></i> Pay with Crypto
         </button>
       </div>
 
@@ -215,15 +215,7 @@
   <script src="https://www.paypal.com/sdk/js?client-id=AUJ-Gq-fNlhznmvCsZa3hPtj-6_F3SjtjoV2DupGB8cQ4GCOiBf66OrF6AqyOyH21pp-TbGPUm7vngbk&currency=USD"></script>
   
   <script>
-    const products = [
-      { id: "office365lifetime", name: "Office 365 Lifetime Account", price: 23, image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg" },
-      { id: "win10pro", name: "Windows 10 Pro Key", price: 0.1, image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif" },
-      { id: "win11pro", name: "Windows 11 Pro Key", price: 11, image: "https://img.drz.lazcdn.com/static/lk/p/4ac77c5340b852dcfe5d0f0ba66fb1ed.png_400x400q75.avif" },
-      { id: "office2021", name: "Office 2021 Pro Plus Key", price: 13, image: "https://img.drz.lazcdn.com/g/kf/Sb9bc8d1802a04d8394d16f951736c65a2.jpg_400x400q75.avif" },
-      { id: "office2024", name: "Office 2024 Pro Plus Key", price: 15, image: "https://img.drz.lazcdn.com/g/kf/S5d7015c8fb0f4693ac06c2df71e1dadbA.jpg_400x400q75.avif" },
-      { id: "project2021", name: "Microsoft Project Pro 2021 Key", price: 15, image: "https://img.drz.lazcdn.com/g/kf/S418dd45f61604ef8a7be51cd7190ffec3.jpg_400x400q75.avif" },
-      { id: "visio2021", name: "Microsoft Visio 2021 Key", price: 0.1, image: "https://img.drz.lazcdn.com/static/lk/p/e6fa1180deb98607be4cc772a1af56ca.png_400x400q75.avif" }
-    ];
+    // UPDATED: The hardcoded products array has been REMOVED for security.
 
     document.addEventListener('DOMContentLoaded', () => {
         const summaryContainer = document.getElementById('summary-item-container');
@@ -236,41 +228,65 @@
 
         const params = new URLSearchParams(window.location.search);
         const productId = params.get('product');
-        const product = products.find(p => p.id === productId);
+        
+        // Hide payment buttons until product is loaded
+        paypalButtonContainer.style.display = 'none';
+        nowpaymentsButton.style.display = 'none';
+        paymentSeparator.style.display = 'none';
 
-        if (product) {
-            const priceFormatted = product.price.toFixed(2);
-            summaryContainer.innerHTML = `
-                <div class="order-summary-item">
-                    <img src="${product.image}" alt="${product.name}">
-                    <div class="order-summary-info">
-                        <div class="product-name">${product.name}</div>
-                        <div class="product-price">$${priceFormatted}</div>
-                    </div>
-                </div>
-            `;
-            totalPriceEl.textContent = `$${priceFormatted}`;
-
-            renderPayPalButton(product.price);
-            
-            nowpaymentsButton.addEventListener('click', () => {
-                handleNowPayments(product);
-            });
-
-        } else {
+        if (!productId) {
             summaryContainer.innerHTML = '<p>Could not find the selected product. Please go back to the store and select an item.</p>';
-            paypalButtonContainer.style.display = 'none';
-            nowpaymentsButton.style.display = 'none';
-            paymentSeparator.style.display = 'none';
-        }
+        } else {
+            // UPDATED: Fetch product data securely from the backend
+            fetch(`/.netlify/functions/get-products?id=${productId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Product not found');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        const product = data.product;
+                        const priceFormatted = product.price.USD.toFixed(2);
+                        
+                        summaryContainer.innerHTML = `
+                            <div class="order-summary-item">
+                                <img src="${product.image}" alt="${product.name.en}">
+                                <div class="order-summary-info">
+                                    <div class="product-name">${product.name.en}</div>
+                                    <div class="product-price">$${priceFormatted}</div>
+                                </div>
+                            </div>
+                        `;
+                        totalPriceEl.textContent = `$${priceFormatted}`;
 
-        function renderPayPalButton(productPrice) {
+                        // Show payment buttons now that we have official data
+                        paypalButtonContainer.style.display = 'block';
+                        nowpaymentsButton.style.display = 'block';
+                        paymentSeparator.style.display = 'block';
+
+                        renderPayPalButton(product);
+                        
+                        nowpaymentsButton.addEventListener('click', () => {
+                            handleNowPayments(product);
+                        });
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching product for checkout:', error);
+                    summaryContainer.innerHTML = `<p style="color:red;">Error: Could not load the selected product. Please try again.</p>`;
+                });
+        }
+        
+        // This function now takes the whole product object
+        function renderPayPalButton(product) {
             paypalButtonContainer.innerHTML = '';
             if (typeof paypal === 'undefined') {
-                console.error("PayPal SDK not loaded.");
                 paypalButtonContainer.innerHTML = "<p>Could not load PayPal.</p>";
                 return;
             }
+
             paypal.Buttons({
                 style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
                 createOrder: (data, actions) => {
@@ -281,31 +297,60 @@
                     }
                     resultMessageEl.textContent = '';
                     return actions.order.create({
-                        purchase_units: [{ amount: { value: productPrice.toFixed(2) } }]
+                        purchase_units: [{ amount: { value: product.price.USD.toFixed(2) } }]
                     });
                 },
+                // UPDATED: onApprove now calls the buy-key function for fulfillment
                 onApprove: (data, actions) => {
-                    return actions.order.capture().then(details => {
+                    return actions.order.capture().then(async (details) => {
                         console.log('PayPal client-side capture successful:', details);
+                        
                         resultMessageEl.style.color = '#155724';
-                        resultMessageEl.innerHTML = `
-                            <i class="fas fa-check-circle"></i> 
-                            Payment successful! Your product key will be sent to <strong>${emailInput.value}</strong> shortly.
-                        `;
+                        resultMessageEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing your order... Your key will be sent shortly.`;
+
+                        // Hide payment buttons after successful payment
                         paypalButtonContainer.style.display = 'none';
                         nowpaymentsButton.style.display = 'none';
                         paymentSeparator.style.display = 'none';
+                        
+                        // FULFILLMENT STEP: Call the backend to get and send the key
+                        try {
+                            const fulfillmentResponse = await fetch('/.netlify/functions/buy-key', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    email: emailInput.value,
+                                    productId: product.id,
+                                    amount: product.price.USD,
+                                    currency: 'USD'
+                                })
+                            });
+
+                            const fulfillmentData = await fulfillmentResponse.json();
+
+                            if (!fulfillmentResponse.ok || !fulfillmentData.key) {
+                                throw new Error(fulfillmentData.message || 'Key delivery failed. Admin has been notified.');
+                            }
+
+                            resultMessageEl.innerHTML = `
+                                <i class="fas fa-check-circle"></i> 
+                                Payment successful! Your product key has been sent to <strong>${emailInput.value}</strong>.
+                            `;
+
+                        } catch (error) {
+                            console.error('Fulfillment Error:', error);
+                            resultMessageEl.style.color = '#c0392b';
+                            resultMessageEl.innerHTML = `
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Payment was successful, but there was an issue sending your key. Please contact support with your email address. Our admin team has been notified.
+                            `;
+                        }
                     });
                 },
                 onError: err => {
                     console.error('PayPal button error:', err);
                     resultMessageEl.textContent = 'An error occurred with your payment.';
                     resultMessageEl.style.color = '#c0392b';
-                },
-                onCancel: data => {
-                    console.log('PayPal payment cancelled:', data);
-                    resultMessageEl.textContent = 'Payment was cancelled.';
-                    resultMessageEl.style.color = 'var(--muted)';
                 }
             }).render('#paypal-button-container');
         }
@@ -322,16 +367,15 @@
             nowpaymentsButton.disabled = true;
 
             try {
-                // CHANGE HERE: Add /api/ prefix
-                const response = await fetch('/api/create-nowpayment-order', {
+                // UPDATED: Correct API path for Netlify Functions
+                const response = await fetch('/.netlify/functions/create-nowpayment-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         productId: productData.id,
                         email: emailInput.value,
-                        amount: productData.price,
-                        currency: 'usd',
-                        payCurrency: 'usdttrc20'
+                        amount: productData.price.USD,
+                        currency: 'usd' // NowPayments expects lowercase
                     })
                 });
 

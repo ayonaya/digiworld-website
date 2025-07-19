@@ -101,128 +101,130 @@
         </main>
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const loginSection = document.getElementById('login-section');
-        const dashboardSection = document.getElementById('dashboard-section');
-        const loginForm = document.getElementById('login-form');
-        const passwordInput = document.getElementById('password');
-        const loginMessage = document.getElementById('login-message');
-        const logoutButton = document.getElementById('logout-button');
-        const addKeysForm = document.getElementById('add-keys-form');
-        const addKeysMessage = document.getElementById('add-keys-message');
-        const productSelect = document.getElementById('productId');
-        const inventoryTableBody = document.querySelector('#inventory-table tbody');
-        const pendingReviewsList = document.getElementById('pending-reviews-list');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginSection = document.getElementById('login-section');
+            const dashboardSection = document.getElementById('dashboard-section');
+            const loginForm = document.getElementById('login-form');
+            const passwordInput = document.getElementById('password');
+            const loginMessage = document.getElementById('login-message');
+            const logoutButton = document.getElementById('logout-button');
+            const addKeysForm = document.getElementById('add-keys-form');
+            const addKeysMessage = document.getElementById('add-keys-message');
+            const productSelect = document.getElementById('productId');
+            const inventoryTableBody = document.querySelector('#inventory-table tbody');
+            const pendingReviewsList = document.getElementById('pending-reviews-list');
 
-        const CORRECT_PASSWORD = "DigiWorLdadmin2025!";
+            const CORRECT_PASSWORD = "DigiWorLdadmin2025!";
 
-        function showDashboard() {
-            loginSection.classList.add('hidden');
-            dashboardSection.classList.remove('hidden');
-            fetchAdminData();
-        }
+            function showDashboard() {
+                loginSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                fetchAdminData();
+            }
 
-        if (sessionStorage.getItem('adminPassword') === CORRECT_PASSWORD) {
-            showDashboard();
-        }
-
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            loginMessage.textContent = '';
-            if (passwordInput.value === CORRECT_PASSWORD) {
-                sessionStorage.setItem('adminPassword', CORRECT_PASSWORD);
+            if (sessionStorage.getItem('adminPassword') === CORRECT_PASSWORD) {
                 showDashboard();
-            } else {
-                loginMessage.textContent = 'Incorrect password.';
-                passwordInput.value = '';
             }
-        });
 
-        logoutButton.addEventListener('click', () => {
-            sessionStorage.removeItem('adminPassword');
-            loginSection.classList.remove('hidden');
-            dashboardSection.classList.add('hidden');
-            passwordInput.value = '';
-        });
-
-        async function fetchAdminData() {
-            try {
-                const response = await fetch('/.netlify/functions/get-admin-data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminPassword: CORRECT_PASSWORD })
-                });
-                
-                if (!response.ok) {
-                    const errText = await response.text();
-                    throw new Error(errText || 'Failed to fetch admin data.');
-                }
-
-                const result = await response.json();
-                
-                // ✨ FIX: Access data directly from the result object, NOT result.data
-                if (!result.products) {
-                    throw new Error("Product data not found in server response.");
-                }
-
-                // Populate Products Dropdown
-                productSelect.innerHTML = result.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
-                
-                // Populate Inventory Table
-                inventoryTableBody.innerHTML = Object.entries(result.inventory).map(([id, count]) => `
-                    <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
-                `).join('');
-
-                // Populate Pending Reviews
-                if(result.reviews && result.reviews.length > 0) {
-                    pendingReviewsList.innerHTML = result.reviews.map(r => `
-                        <div class="p-4 border rounded-lg">
-                            <p class="font-bold">${r.authorName} on "${r.productId}"</p>
-                            <p class="text-sm text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
-                            <p class="mt-2">${r.reviewText}</p>
-                        </div>
-                    `).join('');
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                loginMessage.textContent = '';
+                if (passwordInput.value === CORRECT_PASSWORD) {
+                    sessionStorage.setItem('adminPassword', CORRECT_PASSWORD);
+                    showDashboard();
                 } else {
-                    pendingReviewsList.innerHTML = `<p class="text-gray-500">No pending reviews.</p>`;
+                    loginMessage.textContent = 'Incorrect password.';
+                    passwordInput.value = '';
                 }
+            });
 
-            } catch (error) {
-                console.error('Failed to fetch admin data:', error);
-                alert('Could not load admin data. ' + error.message);
+            logoutButton.addEventListener('click', () => {
+                sessionStorage.removeItem('adminPassword');
+                loginSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                passwordInput.value = '';
+            });
+
+            async function fetchAdminData() {
+                try {
+                    const response = await fetch('/.netlify/functions/get-admin-data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ adminPassword: CORRECT_PASSWORD })
+                    });
+                    
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(errText || 'Failed to fetch admin data.');
+                    }
+
+                    const result = await response.json();
+                    
+                    // ✨ FIX: Access the data from result.data, which is how the server sends it.
+                    const data = result.data; 
+                    if (!data || !data.products) {
+                        throw new Error("Product data not found in server response.");
+                    }
+
+                    // Populate Products Dropdown
+                    productSelect.innerHTML = data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+                    
+                    // Populate Inventory Table
+                    inventoryTableBody.innerHTML = Object.entries(data.inventory).map(([id, count]) => `
+                        <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
+                    `).join('');
+
+                    // Populate Pending Reviews
+                    if(data.reviews && data.reviews.length > 0) {
+                        pendingReviewsList.innerHTML = data.reviews.map(r => `
+                            <div class="p-4 border rounded-lg">
+                                <p class="font-bold">${r.authorName} on "${r.productId}"</p>
+                                <p class="text-sm text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
+                                <p class="mt-2">${r.reviewText}</p>
+                            </div>
+                        `).join('');
+                    } else {
+                        pendingReviewsList.innerHTML = `<p class="text-gray-500">No pending reviews.</p>`;
+                    }
+
+                } catch (error) {
+                    console.error('Failed to fetch admin data:', error);
+                    alert('Could not load admin data. ' + error.message);
+                }
             }
-        }
 
-        addKeysForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            addKeysMessage.textContent = 'Adding keys...';
-            addKeysMessage.className = 'text-sm text-center text-gray-500';
+            addKeysForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                addKeysMessage.textContent = 'Adding keys...';
+                addKeysMessage.className = 'text-sm text-center text-gray-500';
 
-            const formData = {
-                adminPassword: CORRECT_PASSWORD,
-                productId: document.getElementById('productId').value,
-                keys: document.getElementById('keys').value,
-            };
+                const formData = {
+                    adminPassword: CORRECT_PASSWORD,
+                    productId: document.getElementById('productId').value,
+                    keys: document.getElementById('keys').value,
+                };
 
-            try {
-                const response = await fetch('/.netlify/functions/add-keys', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                const result = await response.json();
-                if (!response.ok) throw new Error(result.message);
+                try {
+                    const response = await fetch('/.netlify/functions/add-keys', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
 
-                addKeysMessage.textContent = result.message;
-                addKeysMessage.className = 'text-sm text-center text-green-600';
-                addKeysForm.reset();
-                fetchAdminData(); // Refresh inventory
-            } catch (error) {
-                addKeysMessage.textContent = `Error: ${error.message}`;
-                addKeysMessage.className = 'text-sm text-center text-red-500';
-            }
+                    addKeysMessage.textContent = result.message;
+                    addKeysMessage.className = 'text-sm text-center text-green-600';
+                    addKeysForm.reset();
+                    fetchAdminData(); // Refresh inventory
+                } catch (error) {
+                    addKeysMessage.textContent = `Error: ${error.message}`;
+                    addKeysMessage.className = 'text-sm text-center text-red-500';
+                }
+            });
         });
-    });
-</script>
+    </script>
+
 </body>
 </html>

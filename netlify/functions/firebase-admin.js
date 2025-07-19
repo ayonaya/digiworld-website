@@ -6,7 +6,7 @@ const admin = require('firebase-admin');
 // which can happen in a serverless environment.
 if (!admin.apps.length) {
   try {
-    // ✨ FIX: Using the correct environment variable name that we set in Netlify.
+    // Using the correct environment variable name that we set in Netlify.
     const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 
     if (!serviceAccountString) {

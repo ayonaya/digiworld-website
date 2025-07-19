@@ -7,14 +7,11 @@ exports.handler = async (event, context) => {
     const productsRef = db.collection('products');
     const productId = event.queryStringParameters.id;
 
-    // If an ID is provided, fetch only that specific product.
+    // If an ID is provided in the URL, fetch only that product
     if (productId) {
       const doc = await productsRef.doc(productId).get();
       if (!doc.exists) {
-        return { 
-          statusCode: 404, 
-          body: JSON.stringify({ success: false, message: 'Product not found' }) 
-        };
+        return { statusCode: 404, body: JSON.stringify({ success: false, message: 'Product not found' }) };
       }
       return {
         statusCode: 200,
@@ -22,12 +19,10 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ success: true, product: { id: doc.id, ...doc.data() } }),
       };
     } 
-    // Otherwise, fetch all products.
+    // Otherwise, fetch all products
     else {
-      // Removed .orderBy() to prevent potential Firestore index errors.
-      // Sorting should be handled on the client-side after fetching the data.
-      const snapshot = await productsRef.get();
-      const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const snapshot = await productsRef.orderBy('name.en').get();
+      const products = snapshot.docs.map(doc => doc.data());
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
