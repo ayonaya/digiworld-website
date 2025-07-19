@@ -134,16 +134,15 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
-        // Your actual Firebase config object
-       const firebaseConfig = {
-  apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-  authDomain: "digiworld-46a1e.firebaseapp.com",
-  projectId: "digiworld-46a1e",
-  storageBucket: "digiworld-46a1e.firebasestorage.app",
-  messagingSenderId: "242235397710",
-  appId: "1:242235397710:web:a80c15cc285188610cd51f",
-  measurementId: "G-R8C4BWHXBL"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
+            authDomain: "digiworld-46a1e.firebaseapp.com",
+            projectId: "digiworld-46a1e",
+            storageBucket: "digiworld-46a1e.firebasestorage.app",
+            messagingSenderId: "242235397710",
+            appId: "1:242235397710:web:a80c15cc285188610cd51f",
+            measurementId: "G-R8C4BWHXBL"
+        };
         firebase.initializeApp(firebaseConfig);
 
         const auth = firebase.auth();
@@ -153,7 +152,6 @@
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // User is signed in.
                 loadingMessage.style.display = 'block';
                 authMessage.style.display = 'none';
                 
@@ -186,7 +184,6 @@
                     loadingMessage.style.display = 'none';
                 }
             } else {
-                // User is signed out.
                 loadingMessage.style.display = 'none';
                 authMessage.style.display = 'block';
             }
