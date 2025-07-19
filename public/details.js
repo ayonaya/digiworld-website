@@ -253,46 +253,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-// --- 4. RUN MAIN EXECUTION LOGIC ---
-const params = new URLSearchParams(window.location.search);
-const productId = params.get('id');
+    // --- 4. RUN MAIN EXECUTION LOGIC ---
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
 
-if (!productId) {
-    detailsContainer.innerHTML = '<p>No product ID provided.</p>';
-} else {
-    try {
-        // First, fetch the main product's details
-        const productResponse = await fetch(`/.netlify/functions/get-products?id=${productId}`);
-        if (!productResponse.ok) throw new Error('Failed to load product details.');
-        
-        const productData = await productResponse.json();
-        if (!productData.success) throw new Error(productData.message);
-        
-        const mainProduct = productData.product;
+    if (!productId) {
+        detailsContainer.innerHTML = '<p>No product ID provided.</p>';
+    } else {
+        try {
+            const [productResponse, allProductsResponse] = await Promise.all([
+                fetch(`/.netlify/functions/get-products?id=${productId}`),
+                fetch(`/.netlify/functions/get-products`)
+            ]);
 
-        // Render the main product immediately
-        renderProduct(mainProduct);
-        fetchAndRenderReviews(productId);
-        updateCartBadge();
-        setCurrency(currentCurr);
-
-        // Now, fetch related products using our new, efficient function
-        if (mainProduct.category) {
-            const relatedResponse = await fetch(`/.netlify/functions/get-related-products?currentProductId=${productId}&category=${mainProduct.category}`);
-            if (relatedResponse.ok) {
-                const relatedData = await relatedResponse.json();
-                if (relatedData.success) {
-                    // Pass only the related products to the render function
-                    renderRelatedProducts(mainProduct, relatedData.products);
-                }
+            if (!productResponse.ok) throw new Error('Failed to load product details.');
+            const productData = await productResponse.json();
+            if (!productData.success) throw new Error(productData.message);
+            
+            if (allProductsResponse.ok) {
+                const allProductsData = await allProductsResponse.json();
+                if (allProductsData.success) allProducts = allProductsData.products;
             }
-        }
 
-    } catch (error) {
-        console.error("Error loading page:", error);
-        detailsContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            renderProduct(productData.product);
+            fetchAndRenderReviews(productId);
+            renderRelatedProducts(productData.product, allProducts);
+            updateMiniCartContent();
+
+        } catch (error) {
+            console.error("Error loading page:", error);
+            detailsContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+        }
     }
-}    
+    
     updateCartBadge();
     setCurrency(currentCurr);
 });
