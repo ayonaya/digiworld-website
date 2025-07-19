@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Downloads - DigiWorld</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { background-color: #f6f6fa; }
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .download-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #28a745;
+        }
+        .download-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .download-product { font-weight: 700; color: #333; }
+        .download-date { font-size: 0.9em; color: #777; }
+        .key-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f0f2f5;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+        }
+        .copy-btn {
+            background: #fd7e1a;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+        }
+        .copy-btn:hover { background: #d45703; }
+    </style>
+</head>
+<body>
+
+    <header class="site-header">
+         <div class="header-main-pro">
+            <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
+            <nav>
+                <a href="index.html" class="nav-link-pro">Home</a>
+                <a href="account.html" class="nav-link-pro">My Account</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 style="font-weight: 900; color: #d45703;">My Downloads</h1>
+        <div id="downloads-container">
+            <p>Loading your downloads...</p>
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
+            authDomain: "digiworld-46a1e.firebaseapp.com",
+            projectId: "digiworld-46a1e",
+            storageBucket: "digiworld-46a1e.appspot.com",
+            messagingSenderId: "242235397710",
+            appId: "1:242235397710:web:a80c15cc285188610cd51f",
+            measurementId: "G-R8C4BWHXBL"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const downloadsContainer = document.getElementById('downloads-container');
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    const idToken = await user.getIdToken();
+                    const response = await fetch('/.netlify/functions/get-user-downloads', {
+                        headers: { 'Authorization': `Bearer ${idToken}` }
+                    });
+
+                    if (!response.ok) {
+                         const errorResult = await response.json();
+                         throw new Error(errorResult.message || 'Failed to fetch downloads.');
+                    }
+
+                    const result = await response.json();
+
+                    if (result.success && result.downloads.length > 0) {
+                        renderDownloads(result.downloads);
+                    } else {
+                        downloadsContainer.innerHTML = '<p>You have no downloads available. Keys will appear here after a completed purchase.</p>';
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    downloadsContainer.innerHTML = `<p style="color:red;">Error loading downloads: ${error.message}</p>`;
+                }
+            } else {
+                downloadsContainer.innerHTML = `<p>Please <a href="login.html">log in</a> to view your downloads.</p>`;
+            }
+        });
+
+        function renderDownloads(downloads) {
+            downloadsContainer.innerHTML = downloads.map(download => {
+                const assignedDate = new Date(download.assignedAt).toLocaleDateString();
+                return `
+                    <div class="download-card">
+                        <div class="download-header">
+                            <div class="download-product">${download.productId}</div>
+                            <div class="download-date">Purchased: ${assignedDate}</div>
+                        </div>
+                        <div class="key-container">
+                            <span id="key-${download.orderId}">${download.key}</span>
+                            <button class="copy-btn" data-key-id="key-${download.orderId}">Copy</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Event listener for all "Copy" buttons
+        downloadsContainer.addEventListener('click', function(event) {
+            if (event.target.classList.contains('copy-btn')) {
+                const button = event.target;
+                const keyId = button.dataset.keyId;
+                const keySpan = document.getElementById(keyId);
+                
+                // Copy text to clipboard
+                navigator.clipboard.writeText(keySpan.textContent).then(() => {
+                    // Provide user feedback
+                    button.textContent = 'Copied!';
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
