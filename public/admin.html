@@ -4,269 +4,329 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DigiWorld - Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f2f5;
+        :root {
+            --primary: #f57224; --primary-dark: #d45703; --accent: #fe724c;
+            --card-bg: #fff; --bg: #f0f2f5; --radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --edit-btn-bg: #3498db; --delete-btn-bg: #e74c3c;
         }
-        .gradient-bg {
-            background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); margin: 0; color: #333; }
+        .admin-container { max-width: 1200px; margin: 30px auto; padding: 20px; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .admin-header h1 { font-weight: 900; color: var(--primary-dark); margin: 0; }
+        .login-container { max-width: 400px; margin: 100px auto; padding: 40px; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
+        .login-container h2 { margin-top: 0; font-weight: 700; }
+        .login-container input { width: 100%; padding: 12px; margin: 10px 0 20px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+        .dashboard { display: none; display: grid; grid-template-columns: 1fr; gap: 30px; }
+        .dashboard-card { background-color: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); }
+        .dashboard-card h3 { margin-top: 0; font-weight: 700; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; vertical-align: middle;}
+        th { font-weight: 700; font-size: 0.85rem; color: #888; text-transform: uppercase; }
+        .action-btn { color: white; border: none; padding: 8px 12px; font-size: 0.9rem; font-weight: 700; border-radius: 6px; cursor: pointer; margin-right: 5px; }
+        .edit-btn { background-color: var(--edit-btn-bg); }
+        .delete-btn { background-color: var(--delete-btn-bg); }
+        .hidden { display: none !important; }
+        .review-card { padding: 15px 0; border-bottom: 1px solid #eee; }
+        .review-card:last-child { border-bottom: none; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: var(--radius); width: 90%; max-width: 500px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; font-weight: 700; }
+        .modal-close { font-size: 1.5rem; cursor: pointer; background: none; border: none; }
+        .admin-form .form-group { margin-bottom: 15px; }
+        .admin-form label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .admin-form input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
     </style>
 </head>
-<body class="bg-gray-100">
+<body>
 
-    <div id="login-section" class="flex items-center justify-center min-h-screen">
-        <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
-            <h1 class="text-3xl font-bold text-center text-gray-800">Admin Login</h1>
-            <form id="login-form" class="space-y-6">
-                <div>
-                    <label for="password" class="text-sm font-semibold text-gray-600">Password</label>
-                    <input type="password" id="password" name="password" required
-                        class="w-full px-4 py-2 mt-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+    <div class="login-container" id="loginContainer">
+        <h2>Admin Login</h2>
+        <form id="loginForm">
+            <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <div id="loginMessage"></div>
+    </div>
+
+    <div class="admin-container hidden" id="dashboardContainer">
+        <div class="admin-header">
+            <h1>Admin Dashboard</h1>
+            <button id="logoutBtn" class="btn delete-btn" style="background-color: var(--delete-btn-bg);">Logout</button>
+        </div>
+        <div class="dashboard">
+             <div class="dashboard-card" style="grid-column: 1 / -1;">
+                <h3><i class="fas fa-box-open"></i> Product Management</h3>
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Price (USD)</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="dashboard-card">
+                <h3><i class="fas fa-key"></i> Key Inventory</h3>
+                <table id="inventoryTable">
+                    <thead>
+                        <tr><th>Product ID</th><th>Available</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="dashboard-card">
+                <h3><i class="fas fa-star"></i> Pending Reviews</h3>
+                <div id="pendingReviewsList"></div>
+            </div>
+            <div class="dashboard-card" style="grid-column: 1 / -1;">
+                <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
+                <table id="ordersTable">
+                    <thead>
+                        <tr><th>Order ID</th><th>Product</th><th>Email</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="editProductModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Product</h2>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <form id="editProductForm" class="admin-form">
+                <input type="hidden" id="editProductId">
+                <div class="form-group">
+                    <label for="editProductName">Product Name</label>
+                    <input type="text" id="editProductName" required>
                 </div>
-                <div>
-                    <button type="submit"
-                        class="w-full px-4 py-2 font-semibold text-white gradient-bg rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500">
-                        Login
-                    </button>
+                <div class="form-group">
+                    <label for="editProductPrice">Price (USD)</label>
+                    <input type="number" id="editProductPrice" step="0.01" required>
                 </div>
-                <p id="login-message" class="text-sm text-center text-red-500"></p>
+                <div class="form-group">
+                    <label for="editProductCategory">Category</label>
+                    <input type="text" id="editProductCategory" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+                <div id="editProductMessage" style="text-align:center; margin-top: 10px;"></div>
             </form>
         </div>
     </div>
 
-    <div id="dashboard-section" class="hidden">
-        <header class="gradient-bg shadow-md">
-            <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-white">DigiWorld Dashboard</h1>
-                <button id="logout-button" class="px-4 py-2 font-semibold text-orange-500 bg-white rounded-lg hover:bg-gray-100">Logout</button>
-            </div>
-        </header>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginContainer = document.getElementById('loginContainer');
+        const dashboardContainer = document.getElementById('dashboardContainer');
+        const loginForm = document.getElementById('loginForm');
+        const loginMessage = document.getElementById('loginMessage');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const editModal = document.getElementById('editProductModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const editProductForm = document.getElementById('editProductForm');
+        const productsTable = document.getElementById('productsTable');
+        let allProductsData = [];
 
-        <main class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-plus-circle text-orange-500"></i> Add New Keys</h3>
-                    <form id="add-keys-form" class="space-y-4">
-                        <div>
-                            <label for="productId" class="block text-sm font-medium text-gray-700">Product</label>
-                            <select id="productId" name="productId" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
-                                </select>
-                        </div>
-                        <div>
-                            <label for="keys" class="block text-sm font-medium text-gray-700">Product Keys (one per line)</label>
-                            <textarea id="keys" name="keys" rows="5" required class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500"></textarea>
-                        </div>
-                        <div>
-                            <button type="submit" class="w-full px-4 py-2 font-semibold text-white gradient-bg rounded-lg hover:opacity-90">Add Keys</button>
-                        </div>
-                        <p id="add-keys-message" class="text-sm text-center"></p>
-                    </form>
-                </div>
-                 <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-star text-orange-500"></i> Pending Reviews</h3>
-                    <div id="pending-reviews-list" class="space-y-4">
-                        <p class="text-gray-500">Loading pending reviews...</p>
-                    </div>
-                </div>
-            </div>
+        if (sessionStorage.getItem('adminPassword')) {
+            fetchAdminData(sessionStorage.getItem('adminPassword'));
+        }
 
-            <div class="lg:col-span-1">
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-key text-orange-500"></i> Key Inventory</h3>
-                    <table id="inventory-table" class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                            <tr>
-                                <th scope="col" class="py-3 px-6">Product ID</th>
-                                <th scope="col" class="py-3 px-6">Available</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </div>
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            loginMessage.textContent = 'Logging in...';
+            await fetchAdminData(password);
+        });
 
-<script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const loginSection = document.getElementById('login-section');
-            const dashboardSection = document.getElementById('dashboard-section');
-            const loginForm = document.getElementById('login-form');
-            const passwordInput = document.getElementById('password');
-            const loginMessage = document.getElementById('login-message');
-            const logoutButton = document.getElementById('logout-button');
-            const addKeysForm = document.getElementById('add-keys-form');
-            const addKeysMessage = document.getElementById('add-keys-message');
-            const productSelect = document.getElementById('productId');
-            const inventoryTableBody = document.querySelector('#inventory-table tbody');
-            const pendingReviewsList = document.getElementById('pending-reviews-list');
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('adminPassword');
+            loginContainer.classList.remove('hidden');
+            dashboardContainer.classList.add('hidden');
+        });
 
-            async function showDashboard() {
-                loginMessage.textContent = 'Verifying...';
-                const success = await fetchAdminData();
-                if (success) {
-                    loginSection.classList.add('hidden');
-                    dashboardSection.classList.remove('hidden');
-                    loginMessage.textContent = '';
-                } else {
-                    loginMessage.textContent = 'Login failed. Incorrect password or server error.';
-                    sessionStorage.removeItem('adminPassword');
-                }
-            }
-
-            if (sessionStorage.getItem('adminPassword')) {
-                showDashboard();
-            }
-
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const enteredPassword = passwordInput.value;
-                if (enteredPassword) {
-                    sessionStorage.setItem('adminPassword', enteredPassword);
-                    showDashboard();
-                } else {
-                    loginMessage.textContent = 'Please enter a password.';
-                }
-            });
-
-            logoutButton.addEventListener('click', () => {
+        async function fetchAdminData(password) {
+            try {
+                const response = await fetch('/api/get-admin-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminPassword: password })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Login failed');
+                sessionStorage.setItem('adminPassword', password);
+                loginContainer.classList.add('hidden');
+                dashboardContainer.classList.remove('hidden');
+                loginMessage.textContent = '';
+                allProductsData = result.data.products || [];
+                renderDashboard(result.data);
+            } catch (error) {
+                console.error('Login failed:', error);
+                loginMessage.textContent = error.message;
+                loginMessage.style.color = 'red';
                 sessionStorage.removeItem('adminPassword');
-                loginSection.classList.remove('hidden');
-                dashboardSection.classList.add('hidden');
-                passwordInput.value = '';
-                inventoryTableBody.innerHTML = '';
-                productSelect.innerHTML = '';
-                pendingReviewsList.innerHTML = '';
-            });
+            }
+        }
 
-            async function fetchAdminData() {
-                const adminPassword = sessionStorage.getItem('adminPassword');
-                if (!adminPassword) return false;
+        function renderDashboard(data) {
+            const inventoryBody = document.querySelector('#inventoryTable tbody');
+            inventoryBody.innerHTML = Object.entries(data.inventory).map(([productId, count]) => `<tr><td>${productId}</td><td>${count}</td></tr>`).join('') || '<tr><td colspan="2">No keys in inventory.</td></tr>';
 
-                try {
-                    const response = await fetch('/.netlify/functions/get-admin-data', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ adminPassword })
-                    });
-                    
-                    if (response.status === 401) throw new Error('Incorrect password.');
-                    if (!response.ok) throw new Error('Failed to fetch admin data.');
-
-                    const result = await response.json();
-                    if (!result.success) throw new Error(result.message || "An unknown error occurred.");
-                    
-                    const data = result.data;
-
-                    if (data.products) {
-                        productSelect.innerHTML = data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
-                    }
-                    
-                    if (data.inventory) {
-                        inventoryTableBody.innerHTML = Object.entries(data.inventory).map(([id, count]) => `
-                            <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
-                        `).join('') || `<tr><td colspan="2" class="text-center p-4">No inventory data.</td></tr>`;
-                    }
-
-                    if(data.reviews && data.reviews.length > 0) {
-                        // UPDATED: Added data-id attribute to each review card for identification
-                        pendingReviewsList.innerHTML = data.reviews.map(r => `
-                            <div class="p-4 border rounded-lg bg-gray-50" data-review-id="${r.id}">
-                                <p class="font-bold">${r.authorName} on "${r.productId}"</p>
-                                <p class="text-sm text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
-                                <p class="mt-2 text-gray-700">${r.reviewText}</p>
-                                <div class="mt-3 text-right">
-                                    <button data-action="delete" class="review-action-btn text-sm font-semibold text-red-600 hover:text-red-800 mr-2">Delete</button>
-                                    <button data-action="approve" class="review-action-btn text-sm font-semibold text-green-600 hover:text-green-800">Approve</button>
-                                </div>
-                            </div>
-                        `).join('');
-                    } else {
-                        pendingReviewsList.innerHTML = `<p class="text-gray-500">No pending reviews.</p>`;
-                    }
-
-                    return true;
-
-                } catch (error) {
-                    console.error('Failed to fetch admin data:', error);
-                    return false;
-                }
+            const productsBody = document.querySelector('#productsTable tbody');
+            if (data.products && data.products.length > 0) {
+                productsBody.innerHTML = data.products.map(p => `
+                    <tr data-product-row-id="${p.id}">
+                        <td>${p.name.en}</td>
+                        <td>$${p.price.USD.toFixed(2)}</td>
+                        <td>${p.category}</td>
+                        <td>
+                            <button class="action-btn edit-btn" data-id="${p.id}"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="action-btn delete-btn" data-id="${p.id}"><i class="fas fa-trash"></i> Delete</button>
+                        </td>
+                    </tr>`).join('');
+            } else {
+                productsBody.innerHTML = '<tr><td colspan="4">No products found.</td></tr>';
             }
             
-            // NEW: Event listener for handling review actions (approve/delete)
-            pendingReviewsList.addEventListener('click', async (e) => {
-                if (e.target.classList.contains('review-action-btn')) {
-                    const button = e.target;
-                    const action = button.dataset.action;
-                    const reviewCard = button.closest('[data-review-id]');
-                    const reviewId = reviewCard.dataset.reviewId;
-                    const adminPassword = sessionStorage.getItem('adminPassword');
+            const reviewsList = document.getElementById('pendingReviewsList');
+            if (data.pendingReviews && data.pendingReviews.length > 0) {
+                 reviewsList.innerHTML = data.pendingReviews.map(r => `<div class="review-card" id="review-${r.id}"><p><strong>${r.authorName}</strong> on <em>${r.productId}</em> (${'★'.repeat(r.rating)})</p><p>${r.reviewText}</p><button class="action-btn edit-btn" data-id="${r.id}" data-action="approve">Approve</button><button class="action-btn delete-btn" data-id="${r.id}" data-action="delete">Delete</button></div>`).join('');
+            } else {
+                reviewsList.innerHTML = '<p>No pending reviews.</p>';
+            }
 
-                    if (!reviewId || !action || !adminPassword) {
-                        alert('Could not perform action. An error occurred.');
-                        return;
-                    }
+            const ordersBody = document.querySelector('#ordersTable tbody');
+            if (data.orders && data.orders.length > 0) {
+                ordersBody.innerHTML = data.orders.map(o => `<tr><td>${o.id}</td><td>${o.productId}</td><td>${o.customerEmail}</td><td>${o.amount} ${o.currency}</td><td>${o.status}</td><td>${new Date(o.createdAt).toLocaleString()}</td></tr>`).join('');
+            } else {
+                ordersBody.innerHTML = '<tr><td colspan="6">No recent orders.</td></tr>';
+            }
+        }
 
-                    // Disable buttons to prevent multiple clicks
-                    button.disabled = true;
-                    button.textContent = 'Processing...';
+        function openEditModal(productId) {
+            const product = allProductsData.find(p => p.id === productId);
+            if (!product) { alert('Could not find product data.'); return; }
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('editProductName').value = product.name.en;
+            document.getElementById('editProductPrice').value = product.price.USD;
+            document.getElementById('editProductCategory').value = product.category;
+            editModal.classList.remove('hidden');
+        }
 
+        function closeEditModal() {
+            editModal.classList.add('hidden');
+            document.getElementById('editProductMessage').textContent = '';
+        }
+
+        productsTable.addEventListener('click', async (e) => {
+            const targetButton = e.target.closest('button.action-btn');
+            if (!targetButton) return;
+            
+            const productId = targetButton.dataset.id;
+            if (targetButton.classList.contains('edit-btn')) {
+                openEditModal(productId);
+            }
+            if (targetButton.classList.contains('delete-btn')) {
+                const productName = allProductsData.find(p => p.id === productId)?.name.en || 'this product';
+                if (confirm(`Are you sure you want to permanently delete "${productName}"? This cannot be undone.`)) {
+                    targetButton.textContent = 'Deleting...';
+                    targetButton.disabled = true;
                     try {
-                        const response = await fetch('/.netlify/functions/manage-review', {
+                        const response = await fetch('/.netlify/functions/delete-product', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ adminPassword, reviewId, action })
+                            body: JSON.stringify({
+                                adminPassword: sessionStorage.getItem('adminPassword'),
+                                productId: productId
+                            })
                         });
-
                         const result = await response.json();
-                        if (!result.success) throw new Error(result.message);
-
-                        // If successful, remove the review card from the UI
-                        reviewCard.style.transition = 'opacity 0.5s ease';
-                        reviewCard.style.opacity = '0';
-                        setTimeout(() => reviewCard.remove(), 500);
-
+                        if (!response.ok) throw new Error(result.message);
+                        document.querySelector(`tr[data-product-row-id="${productId}"]`).remove();
                     } catch (error) {
                         alert(`Error: ${error.message}`);
-                        // Re-enable button on failure
-                        button.disabled = false;
-                        button.textContent = action.charAt(0).toUpperCase() + action.slice(1);
+                        targetButton.innerHTML = '<i class="fas fa-trash"></i> Delete';
+                        targetButton.disabled = false;
                     }
                 }
-            });
+            }
+        });
 
-            addKeysForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                addKeysMessage.textContent = 'Adding keys...';
-                const formData = {
-                    adminPassword: sessionStorage.getItem('adminPassword'),
-                    productId: document.getElementById('productId').value,
-                    keys: document.getElementById('keys').value,
-                };
+        closeModalBtn.addEventListener('click', closeEditModal);
+        editModal.addEventListener('click', (e) => { if (e.target === editModal) { closeEditModal(); } });
+
+        editProductForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageEl = document.getElementById('editProductMessage');
+            messageEl.textContent = 'Saving...';
+            const productId = document.getElementById('editProductId').value;
+            const updatedData = {
+                'name.en': document.getElementById('editProductName').value,
+                'price.USD': Number(document.getElementById('editProductPrice').value),
+                'category': document.getElementById('editProductCategory').value
+            };
+            try {
+                const response = await fetch('/.netlify/functions/update-product', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        adminPassword: sessionStorage.getItem('adminPassword'),
+                        productId: productId,
+                        productData: updatedData
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message);
+                messageEl.textContent = 'Success! Reloading data...';
+                messageEl.style.color = 'green';
+                setTimeout(() => {
+                    closeEditModal();
+                    fetchAdminData(sessionStorage.getItem('adminPassword'));
+                }, 1000);
+            } catch (error) {
+                messageEl.textContent = `Error: ${error.message}`;
+                messageEl.style.color = 'red';
+            }
+        });
+
+        document.getElementById('pendingReviewsList').addEventListener('click', async (e) => {
+            if (e.target.matches('button[data-action]')) {
+                const button = e.target;
+                const reviewId = button.dataset.id;
+                const action = button.dataset.action;
+                const password = sessionStorage.getItem('adminPassword');
+                button.textContent = '...';
                 try {
-                    const response = await fetch('/.netlify/functions/add-keys', {
+                    const response = await fetch('/api/moderate-review', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData)
+                        body: JSON.stringify({ adminPassword: password, reviewId, action })
                     });
                     const result = await response.json();
                     if (!response.ok) throw new Error(result.message);
-                    addKeysMessage.textContent = result.message;
-                    addKeysForm.reset();
-                    fetchAdminData();
+                    document.getElementById(`review-${reviewId}`).remove();
                 } catch (error) {
-                    addKeysMessage.textContent = `Error: ${error.message}`;
+                    console.error('Moderation failed:', error);
+                    alert(`Error: ${error.message}`);
+                    button.textContent = action.charAt(0).toUpperCase() + action.slice(1);
                 }
-            });
+            }
         });
+    });
     </script>
 </body>
 </html>

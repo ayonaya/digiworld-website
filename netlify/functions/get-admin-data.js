@@ -14,41 +14,44 @@ exports.handler = async (event, context) => {
       return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Incorrect password.' }) };
     }
 
-    // UPDATED: Fetch inventory, products, and reviews concurrently
-    const keysRef = db.collection('digital_keys');
-    const productsRef = db.collection('products');
-    const reviewsRef = db.collection('reviews');
-
-    const [availableKeysSnapshot, productsSnapshot, pendingReviewsSnapshot] = await Promise.all([
-        keysRef.where('status', '==', 'available').get(),
-        productsRef.get(),
-        reviewsRef.where('isApproved', '==', false).get()
+    // Fetch all necessary data in parallel for better performance
+    const [
+      inventorySnapshot,
+      reviewsSnapshot,
+      ordersSnapshot,
+      productsSnapshot // ✨ NEW: Fetching products
+    ] = await Promise.all([
+      db.collection('keys').get(),
+      db.collection('reviews').where('status', '==', 'pending').get(),
+      db.collection('orders').orderBy('createdAt', 'desc').limit(20).get(),
+      db.collection('products').orderBy('name.en').get() // ✨ NEW: Fetching the products collection
     ]);
 
-    // 1. Process Inventory
+    // Process inventory
     const inventory = {};
-    availableKeysSnapshot.forEach(doc => {
-      const keyData = doc.data();
-      if (keyData.productId) {
-          inventory[keyData.productId] = (inventory[keyData.productId] || 0) + 1;
-      }
+    inventorySnapshot.forEach(doc => {
+      const data = doc.data();
+      inventory[doc.id] = data.keys ? data.keys.length : 0;
     });
 
-    // 2. Process Products
+    // Process pending reviews
+    const pendingReviews = reviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Process recent orders
+    const orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // ✨ NEW: Process the fetched products
     const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // 3. Process Pending Reviews
-    const reviews = pendingReviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // Return all data in the expected format
     return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
         data: {
           inventory,
-          products,
-          reviews
+          pendingReviews,
+          orders,
+          products // ✨ NEW: Including the products in the data response
         }
       }),
     };

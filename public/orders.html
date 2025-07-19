@@ -4,86 +4,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - DigiWorld</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css"> <style>
-        body { background-color: #f6f6fa; }
-        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
-        .order-card {
-            background-color: white;
-            border-radius: 12px;
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        :root {
+            --primary: #f57224;
+            --primary-dark: #d45703;
+            --accent: #fe724c;
+            --card-bg: #fff;
+            --bg: #f6f6fa;
+            --radius: 18px;
+            --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+        }
+        body {
+            background-color: var(--bg);
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 5px solid #fd7e1a;
+        }
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-dark);
+            margin-bottom: 30px;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        #orders-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .order-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--accent);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(245, 114, 36, 0.2);
         }
         .order-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
-        .order-id { font-weight: 700; color: #333; }
-        .order-date { font-size: 0.9em; color: #777; }
-        .order-body { font-size: 1em; }
-        .order-status {
+        .order-id {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        .order-date {
+            font-size: 0.9em;
+            color: #777;
             font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            color: white;
         }
-        .status-completed { background-color: #28a745; }
-        .status-initiated { background-color: #ffc107; color: #333;}
-        .status-key_unavailable { background-color: #dc3545; }
+        .order-body {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 20px;
+        }
+        .order-product-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .order-amount {
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-align: right;
+        }
+        #loading-message, #auth-message {
+            text-align: center;
+            padding: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
 
     <header class="site-header">
-         <div class="header-main-pro">
-            <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
-            <nav>
-                <a href="index.html" class="nav-link-pro">Home</a>
-                <a href="account.html" class="nav-link-pro">My Account</a>
-            </nav>
+      <div class="header-main-pro">
+        <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
+        <nav>
+          <a href="index.html" class="nav-link-pro">Home</a>
+          <a href="account.html" class="nav-link-pro active">My Account</a>
+          <a href="contact.html" class="nav-link-pro">Contact</a>
+        </nav>
+        <div class="header-controls">
+          <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span class="cart-icon-badge" id="cartCount">0</span>
+          </button>
         </div>
+      </div>
     </header>
 
     <main class="container">
-        <h1 style="font-weight: 900; color: #d45703;">My Orders</h1>
+        <h1 class="page-title">My Orders</h1>
         <div id="orders-container">
-            <p>Loading your orders...</p>
+            <p id="loading-message">Loading your orders...</p>
+            <p id="auth-message" style="display: none;">Please <a href="login.html">log in</a> to view your orders.</p>
         </div>
     </main>
 
+    <footer class="site-footer">
+      <div class="footer-grid">
+          </div>
+      <div class="footer-bottom">
+          &copy; 2025 DigiWorld. All rights reserved.
+      </div>
+    </footer>
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
-        // Your actual Firebase config here
+        // Your actual Firebase config object
         const firebaseConfig = {
-            apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-            authDomain: "digiworld-46a1e.firebaseapp.com",
-            projectId: "digiworld-46a1e",
-            storageBucket: "digiworld-46a1e.appspot.com",
-            messagingSenderId: "242235397710",
-            appId: "1:242235397710:web:a80c15cc285188610cd51f",
-            measurementId: "G-R8C4BWHXBL"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
         firebase.initializeApp(firebaseConfig);
+
         const auth = firebase.auth();
         const ordersContainer = document.getElementById('orders-container');
+        const loadingMessage = document.getElementById('loading-message');
+        const authMessage = document.getElementById('auth-message');
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 // User is signed in.
+                loadingMessage.style.display = 'block';
+                authMessage.style.display = 'none';
+                
                 try {
-                    // 1. Get the user's ID token
                     const idToken = await user.getIdToken();
 
-                    // 2. Fetch orders from our secure function
                     const response = await fetch('/.netlify/functions/get-user-orders', {
                         headers: {
                             'Authorization': `Bearer ${idToken}`
@@ -106,12 +181,13 @@
                 } catch (error) {
                     console.error('Error:', error);
                     ordersContainer.innerHTML = `<p style="color:red;">Error loading orders: ${error.message}</p>`;
+                } finally {
+                    loadingMessage.style.display = 'none';
                 }
             } else {
                 // User is signed out.
-                ordersContainer.innerHTML = `
-                    <p>Please <a href="login.html">log in</a> to view your orders.</p>
-                `;
+                loadingMessage.style.display = 'none';
+                authMessage.style.display = 'block';
             }
         });
 
@@ -120,21 +196,16 @@
                 const orderDate = new Date(order.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric', month: 'long', day: 'numeric'
                 });
-                const statusClass = `status-${order.status}`;
-                const statusText = order.status.replace('_', ' ').toUpperCase();
 
                 return `
                     <div class="order-card">
                         <div class="order-header">
-                            <div>
-                                <div class="order-id">Order ID: ${order.id}</div>
-                                <div class="order-date">${orderDate}</div>
-                            </div>
-                            <div class="order-status ${statusClass}">${statusText}</div>
+                            <div class="order-id">Order ID: ${order.id}</div>
+                            <div class="order-date">${orderDate}</div>
                         </div>
                         <div class="order-body">
-                            <p><strong>Product:</strong> ${order.productId}</p>
-                            <p><strong>Amount:</strong> ${order.amount.toFixed(2)} ${order.currency}</p>
+                            <span class="order-product-name">${order.productId}</span>
+                            <span class="order-amount">${order.amount.toFixed(2)} ${order.currency}</span>
                         </div>
                     </div>
                 `;

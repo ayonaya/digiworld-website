@@ -4,87 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Downloads - DigiWorld</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/styles.css">
     <style>
-        body { background-color: #f6f6fa; }
-        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
-        .download-card {
-            background-color: white;
-            border-radius: 12px;
+        :root {
+            --primary: #f57224;
+            --primary-dark: #d45703;
+            --accent: #fe724c;
+            --card-bg: #fff;
+            --bg: #f6f6fa;
+            --radius: 18px;
+            --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+            --success: #28a745;
+        }
+        body {
+            background-color: var(--bg);
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border-left: 5px solid #28a745;
+        }
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-dark);
+            margin-bottom: 30px;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 10px;
+        }
+        #downloads-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .download-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--success);
         }
         .download-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
-        .download-product { font-weight: 700; color: #333; }
-        .download-date { font-size: 0.9em; color: #777; }
+        .download-product {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .download-date {
+            font-size: 0.9em;
+            color: #777;
+            font-weight: 600;
+        }
         .key-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background-color: #f0f2f5;
-            padding: 10px 15px;
-            border-radius: 8px;
+            padding: 12px 18px;
+            border-radius: 10px;
             font-family: 'Courier New', Courier, monospace;
             font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            border: 2px dashed #ddd;
         }
         .copy-btn {
-            background: #fd7e1a;
+            background: var(--accent);
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 8px 15px;
+            border-radius: 8px;
             cursor: pointer;
             font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            transition: background-color 0.2s;
         }
-        .copy-btn:hover { background: #d45703; }
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+        .copy-btn.copied {
+            background-color: var(--success);
+        }
+        #loading-message, #auth-message {
+            text-align: center;
+            padding: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
 
     <header class="site-header">
-         <div class="header-main-pro">
-            <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
-            <nav>
-                <a href="index.html" class="nav-link-pro">Home</a>
-                <a href="account.html" class="nav-link-pro">My Account</a>
-            </nav>
+      <div class="header-main-pro">
+        <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
+        <nav>
+          <a href="index.html" class="nav-link-pro">Home</a>
+          <a href="account.html" class="nav-link-pro active">My Account</a>
+          <a href="contact.html" class="nav-link-pro">Contact</a>
+        </nav>
+        <div class="header-controls">
+          <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            <span class="cart-icon-badge" id="cartCount">0</span>
+          </button>
         </div>
+      </div>
     </header>
 
     <main class="container">
-        <h1 style="font-weight: 900; color: #d45703;">My Downloads</h1>
+        <h1 class="page-title">My Downloads</h1>
         <div id="downloads-container">
-            <p>Loading your downloads...</p>
+            <p id="loading-message">Loading your downloads...</p>
+            <p id="auth-message" style="display: none;">Please <a href="login.html">log in</a> to view your downloads.</p>
         </div>
     </main>
 
+    <footer class="site-footer">
+      <div class="footer-grid">
+          </div>
+      <div class="footer-bottom">
+          &copy; 2025 DigiWorld. All rights reserved.
+      </div>
+    </footer>
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
+        // Your actual Firebase config object
         const firebaseConfig = {
-            apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-            authDomain: "digiworld-46a1e.firebaseapp.com",
-            projectId: "digiworld-46a1e",
-            storageBucket: "digiworld-46a1e.appspot.com",
-            messagingSenderId: "242235397710",
-            appId: "1:242235397710:web:a80c15cc285188610cd51f",
-            measurementId: "G-R8C4BWHXBL"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
         firebase.initializeApp(firebaseConfig);
+
         const auth = firebase.auth();
         const downloadsContainer = document.getElementById('downloads-container');
+        const loadingMessage = document.getElementById('loading-message');
+        const authMessage = document.getElementById('auth-message');
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
+                loadingMessage.style.display = 'block';
+                authMessage.style.display = 'none';
                 try {
                     const idToken = await user.getIdToken();
                     const response = await fetch('/.netlify/functions/get-user-downloads', {
@@ -107,9 +184,12 @@
                 } catch (error) {
                     console.error('Error:', error);
                     downloadsContainer.innerHTML = `<p style="color:red;">Error loading downloads: ${error.message}</p>`;
+                } finally {
+                    loadingMessage.style.display = 'none';
                 }
             } else {
-                downloadsContainer.innerHTML = `<p>Please <a href="login.html">log in</a> to view your downloads.</p>`;
+                loadingMessage.style.display = 'none';
+                authMessage.style.display = 'block';
             }
         });
 
@@ -131,19 +211,18 @@
             }).join('');
         }
         
-        // Event listener for all "Copy" buttons
         downloadsContainer.addEventListener('click', function(event) {
             if (event.target.classList.contains('copy-btn')) {
                 const button = event.target;
                 const keyId = button.dataset.keyId;
                 const keySpan = document.getElementById(keyId);
                 
-                // Copy text to clipboard
                 navigator.clipboard.writeText(keySpan.textContent).then(() => {
-                    // Provide user feedback
                     button.textContent = 'Copied!';
+                    button.classList.add('copied');
                     setTimeout(() => {
                         button.textContent = 'Copy';
+                        button.classList.remove('copied');
                     }, 2000);
                 }).catch(err => {
                     console.error('Failed to copy text: ', err);
