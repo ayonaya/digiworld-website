@@ -14,19 +14,41 @@ exports.handler = async (event, context) => {
       return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Incorrect password.' }) };
     }
 
-    const inventorySnapshot = await db.collection('keys').get();
-    
+    // UPDATED: Fetch inventory, products, and reviews concurrently
+    const keysRef = db.collection('digital_keys');
+    const productsRef = db.collection('products');
+    const reviewsRef = db.collection('reviews');
+
+    const [availableKeysSnapshot, productsSnapshot, pendingReviewsSnapshot] = await Promise.all([
+        keysRef.where('status', '==', 'available').get(),
+        productsRef.get(),
+        reviewsRef.where('isApproved', '==', false).get()
+    ]);
+
+    // 1. Process Inventory
     const inventory = {};
-    inventorySnapshot.forEach(doc => {
-      inventory[doc.id] = doc.data().keys.length;
+    availableKeysSnapshot.forEach(doc => {
+      const keyData = doc.data();
+      if (keyData.productId) {
+          inventory[keyData.productId] = (inventory[keyData.productId] || 0) + 1;
+      }
     });
 
+    // 2. Process Products
+    const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // 3. Process Pending Reviews
+    const reviews = pendingReviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Return all data in the expected format
     return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
         data: {
-          inventory
+          inventory,
+          products,
+          reviews
         }
       }),
     };

@@ -21,7 +21,6 @@
 </head>
 <body class="bg-gray-100">
 
-    <!-- Login Section -->
     <div id="login-section" class="flex items-center justify-center min-h-screen">
         <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg">
             <h1 class="text-3xl font-bold text-center text-gray-800">Admin Login</h1>
@@ -42,7 +41,6 @@
         </div>
     </div>
 
-    <!-- Admin Dashboard Section (Hidden by default) -->
     <div id="dashboard-section" class="hidden">
         <header class="gradient-bg shadow-md">
             <div class="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -52,17 +50,14 @@
         </header>
 
         <main class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Add Keys Card -->
                 <div class="bg-white p-8 rounded-xl shadow-lg">
                     <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-plus-circle text-orange-500"></i> Add New Keys</h3>
                     <form id="add-keys-form" class="space-y-4">
                         <div>
                             <label for="productId" class="block text-sm font-medium text-gray-700">Product</label>
                             <select id="productId" name="productId" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm">
-                                <!-- Product options will be loaded here -->
-                            </select>
+                                </select>
                         </div>
                         <div>
                             <label for="keys" class="block text-sm font-medium text-gray-700">Product Keys (one per line)</label>
@@ -74,14 +69,14 @@
                         <p id="add-keys-message" class="text-sm text-center"></p>
                     </form>
                 </div>
-                 <!-- Pending Reviews Card -->
-                <div class="bg-white p-8 rounded-xl shadow-lg">
+                 <div class="bg-white p-8 rounded-xl shadow-lg">
                     <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-star text-orange-500"></i> Pending Reviews</h3>
-                    <div id="pending-reviews-list" class="space-y-4"></div>
+                    <div id="pending-reviews-list" class="space-y-4">
+                        <p class="text-gray-500">Loading pending reviews...</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Column -->
             <div class="lg:col-span-1">
                 <div class="bg-white p-8 rounded-xl shadow-lg">
                     <h3 class="text-xl font-semibold mb-4 flex items-center gap-2"><i class="fas fa-key text-orange-500"></i> Key Inventory</h3>
@@ -93,8 +88,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Inventory will be loaded here -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -115,27 +109,34 @@
             const inventoryTableBody = document.querySelector('#inventory-table tbody');
             const pendingReviewsList = document.getElementById('pending-reviews-list');
 
-            const CORRECT_PASSWORD = "DigiWorLdadmin2025!";
-
-            function showDashboard() {
-                loginSection.classList.add('hidden');
-                dashboardSection.classList.remove('hidden');
-                fetchAdminData();
+            // UPDATED: The hardcoded password has been removed.
+            
+            async function showDashboard() {
+                loginMessage.textContent = 'Verifying...';
+                const success = await fetchAdminData();
+                if (success) {
+                    loginSection.classList.add('hidden');
+                    dashboardSection.classList.remove('hidden');
+                    loginMessage.textContent = '';
+                } else {
+                    loginMessage.textContent = 'Login failed. Incorrect password or server error.';
+                    sessionStorage.removeItem('adminPassword'); // Clear bad password
+                }
             }
 
-            if (sessionStorage.getItem('adminPassword') === CORRECT_PASSWORD) {
+            // Check if user was already logged in
+            if (sessionStorage.getItem('adminPassword')) {
                 showDashboard();
             }
 
             loginForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                loginMessage.textContent = '';
-                if (passwordInput.value === CORRECT_PASSWORD) {
-                    sessionStorage.setItem('adminPassword', CORRECT_PASSWORD);
+                const enteredPassword = passwordInput.value;
+                if (enteredPassword) {
+                    sessionStorage.setItem('adminPassword', enteredPassword);
                     showDashboard();
                 } else {
-                    loginMessage.textContent = 'Incorrect password.';
-                    passwordInput.value = '';
+                    loginMessage.textContent = 'Please enter a password.';
                 }
             });
 
@@ -144,53 +145,71 @@
                 loginSection.classList.remove('hidden');
                 dashboardSection.classList.add('hidden');
                 passwordInput.value = '';
+                inventoryTableBody.innerHTML = '';
+                productSelect.innerHTML = '';
+                pendingReviewsList.innerHTML = '';
             });
 
             async function fetchAdminData() {
+                // UPDATED: Get password from sessionStorage for secure API calls
+                const adminPassword = sessionStorage.getItem('adminPassword');
+                if (!adminPassword) return false;
+
                 try {
                     const response = await fetch('/.netlify/functions/get-admin-data', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ adminPassword: CORRECT_PASSWORD })
+                        body: JSON.stringify({ adminPassword }) // Use the stored password
                     });
                     
+                    if (response.status === 401) { // Unauthorized
+                        throw new Error('Incorrect password.');
+                    }
                     if (!response.ok) {
-                        const errText = await response.text();
-                        throw new Error(errText || 'Failed to fetch admin data.');
+                        throw new Error('Failed to fetch admin data.');
                     }
 
                     const result = await response.json();
-                    
-                    // ✨ FIX: Access the data from result.data, which is how the server sends it.
-                    const data = result.data; 
-                    if (!data || !data.products) {
-                        throw new Error("Product data not found in server response.");
+                    if (!result.success) {
+                        throw new Error(result.message || "An unknown error occurred.");
                     }
+                    
+                    const data = result.data;
 
                     // Populate Products Dropdown
-                    productSelect.innerHTML = data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+                    if (data.products) {
+                        productSelect.innerHTML = data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+                    }
                     
                     // Populate Inventory Table
-                    inventoryTableBody.innerHTML = Object.entries(data.inventory).map(([id, count]) => `
-                        <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
-                    `).join('');
+                    if (data.inventory) {
+                        inventoryTableBody.innerHTML = Object.entries(data.inventory).map(([id, count]) => `
+                            <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
+                        `).join('') || `<tr><td colspan="2" class="text-center p-4">No inventory data.</td></tr>`;
+                    }
 
                     // Populate Pending Reviews
                     if(data.reviews && data.reviews.length > 0) {
                         pendingReviewsList.innerHTML = data.reviews.map(r => `
-                            <div class="p-4 border rounded-lg">
+                            <div class="p-4 border rounded-lg bg-gray-50">
                                 <p class="font-bold">${r.authorName} on "${r.productId}"</p>
                                 <p class="text-sm text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
-                                <p class="mt-2">${r.reviewText}</p>
+                                <p class="mt-2 text-gray-700">${r.reviewText}</p>
+                                <div class="mt-3 text-right">
+                                    <button class="text-sm font-semibold text-red-600 hover:text-red-800 mr-2">Delete</button>
+                                    <button class="text-sm font-semibold text-green-600 hover:text-green-800">Approve</button>
+                                </div>
                             </div>
                         `).join('');
                     } else {
                         pendingReviewsList.innerHTML = `<p class="text-gray-500">No pending reviews.</p>`;
                     }
 
+                    return true; // Indicate success
+
                 } catch (error) {
                     console.error('Failed to fetch admin data:', error);
-                    alert('Could not load admin data. ' + error.message);
+                    return false; // Indicate failure
                 }
             }
 
@@ -200,7 +219,7 @@
                 addKeysMessage.className = 'text-sm text-center text-gray-500';
 
                 const formData = {
-                    adminPassword: CORRECT_PASSWORD,
+                    adminPassword: sessionStorage.getItem('adminPassword'), // UPDATED
                     productId: document.getElementById('productId').value,
                     keys: document.getElementById('keys').value,
                 };
@@ -212,12 +231,12 @@
                         body: JSON.stringify(formData)
                     });
                     const result = await response.json();
-                    if (!response.ok) throw new Error(result.message);
+                    if (!response.ok) throw new Error(result.message || 'An error occurred');
 
                     addKeysMessage.textContent = result.message;
                     addKeysMessage.className = 'text-sm text-center text-green-600';
                     addKeysForm.reset();
-                    fetchAdminData(); // Refresh inventory
+                    fetchAdminData(); // Refresh inventory and other data
                 } catch (error) {
                     addKeysMessage.textContent = `Error: ${error.message}`;
                     addKeysMessage.className = 'text-sm text-center text-red-500';
