@@ -153,20 +153,41 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ adminPassword: CORRECT_PASSWORD })
                     });
-                    const result = await response.json();
-                    if (!response.ok) throw new Error(result.message);
                     
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(errText || 'Failed to fetch admin data.');
+                    }
+
+                    const result = await response.json();
+                    
+                    // ✨ FIX: Access the data directly from the result object, not result.data
+                    const data = result; 
+                    if (!data) {
+                        throw new Error("Admin data not found in server response.");
+                    }
+
                     // Populate Products Dropdown
-                    productSelect.innerHTML = result.data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+                    if (data.products && Array.isArray(data.products)) {
+                        productSelect.innerHTML = data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+                    }
                     
                     // Populate Inventory Table
-                    inventoryTableBody.innerHTML = Object.entries(result.data.inventory).map(([id, count]) => `
-                        <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
-                    `).join('');
+                    if (data.inventory) {
+                        inventoryTableBody.innerHTML = Object.entries(data.inventory).map(([id, count]) => `
+                            <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
+                        `).join('');
+                    }
 
                     // Populate Pending Reviews
-                    if(result.data.reviews.length > 0) {
-                        pendingReviewsList.innerHTML = result.data.reviews.map(r => `<div>...review html...</div>`).join('');
+                    if(data.reviews && data.reviews.length > 0) {
+                        pendingReviewsList.innerHTML = data.reviews.map(r => `
+                            <div class="p-4 border rounded-lg">
+                                <p class="font-bold">${r.authorName} on "${r.productId}"</p>
+                                <p class="text-sm text-gray-500">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
+                                <p class="mt-2">${r.reviewText}</p>
+                            </div>
+                        `).join('');
                     } else {
                         pendingReviewsList.innerHTML = `<p class="text-gray-500">No pending reviews.</p>`;
                     }
