@@ -207,49 +207,43 @@
   const accountDropdown = document.querySelector('.account-dropdown');
   const accountBtn = document.getElementById('accountBtn');
   const accountMenu = document.getElementById('accountMenu');
-  
-  // --- DEBUGGING LINES ---
-  console.log("Checking elements right after page loads:");
-  console.log("Found Account Button:", accountBtn);
-  console.log("Found Account Menu:", accountMenu);
-  // --- END DEBUGGING LINES ---
 
   function renderLoggedInMenu() {
-  accountMenu.innerHTML = `
-    <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
-    <a href="orders.html"><i class="fas fa-box"></i> Orders</a>
-    <a href="downloads.html"><i class="fas fa-download"></i> Downloads</a>
-    <a href="wishlist.html"><i class="fas fa-heart"></i> Wishlist</a> <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-  `;
-  // Add Font Awesome icons for a better look
-  document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
-}
-
-  if (accountBtn) { // Add a check to prevent errors if the button isn't found
-      console.log("Account button was found, adding click listener."); // DEBUGGING LINE
-      // In the inline script of index.html, replace the two click listeners
-
-  accountBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    // This now adds/removes a class instead of changing the style directly
-    accountMenu.classList.toggle('show');
-  });
+    accountMenu.innerHTML = `
+      <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+      <a href="orders.html"><i class="fas fa-box"></i> Orders</a>
+      <a href="downloads.html"><i class="fas fa-download"></i> Downloads</a>
+      <a href="wishlist.html"><i class="fas fa-heart"></i> Wishlist</a>
+      <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    `;
+    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+  }
   
+  // This is the listener for the account button click
+  if (accountBtn) {
+      accountBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        accountMenu.classList.toggle('show');
+      });
+  }
+  
+  // This is the listener for clicking anywhere else to close the menu
   document.addEventListener('click', () => {
-      // This now removes the class when clicking elsewhere
-      accountMenu.classList.remove('show');
+      if (accountMenu) {
+        accountMenu.classList.remove('show');
+      }
   });
   
   auth.onAuthStateChanged(user => {
     if (user) {
-      loginBtn.style.display = 'none';
-      signupBtn.style.display = 'none';
-      accountDropdown.style.display = 'inline-block';
+      if(loginBtn) loginBtn.style.display = 'none';
+      if(signupBtn) signupBtn.style.display = 'none';
+      if(accountDropdown) accountDropdown.style.display = 'inline-block';
       renderLoggedInMenu();
     } else {
-      loginBtn.style.display = 'inline-block';
-      signupBtn.style.display = 'inline-block';
-      accountDropdown.style.display = 'none';
+      if(loginBtn) loginBtn.style.display = 'inline-block';
+      if(signupBtn) signupBtn.style.display = 'inline-block';
+      if(accountDropdown) accountDropdown.style.display = 'none';
     }
   });
 
