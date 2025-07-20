@@ -134,15 +134,89 @@ document.addEventListener('DOMContentLoaded', async function() {
     // =================================================================
     if (sliderContainer) {
         const bannerFiles = ['banner_1_powerful.html', 'banner_2_final.html', 'banner_3_unique.html', 'banner_4_flashsale.html'];
-        async function loadBanners() { /* ... Unchanged banner loading logic ... */ }
-        function initializeSlider() { /* ... Unchanged slider initialization logic ... */ }
+        async function loadBanners() {
+            for (const file of bannerFiles) {
+                try {
+                    const response = await fetch(file);
+                    if (!response.ok) throw new Error(`Could not fetch ${file}`);
+                    const bannerHTML = await response.text();
+                    const slide = document.createElement('div');
+                    slide.className = 'slider-slide';
+                    slide.innerHTML = bannerHTML;
+                    sliderContainer.appendChild(slide);
+                } catch (error) { console.error('Error loading banner:', error); }
+            }
+            initializeSlider();
+        }
+        function initializeSlider() {
+            const slides = document.querySelectorAll('.slider-slide');
+            const nextBtn = document.querySelector('.slider-nav.next');
+            const prevBtn = document.querySelector('.slider-nav.prev');
+            let currentSlide = 0;
+            if (slides.length === 0) return;
+            slides[0].classList.add('active');
+            const showSlide = (index) => slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+            const nextSlide = () => { currentSlide = (currentSlide + 1) % slides.length; showSlide(currentSlide); };
+            const prevSlide = () => { currentSlide = (currentSlide - 1 + slides.length) % slides.length; showSlide(currentSlide); };
+            let slideInterval = setInterval(nextSlide, 8000);
+            const startSlider = () => { clearInterval(slideInterval); slideInterval = setInterval(nextSlide, 8000); };
+            nextBtn.addEventListener('click', () => { nextSlide(); startSlider(); });
+            prevBtn.addEventListener('click', () => { prevSlide(); startSlider(); });
+        }
         loadBanners();
     }
-    const observer = new MutationObserver((mutationsList) => { /* ... Unchanged observer logic ... */ });
-    if (sliderContainer) { observer.observe(sliderContainer, { childList: true, subtree: true }); }
-    function initializeCountdown(timerElement) { /* ... Unchanged banner countdown logic ... */ }
-    function initializeParallax(bannerElement) { /* ... Unchanged parallax logic ... */ }
-    
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                const countdownTimer = document.getElementById("countdown-timer");
+                if (countdownTimer && !countdownTimer.hasAttribute('data-initialized')) {
+                    initializeCountdown(countdownTimer);
+                    countdownTimer.setAttribute('data-initialized', 'true');
+                }
+                const uniqueBanner = document.querySelector('.unique-banner');
+                if (uniqueBanner && !uniqueBanner.hasAttribute('data-initialized')) {
+                    initializeParallax(uniqueBanner);
+                    uniqueBanner.setAttribute('data-initialized', 'true');
+                }
+            }
+        }
+    });
+    if (sliderContainer) {
+        observer.observe(sliderContainer, { childList: true, subtree: true });
+    }
+    function initializeCountdown(timerElement) {
+        const countDownDate = new Date().getTime() + (24 * 60 * 60 * 1000);
+        const timer = setInterval(() => {
+            const distance = countDownDate - new Date().getTime();
+            if (distance < 0) {
+                clearInterval(timer);
+                timerElement.innerHTML = "<h2>SALE EXPIRED</h2>";
+                return;
+            }
+            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById("days").innerText = d.toString().padStart(2, '0');
+            document.getElementById("hours").innerText = h.toString().padStart(2, '0');
+            document.getElementById("minutes").innerText = m.toString().padStart(2, '0');
+            document.getElementById("seconds").innerText = s.toString().padStart(2, '0');
+        }, 1000);
+    }
+    function initializeParallax(bannerElement) {
+        bannerElement.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            const { left, top, width, height } = bannerElement.getBoundingClientRect();
+            const x = (clientX - left - width / 2) / 25;
+            const y = (clientY - top - height / 2) / 25;
+            const visuals = bannerElement.querySelectorAll('.visual-element');
+            visuals.forEach(el => {
+                const depth = parseFloat(el.getAttribute('data-depth')) || 0.2;
+                el.style.transform = `translateX(${x * depth}px) translateY(${y * depth}px)`;
+            });
+        });
+    }
+
     // =================================================================
     // SECTION 3: FLASH SALE CAROUSEL LOGIC
     // =================================================================
