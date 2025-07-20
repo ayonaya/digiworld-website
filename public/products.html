@@ -1,239 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DigiWorld - Product Details</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    :root {
-      --primary: #f57224; --primary-dark: #d45703; --accent: #fe724c;
-      --card-bg: #fff; --bg: #f6f6fa; --radius: 18px;
-      --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
-      --text-color: #333; --text-light: #666;
-    }
-    body { background: var(--bg); font-family: 'Nunito Sans', sans-serif; margin: 0; color: var(--text-color); }
-    /* Header, Cart, Footer styles are identical to index.html */
-    .site-header { background: linear-gradient(90deg, #fd7e1a, #ff3a5e); color: #fff; box-shadow: 0 2px 16px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; padding: 10px 16px; }
-    .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-    .logo-pro { font-size: 1.8rem; font-weight: 900; color: #fff; text-decoration: none; }
-    .main-nav { display: flex; gap: 15px; }
-    .nav-link-pro { font-size: 1rem; padding: 7px 15px; color: #fff; border-radius: 9px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
-    .nav-link-pro.active, .nav-link-pro:hover { background: rgba(255,255,255,0.2); }
-    .header-actions { display: flex; align-items: center; gap: 15px; }
-    .cart-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; position: relative; }
-    .cart-icon-badge { position: absolute; top: -5px; right: -10px; background: var(--accent); color: white; border-radius: 50%; font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
-    .mini-cart-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1010; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
-    .mini-cart-overlay.active { opacity: 1; visibility: visible; }
-    .mini-cart-drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 380px; height: 100%; background: white; z-index: 1011; transition: right 0.4s; display: flex; flex-direction: column; }
-    .mini-cart-overlay.active .mini-cart-drawer { right: 0; }
-    .mini-cart-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-    .mini-cart-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
-    .mini-cart-items { flex-grow: 1; overflow-y: auto; padding: 15px; }
-    .mini-cart-footer { padding: 15px; border-top: 1px solid #eee; }
-    .mini-cart-total { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; }
-    .mini-cart-checkout { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; }
-    .site-footer { background: #222; color: #ccc; padding: 40px 20px; margin-top: 60px; }
-    .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; }
-    .footer-col h3 { color: white; }
-    .footer-col ul { list-style: none; padding: 0; }
-    .footer-col a { color: #ccc; text-decoration: none; }
-    .footer-bottom { text-align: center; margin-top: 30px; border-top: 1px solid #444; padding-top: 20px; }
-    .dw-bottom-nav { display: none; }
-    @media (max-width: 768px) { .main-nav { display: none; } .dw-bottom-nav { display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; left: 0; width: 100%; height: 55px; background: white; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); z-index: 1000; } .dw-bottom-nav a, .dw-bottom-nav button { background: none; border: none; color: var(--text-light); display: flex; flex-direction: column; align-items: center; text-decoration: none; font-size: 0.8rem; } .dw-bottom-nav .fas { font-size: 1.4rem; } }
-    /* Page Specific Styles */
-    .container { max-width: 1100px; margin: 30px auto; padding: 0 16px; }
-    .back-link { font-size: 1rem; font-weight: 700; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
-    .product-details-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; background: var(--card-bg); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); }
-    .product-image-container img { width: 100%; border-radius: var(--radius); }
-    .product-title { font-size: 2.2rem; font-weight: 900; color: var(--primary-dark); margin: 0 0 15px 0; }
-    .product-price { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin-bottom: 20px; }
-    .product-description { font-size: 1rem; line-height: 1.7; color: #555; margin-bottom: 30px; }
-    .product-actions { display: flex; gap: 15px; }
-    .action-button { flex-grow: 1; padding: 15px 20px; font-size: 1.1rem; font-weight: 700; border-radius: 12px; border: none; cursor: pointer; text-align: center; text-decoration: none; color: white; }
-    .add-to-cart { background: var(--primary-dark); }
-    .buy-now { background: var(--accent); }
-    .product-info-tabs { margin-top: 30px; background: var(--card-bg); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow); }
-    .tab-buttons { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
-    .tab-button { padding: 15px 25px; cursor: pointer; background: none; border: none; font-size: 1.1rem; font-weight: 700; color: #888; position: relative; }
-    .tab-button.active { color: var(--primary-dark); }
-    .tab-button.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 3px; background: var(--primary); }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .tab-content ul, .tab-content ol { line-height: 1.8; padding-left: 20px; }
-    @media (max-width: 768px) { .product-details-grid { grid-template-columns: 1fr; } }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All Products - DigiWorld</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="header-container">
-        <a href="index.html" class="logo-pro">DigiWorld</a>
-        <nav class="main-nav">
-            <a href="index.html" class="nav-link-pro">Home</a>
-            <a href="index.html#products" class="nav-link-pro">Products</a>
-        </nav>
-        <div class="header-actions">
-            <button class="cart-btn" id="cartBtn">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-icon-badge" id="cartCount">0</span>
-            </button>
+<header class="site-header">
+  <div class="header-main-pro header-desktop">
+    <a href="index.html" class="logo-pro" style="text-decoration: none;">DigiWorld</a>
+    <nav>
+      <a href="index.html" class="nav-link-pro">Home</a>
+      <a href="products.html" class="nav-link-pro active">Products</a>
+      <a href="contact.html" class="nav-link-pro">Contact</a>
+    </nav>
+    <div class="header-controls">
+        <div class="lang-currency-wrap">
+          <div class="lang-currency-switcher">
+            <div class="dropdown" id="langDropdown">
+              <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                <span class="flag" id="currentLangFlag">🇺🇸</span>
+                <span id="currentLangLabel">English</span>
+                <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
+              </button>
+              <div class="dropdown-menu" id="langMenu">
+                <div class="dropdown-item" data-lang="en">🇺🇸 English</div>
+                <div class="dropdown-item" data-lang="si">🇱🇰 සිංහල</div>
+                <div class="dropdown-item" data-lang="ta">🇮🇳 தமிழ்</div>
+                <div class="dropdown-item" data-lang="ru">🇷🇺 Русский</div>
+                <div class="dropdown-item" data-lang="zh">🇨� 中文</div>
+                <div class="dropdown-item" data-lang="es">🇪🇸 Español</div>
+              </div>
+            </div>
+            <div class="dropdown" id="currencyDropdown">
+              <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+                <span id="currentCurrSymbol">$</span><span id="currentCurrLabel">USD</span>
+                <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
+              </button>
+              <div class="dropdown-menu" id="currencyMenu">
+                <div class="dropdown-item" data-curr="USD">$ USD</div>
+                <div class="dropdown-item" data-curr="LKR">🇱🇰 LKR</div>
+                <div class="dropdown-item" data-curr="INR">₹ INR</div>
+                <div class="dropdown-item" data-curr="EUR">€ EUR</div>
+                <div class="dropdown-item" data-curr="GBP">£ GBP</div>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Products</a>
-    <div id="product-details-container"></div>
-    <div class="product-info-tabs">
-        <div class="tab-buttons">
-            <button class="tab-button active" data-tab="features">Features</button>
-            <button class="tab-button" data-tab="requirements">Requirements</button>
-            <button class="tab-button" data-tab="activation">Activation</button>
+        <button id="loginBtn" class="auth-btn" style="display:none;">Login</button>
+        <button id="signupBtn" class="auth-btn" style="display:none;">Signup</button>
+        <div class="account-dropdown" style="display:none; position: relative;">
+          <button id="accountBtn" aria-haspopup="true" aria-expanded="false" class="account-btn" aria-label="User Account">
+            Account
+            <svg width="12" height="7" style="margin-left:4px;" viewBox="0 0 12 7" fill="none" stroke="#fe724c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 1l5 5 5-5" />
+            </svg>
+          </button>
+          <div id="accountMenu" class="account-menu" style="display:none;"></div>
         </div>
-        <div id="features" class="tab-content active"></div>
-        <div id="requirements" class="tab-content"></div>
-        <div id="activation" class="tab-content"></div>
-    </div>
-  </main>
-  
-  <div class="mini-cart-overlay" id="miniCartOverlay">
-    <div class="mini-cart-drawer">
-      <div class="mini-cart-header">
-        <h3>Your Cart</h3>
-        <button class="mini-cart-close" id="miniCartClose">&times;</button>
-      </div>
-      <div class="mini-cart-items" id="miniCartItems"></div>
-      <div class="mini-cart-footer">
-        <div class="mini-cart-total" id="miniCartTotal"></div>
-        <button class="mini-cart-checkout" onclick="window.location.href='checkout.html'">Checkout</button>
-      </div>
+        <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Cart</span>
+          <span class="cart-icon-badge" id="cartCount">0</span>
+        </button>
     </div>
   </div>
+</header>
 
-  <nav class="dw-bottom-nav">
-    <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
-    <a href="index.html#products"><i class="fas fa-th-large"></i><span>Products</span></a>
-    <button id="mobileCartBtn"><i class="fas fa-shopping-cart"></i><span>Cart</span></button>
-    <a href="profile.html"><i class="fas fa-user"></i><span>Account</span></a>
-  </nav>
+<main>
+  <section class="main-section" aria-label="All products">
+    <h1 style="font-size: 2.5rem; text-align: center; color: var(--primary-dark);">All Products</h1>
+    <div class="product-controls">
+      <div class="control-group">
+        <label for="categoryFilter">Category:</label>
+        <select id="categoryFilter">
+          <option value="all">All Products</option>
+          <option value="Office">Office</option>
+          <option value="Windows">Windows</option>
+          <option value="Development">Development Tools</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="sortProducts">Sort by:</label>
+        <select id="sortProducts">
+          <option value="default">Default</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name-asc">Name: A to Z</option>
+          <option value="name-desc">Name: Z to A</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="product-grid" id="productGrid">
+        <!-- Products will be loaded here by JavaScript -->
+    </div>
+  </section>
+</main>
 
-  <script type="module">
-    // Remove the direct import: import { products } from './products.js';
+<div class="mini-cart-overlay" id="miniCartOverlay"></div>
+<div class="mini-cart-drawer" id="miniCartDrawer">
+  <div class="mini-cart-header">
+    <span id="miniCartTitle">Your Cart</span>
+    <button class="mini-cart-close" id="miniCartClose">&times;</button>
+  </div>
+  <div class="mini-cart-items" id="miniCartItems"></div>
+  <div class="mini-cart-footer">
+    <div class="mini-cart-total" id="miniCartTotal"></div>
+    <button class="mini-cart-checkout" onclick="window.location.href='cart.html'">Go to Cart</button>
+  </div>
+</div>
 
-    let products = []; // Declare products globally but initialize as empty
+<footer class="site-footer">
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h3>Customer Care</h3>
+            <ul>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">How to Buy</a></li>
+                <li><a href="#">Refund Policy</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3>About DigiWorld</h3>
+            <ul>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+                <li><a href="#">Terms & Conditions</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3>We Accept</h3>
+            <div class="payment-methods-logos">
+                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards">
+                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto">
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        &copy; 2025 DigiWorld. All rights reserved.
+    </div>
+</footer>
 
-    document.addEventListener('DOMContentLoaded', async () => { // Add async here
-        const detailsContainer = document.getElementById('product-details-container');
-        let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
-        let currentCurrency = 'USD';
-        const currencySymbols = { USD: '$', LKR: 'Rs' };
+<!-- Firebase SDKs for authentication -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+  // This inline script handles the immediate visibility of the login/account buttons
+  const firebaseConfig = {
+    apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
+    authDomain: "digiworld-46a1e.firebaseapp.com",
+    projectId: "digiworld-46a1e",
+    storageBucket: "digiworld-46a1e.appspot.com",
+    messagingSenderId: "242235397710",
+    appId: "1:242235397710:web:a80c15cc285188610cd51f",
+    measurementId: "G-R8C4BWHXBL"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const loginBtn = document.getElementById('loginBtn');
+  const signupBtn = document.getElementById('signupBtn');
+  const accountDropdown = document.querySelector('.account-dropdown');
+  const accountBtn = document.getElementById('accountBtn');
+  const accountMenu = document.getElementById('accountMenu');
 
-        // Fetch products from Netlify function
-        try {
-            const response = await fetch('/.netlify/functions/get-products');
-            const data = await response.json();
-            if (data.success) {
-                products = data.products; // Assign fetched products to the global variable
-                console.log('Products loaded from Firestore:', products);
-            } else {
-                console.error('Failed to fetch products:', data.message);
-                detailsContainer.innerHTML = `<p>Failed to load products. ${data.message}</p>`;
-                return; // Stop execution if products can't be loaded
-            }
-        } catch (error) {
-            console.error('Error fetching products:', error);
-            detailsContainer.innerHTML = `<p>Error connecting to product server. Please try again later.</p>`;
-            return; // Stop execution on network error
-        }
+  function renderLoggedInMenu() {
+    accountMenu.innerHTML = `<a href="profile.html">Profile</a><a href="orders.html">Orders</a><a href="downloads.html">Downloads</a><button id="logoutBtn">Logout</button>`;
+    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+  }
 
-        // Cart functions (same as index.html)
-        const cartBtn = document.getElementById('cartBtn');
-        const mobileCartBtn = document.getElementById('mobileCartBtn');
-        const miniCartOverlay = document.getElementById('miniCartOverlay');
-        const miniCartClose = document.getElementById('miniCartClose');
-        const cartCountBadge = document.getElementById('cartCount');
-        
-        function updateCartUI() {
-            const count = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
-            cartCountBadge.textContent = count;
-        }
-        function saveCart() {
-            localStorage.setItem('digiworldCart', JSON.stringify(cart));
-            updateCartUI();
-        }
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (!product) {
-                console.error('Product not found for addToCart:', productId);
-                return;
-            }
-            if (cart[productId]) {
-                cart[productId].quantity++;
-            } else {
-                cart[productId] = { id: product.id, name: product.name.en, image: product.image, quantity: 1 };
-            }
-            saveCart();
-        }
-        cartBtn.addEventListener('click', () => miniCartOverlay.classList.add('active'));
-        mobileCartBtn.addEventListener('click', () => miniCartOverlay.classList.add('active'));
-        miniCartClose.addEventListener('click', () => miniCartOverlay.classList.remove('active'));
-        miniCartOverlay.addEventListener('click', (e) => {
-            if (e.target === miniCartOverlay) miniCartOverlay.classList.remove('active');
-        });
+  accountBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
+  });
+  document.addEventListener('click', () => { accountMenu.style.display = 'none'; });
 
-        // Page specific logic
-        const params = new URLSearchParams(window.location.search);
-        const productId = params.get('id');
-        const product = products.find(p => p.id === productId);
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      loginBtn.style.display = 'none';
+      signupBtn.style.display = 'none';
+      accountDropdown.style.display = 'inline-block';
+      renderLoggedInMenu();
+    } else {
+      loginBtn.style.display = 'inline-block';
+      signupBtn.style.display = 'inline-block';
+      accountDropdown.style.display = 'none';
+    }
+  });
 
-        if (product) {
-            const currencySymbol = currencySymbols[currentCurrency] || '$';
-            const price = (product.price[currentCurrency] || product.price.USD).toFixed(2);
-            document.title = `DigiWorld - ${product.name.en}`;
-            
-            detailsContainer.innerHTML = `
-                <div class="product-details-grid">
-                    <div class="product-image-container"><img src="${product.image}" alt="${product.name.en}"></div>
-                    <div class="product-info">
-                        <h1 class="product-title">${product.name.en}</h1>
-                        <p class="product-price">${currencySymbol}${price}</p>
-                        <div class="product-description">${product.desc.en}</div>
-                        <div class="product-actions">
-                            <button class="action-button add-to-cart" data-id="${product.id}">Add to Cart</button>
-                            <a href="checkout.html?product=${product.id}" class="action-button buy-now">Buy Now</a>
-                        </div>
-                    </div>
-                </div>`;
-            
-            document.getElementById('features').innerHTML = `<ul>${product.features.en.map(f => `<li>${f}</li>`).join('')}</ul>`;
-            document.getElementById('requirements').innerHTML = `<ul>${product.requirements.en.map(r => `<li>${r}</li>`).join('')}</ul>`;
-            document.getElementById('activation').innerHTML = `<ol>${product.activation.en.map(a => `<li>${a}</li>`).join('')}</ol>`;
+  if (loginBtn) loginBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
+  if (signupBtn) signupBtn.addEventListener('click', () => { window.location.href = 'signup.html'; });
+</script>
 
-        } else {
-            detailsContainer.innerHTML = `<p>Product not found.</p>`;
-        }
+<script src="main.js" type="module" defer></script>
 
-        document.body.addEventListener('click', (e) => {
-            if (e.target.classList.contains('add-to-cart')) {
-                addToCart(e.target.dataset.id);
-            }
-        });
-
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                    if(content.id === button.dataset.tab) content.classList.add('active');
-                });
-            });
-        });
-
-        updateCartUI();
-    });
-  </script>
 </body>
 </html>

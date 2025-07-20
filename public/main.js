@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
             const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
             const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
+            
+            // =================================================================
+            // RESTORED your preferred button design
+            // =================================================================
             return `
                 <div class="product-card" data-product-id="${prod.id}">
                     ${hotBadgeHTML}
@@ -49,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                         <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
                         <div class="card-buttons">
                             <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                            <a href="checkout.html" class="card-btn buy-now" data-id="${prod.id}">Buy Now</a>
+                            <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
                         </div>
                     </div>
                 </div>
@@ -124,6 +128,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     function handleSearch(inputElement, suggestionsElement) {
+        if (!suggestionsElement) return;
         const val = inputElement.value.trim().toLowerCase();
         if (val.length < 1) {
             suggestionsElement.style.display = 'none';
@@ -143,16 +148,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     function showSlide(i) {
+        if (!slides.length || !controls) return;
         slides.forEach((slide, idx) => slide.classList.toggle('active', idx === i));
         Array.from(controls.children).forEach((dot, idx) => dot.classList.toggle('active', idx === i));
         currentSlide = i;
     }
 
-    function nextSlide() { showSlide((currentSlide + 1) % slides.length); }
+    function nextSlide() { if(slides.length > 0) showSlide((currentSlide + 1) % slides.length); }
     function resetSlideTimer() { clearInterval(slideTimer); if (slides.length > 1) slideTimer = setInterval(nextSlide, 5200); }
     function closeDropdowns() { document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open')); }
     function toggleDropdown(id) {
         const dropdown = document.getElementById(id);
+        if (!dropdown) return;
         const wasOpen = dropdown.classList.contains('open');
         closeDropdowns();
         if (!wasOpen) dropdown.classList.add('open');
@@ -167,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         allProducts = data.products;
         
         renderProducts(allProducts);
-        initializeCart(allProducts); // Initialize the cart manager with product data
+        initializeCart(allProducts);
     } catch (error) {
         console.error("Error fetching products:", error);
         if (productGrid) productGrid.innerHTML = `<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load products.</p>`;
@@ -185,15 +192,12 @@ document.addEventListener('DOMContentLoaded', async function() {
             animateImageToCart(e);
         }
         if (target.closest('.buy-now')) {
-            e.preventDefault();
             const prodId = target.closest('.buy-now').dataset.id;
-            // Add to cart and redirect to checkout
             addToCart(prodId);
             window.location.href = `checkout.html`;
         }
     });
 
-    // Language and Currency Dropdowns
     document.querySelectorAll('#langMenu .dropdown-item').forEach(el => {
         el.onclick = () => {
             currentLang = el.getAttribute('data-lang');
@@ -227,7 +231,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     document.body.addEventListener('click', closeDropdowns);
     
-    // Search Functionality
     if (searchInputDesktop) searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
     if (searchInputMobile) searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile));
     
@@ -236,7 +239,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
     });
 
-    // Banner Slider
     if (slides.length > 0 && controls) {
         slides.forEach((_, idx) => {
             const dot = document.createElement('div');
@@ -244,11 +246,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             dot.onclick = () => { showSlide(idx); resetSlideTimer(); }
             controls.appendChild(dot);
         });
-        showSlide(0); // Show the first slide initially
+        showSlide(0);
         resetSlideTimer();
     }
     
-    // Back to Top Button
     if(backBtn) backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
     window.addEventListener('scroll', () => {
         if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
