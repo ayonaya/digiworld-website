@@ -9,6 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 </head>
 <body>
 
@@ -34,7 +37,7 @@
                 <div class="dropdown-item" data-lang="si">🇱🇰 සිංහල</div>
                 <div class="dropdown-item" data-lang="ta">🇮🇳 தமிழ்</div>
                 <div class="dropdown-item" data-lang="ru">🇷🇺 Русский</div>
-                <div class="dropdown-item" data-lang="zh">🇨� 中文</div>
+                <div class="dropdown-item" data-lang="zh">🇨🇳 中文</div>
                 <div class="dropdown-item" data-lang="es">🇪🇸 Español</div>
               </div>
             </div>
@@ -75,7 +78,7 @@
 
 <main>
   <section class="main-section" aria-label="All products">
-    <h1 style="font-size: 2.5rem; text-align: center; color: var(--primary-dark);">All Products</h1>
+    <h1 style="font-size: 2.5rem; text-align: center; color: var(--primary-dark); margin-bottom: 30px;">All Products</h1>
     <div class="product-controls">
       <div class="control-group">
         <label for="categoryFilter">Category:</label>
@@ -99,8 +102,7 @@
     </div>
     
     <div class="product-grid" id="productGrid">
-        <!-- Products will be loaded here by JavaScript -->
-    </div>
+        </div>
   </section>
 </main>
 
@@ -148,7 +150,6 @@
     </div>
 </footer>
 
-<!-- Firebase SDKs for authentication -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
@@ -179,18 +180,18 @@
     e.stopPropagation();
     accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
   });
-  document.addEventListener('click', () => { accountMenu.style.display = 'none'; });
+  document.addEventListener('click', () => { if(accountMenu) accountMenu.style.display = 'none'; });
 
   auth.onAuthStateChanged(user => {
     if (user) {
-      loginBtn.style.display = 'none';
-      signupBtn.style.display = 'none';
-      accountDropdown.style.display = 'inline-block';
+      if(loginBtn) loginBtn.style.display = 'none';
+      if(signupBtn) signupBtn.style.display = 'none';
+      if(accountDropdown) accountDropdown.style.display = 'inline-block';
       renderLoggedInMenu();
     } else {
-      loginBtn.style.display = 'inline-block';
-      signupBtn.style.display = 'inline-block';
-      accountDropdown.style.display = 'none';
+      if(loginBtn) loginBtn.style.display = 'inline-block';
+      if(signupBtn) signupBtn.style.display = 'inline-block';
+      if(accountDropdown) accountDropdown.style.display = 'none';
     }
   });
 

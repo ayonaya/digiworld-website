@@ -14,24 +14,27 @@ exports.handler = async (event, context) => {
       return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Incorrect password.' }) };
     }
 
-    // Fetch all necessary data in parallel for better performance
     const [
       inventorySnapshot,
       reviewsSnapshot,
       ordersSnapshot,
-      productsSnapshot // ✨ NEW: Fetching products
+      productsSnapshot
     ] = await Promise.all([
-      db.collection('keys').get(),
-      db.collection('reviews').where('status', '==', 'pending').get(),
+      // CORRECTED: Query the 'digital_keys' collection
+      db.collection('digital_keys').where('status', '==', 'available').get(),
+      // CORRECTED: Query for reviews where 'isApproved' is false
+      db.collection('reviews').where('isApproved', '==', false).get(),
       db.collection('orders').orderBy('createdAt', 'desc').limit(20).get(),
-      db.collection('products').orderBy('name.en').get() // ✨ NEW: Fetching the products collection
+      db.collection('products').orderBy('name.en').get()
     ]);
 
-    // Process inventory
+    // Process inventory by counting keys for each product ID
     const inventory = {};
     inventorySnapshot.forEach(doc => {
       const data = doc.data();
-      inventory[doc.id] = data.keys ? data.keys.length : 0;
+      if (data.productId) {
+        inventory[data.productId] = (inventory[data.productId] || 0) + 1;
+      }
     });
 
     // Process pending reviews
@@ -40,7 +43,7 @@ exports.handler = async (event, context) => {
     // Process recent orders
     const orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
-    // ✨ NEW: Process the fetched products
+    // Process the fetched products
     const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     return {
@@ -51,7 +54,7 @@ exports.handler = async (event, context) => {
           inventory,
           pendingReviews,
           orders,
-          products // ✨ NEW: Including the products in the data response
+          products
         }
       }),
     };

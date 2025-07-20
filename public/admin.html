@@ -155,7 +155,10 @@
             const password = sessionStorage.getItem('adminPassword');
             if (!password) throw new Error('Session expired. Please log in again.');
             
-            const response = await fetch(`/.netlify/functions/${endpoint}`, {
+            // =================================================================
+            // CRITICAL FIX: Using the /api/ path prefix
+            // =================================================================
+            const response = await fetch(`/api/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ adminPassword: password, ...body })

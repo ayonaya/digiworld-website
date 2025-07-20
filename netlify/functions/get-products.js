@@ -22,7 +22,7 @@ exports.handler = async (event, context) => {
     // Otherwise, fetch all products
     else {
       const snapshot = await productsRef.orderBy('name.en').get();
-      const products = snapshot.docs.map(doc => doc.data());
+      const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
