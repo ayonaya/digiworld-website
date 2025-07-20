@@ -3348,164 +3348,89 @@
 .slider-nav.prev { left: 16px; }
 .slider-nav.next { right: 16px; }
 /* =================================================================== */
-/* ===================== FINAL FLASH SALE STYLES ===================== */
+/* ============== NEW: FLASH SALE CAROUSEL STYLES ================== */
 /* =================================================================== */
 
-.flash-sale-section .section-title {
-    color: var(--badge-red);
+.flash-sale-section {
+    /* Ensures the carousel can overflow its container without being cut off */
+    overflow: hidden;
+}
+
+.flash-sale-carousel-wrapper {
+    position: relative;
+    width: 100%;
+    padding: 0 50px; /* Space for the navigation arrows */
+    box-sizing: border-box;
+}
+
+.flash-sale-carousel {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.flash-sale-card {
-    border: 2px solid var(--primary);
-    box-shadow: 0 8px 30px rgba(245, 114, 36, 0.2);
-    opacity: 0;
-    animation: flash-sale-pop-in 0.5s ease-out forwards;
-    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
-}
-
-.flash-sale-card.exiting {
-    opacity: 0;
-    transform: translateX(-20px);
-}
-
-.flash-sale-card:nth-child(1) { animation-delay: 0.1s; }
-.flash-sale-card:nth-child(2) { animation-delay: 0.2s; }
-.flash-sale-card:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes flash-sale-pop-in {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.flash-sale-card .price-container {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.flash-sale-card .sale-price {
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: var(--primary);
-    margin: 0;
-}
-
-.flash-sale-card .original-price {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #888;
-    margin: 0;
-}
-
-/* Countdown Timer Styles */
-.countdown-timer-container {
-    display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 25px;
+    height: 500px; /* Adjust height as needed */
+    position: relative;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.timer-unit {
-    text-align: center;
-    background: #fff7f5;
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: 1px solid #fee0d1;
-    min-width: 60px;
+.flash-sale-carousel .product-card {
+    position: absolute;
+    width: 300px; /* Fixed width for each card */
+    transition: transform 0.5s ease, opacity 0.5s ease, z-index 0.5s;
+    opacity: 0.5;
+    z-index: 1;
 }
 
-.timer-unit .number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-dark);
-    display: block;
-    line-height: 1;
-    animation: pulse-number 1s infinite alternate;
+/* Style for the card in the center (active) */
+.flash-sale-carousel .fs-slide-center {
+    transform: translateX(0) scale(1.1);
+    opacity: 1;
+    z-index: 3;
+    border: 2px solid var(--primary);
+    box-shadow: 0 10px 40px rgba(245, 114, 36, 0.3);
 }
 
-.timer-unit .label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #888;
-    text-transform: uppercase;
+/* Styles for the cards to the left and right */
+.flash-sale-carousel .fs-slide-left {
+    transform: translateX(-60%) scale(0.8);
+    z-index: 2;
 }
 
-.timer-separator {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary);
-    transform: translateY(-5px);
-    animation: blink-separator 2s infinite;
+.flash-sale-carousel .fs-slide-right {
+    transform: translateX(60%) scale(0.8);
+    z-index: 2;
 }
 
-@keyframes pulse-number {
-    from { transform: scale(1); }
-    to { transform: scale(1.05); }
+/* Styles for the cards that are hidden */
+.flash-sale-carousel .fs-slide-far-left {
+    transform: translateX(-120%) scale(0.6);
+    opacity: 0;
+    z-index: 1;
 }
 
-@keyframes blink-separator {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-/* =================================================================== */
-/* ============= FINAL BANNER RESPONSIVE OVERRIDE ==================== */
-/* =================================================================== */
-
-/* Force all banner parent sections to be flexible containers */
-.unique-banner, .powerful-banner, .glass-banner, .flash-sale-banner {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    padding: 1.5rem !important;
+.flash-sale-carousel .fs-slide-far-right {
+    transform: translateX(120%) scale(0.6);
+    opacity: 0;
+    z-index: 1;
 }
 
-/* Force the main content containers to be flexible and wrap */
-.banner-content-layer, .left-content, .glass-panel, .flash-sale-content {
-    width: 100% !important;
-    flex-basis: auto !important;
-    padding: 0 !important;
+/* Carousel Navigation Buttons */
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
 }
-
-/* Ensure two-column glass banner stacks properly */
-.glass-panel {
-    flex-direction: column !important;
-    gap: 1.5rem;
+.carousel-nav:hover {
+    background-color: #fff;
+    transform: translateY(-50%) scale(1.1);
 }
-
-/* Hide decorative elements that cause overflow on small screens */
-.visuals-layer, .right-visual {
-    display: none !important;
-}
-
-/* Restore two-column layout and visuals ONLY on large screens */
-@media (min-width: 992px) {
-    .unique-banner, .powerful-banner {
-        flex-direction: row !important;
-        text-align: left !important;
-    }
-
-    .glass-panel {
-        flex-direction: row !important;
-    }
-
-    .visuals-layer, .right-visual {
-        display: block !important;
-    }
-
-    .banner-content-layer, .left-content {
-        flex-basis: 50% !important;
-    }
-}
+.carousel-nav.prev { left: 0; }
+.carousel-nav.next { right: 0; }
