@@ -1,11 +1,11 @@
-// Final, Combined, and Fully Commented main.js for DigiWorld
+// Final, Combined, and Fully Corrected main.js for DigiWorld
 import { initializeCart, addToCart, renderMiniCart } from './cart-manager.js';
 
 // This is the main wrapper that ensures all HTML is loaded before running any code.
 document.addEventListener('DOMContentLoaded', async function() {
 
     // =================================================================
-    // SECTION 1: E-COMMERCE & CORE UI LOGIC (From your first script)
+    // SECTION 1: E-COMMERCE & CORE UI LOGIC
     // =================================================================
 
     // --- DOM Elements ---
@@ -73,7 +73,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         productGrid.innerHTML = list.map((prod) => {
             const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
             const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
+            // THIS LINE IS NOW CORRECTLY ADDED BACK:
+            const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
             const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
+            
             return `
                 <div class="product-card" data-product-id="${prod.id}">
                     ${hotBadgeHTML}
@@ -82,6 +85,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     </div>
                     <div class="card-content-wrapper">
                         <h3 class="product-name">${name}</h3>
+                        <div class="tag-delivery">${deliveryText}</div>
                         <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
                         <div class="card-buttons">
                             <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
@@ -109,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderProducts(filteredProducts);
     }
 
-    // --- Data Fetching & Initialization ---
+    // --- DATA FETCHING & INITIALIZATION ---
     if (productGrid) {
         showSkeletonLoaders();
         try {
@@ -125,17 +129,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
         }
     } else {
-        // Still initialize the cart for pages that don't show products (like the homepage)
-        initializeCart([]);
+        initializeCart([]); // Initialize cart for other pages
     }
 
-    // --- Global Event Listeners ---
+    // --- GLOBAL EVENT LISTENERS ---
     document.body.addEventListener('click', function(e) {
-        if (e.target.closest('.add-to-cart')) {
-            addToCart(e.target.closest('.add-to-cart').dataset.id);
+        const target = e.target;
+        if (target.closest('.add-to-cart')) {
+            addToCart(target.closest('.add-to-cart').dataset.id);
         }
-        if (e.target.closest('.buy-now')) {
-            addToCart(e.target.closest('.buy-now').dataset.id);
+        if (target.closest('.buy-now')) {
+            addToCart(target.closest('.buy-now').dataset.id);
             window.location.href = 'checkout.html';
         }
     });
@@ -143,26 +147,25 @@ document.addEventListener('DOMContentLoaded', async function() {
     if(backBtn) {
         backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
         window.addEventListener('scroll', () => {
-             if (backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
+             backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
         });
     }
 
+
     // =================================================================
-    // SECTION 2: ADVANCED BANNER SLIDER LOGIC (From your second script)
+    // SECTION 2: ADVANCED BANNER SLIDER LOGIC
     // =================================================================
 
     const sliderContainer = document.getElementById('hero-slider');
 
-    // Only run banner code if the hero-slider element exists on the page
-// Replace the old code with this correct version
-if (sliderContainer) {
-    const bannerFiles = [
-        'banner_1_powerful.html',
-        'banner_2_final.html',
-        'banner_3_unique.html',
-        'banner_4_flashsale.html'
-    ];
-        // This function fetches your banner HTML files and injects them into the slider
+    if (sliderContainer) {
+        const bannerFiles = [
+            'banner_1_powerful.html',
+            'banner_2_final.html',
+            'banner_3_unique.html',
+            'banner_4_flashsale.html'
+        ];
+
         async function loadBanners() {
             for (const file of bannerFiles) {
                 try {
@@ -177,11 +180,9 @@ if (sliderContainer) {
                     console.error('Error loading banner:', error);
                 }
             }
-            // After loading is done, start the slider functionality
             initializeSlider();
         }
 
-        // This function controls the sliding behavior (next/prev buttons, autoplay)
         function initializeSlider() {
             const slides = document.querySelectorAll('.slider-slide');
             const nextBtn = document.querySelector('.slider-nav.next');
@@ -189,8 +190,8 @@ if (sliderContainer) {
             let currentSlide = 0;
             let slideInterval;
             
-            if (slides.length === 0) return; // Exit if no slides loaded
-            slides[0].classList.add('active'); // Make the first slide visible
+            if (slides.length === 0) return;
+            slides[0].classList.add('active');
 
             function showSlide(index) {
                 slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
@@ -204,62 +205,54 @@ if (sliderContainer) {
                 showSlide(currentSlide);
             }
             function startSlider() {
-                slideInterval = setInterval(nextSlide, 8000); // Autoplay every 8 seconds
+                slideInterval = setInterval(nextSlide, 8000);
             }
             function stopSlider() {
                 clearInterval(slideInterval);
             }
 
-            // Add event listeners to buttons
             nextBtn.addEventListener('click', () => { stopSlider(); nextSlide(); startSlider(); });
             prevBtn.addEventListener('click', () => { stopSlider(); prevSlide(); startSlider(); });
-            startSlider(); // Start autoplay
+            startSlider();
         }
         
-        loadBanners(); // This is the first call that starts the banner process
+        loadBanners();
     }
 
-    // --- Observer for Banner-Specific JS (Countdown & Parallax) ---
-    // This clever part waits for the banners to be loaded onto the page, and only THEN
-    // tries to find elements like the countdown timer or parallax visuals.
+    // --- OBSERVER FOR BANNER-SPECIFIC JS (Countdown, Parallax) ---
     const observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
                 const countdownTimer = document.getElementById("countdown-timer");
                 if (countdownTimer && !countdownTimer.hasAttribute('data-initialized')) {
                     initializeCountdown(countdownTimer);
-                    countdownTimer.setAttribute('data-initialized', 'true'); // Mark as initialized
+                    countdownTimer.setAttribute('data-initialized', 'true');
                 }
                 const uniqueBanner = document.querySelector('.unique-banner');
                 if (uniqueBanner && !uniqueBanner.hasAttribute('data-initialized')) {
                     initializeParallax(uniqueBanner);
-                    uniqueBanner.setAttribute('data-initialized', 'true'); // Mark as initialized
+                    uniqueBanner.setAttribute('data-initialized', 'true');
                 }
             }
         }
     });
 
     if (sliderContainer) {
-        // Tell the observer to watch the slider container for new children (the banners)
         observer.observe(sliderContainer, { childList: true, subtree: true });
     }
     
-    // Logic for the countdown timer in the flash sale banner
     function initializeCountdown(timerElement) {
-        const countDownDate = new Date().getTime() + (24 * 60 * 60 * 1000); // 24 hours from now
+        const countDownDate = new Date().getTime() + (24 * 60 * 60 * 1000); 
         const timer = setInterval(() => {
             const distance = countDownDate - new Date().getTime();
             const d = Math.floor(distance / (1000 * 60 * 60 * 24));
             const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const s = Math.floor((distance % (1000 * 60)) / 1000);
-            
-            // This expects you to have elements with these IDs inside your banner-3.html
             document.getElementById("days").innerText = d.toString().padStart(2, '0');
             document.getElementById("hours").innerText = h.toString().padStart(2, '0');
             document.getElementById("minutes").innerText = m.toString().padStart(2, '0');
             document.getElementById("seconds").innerText = s.toString().padStart(2, '0');
-
             if (distance < 0) {
                 clearInterval(timer);
                 timerElement.innerHTML = "<h2>SALE EXPIRED</h2>";
@@ -267,13 +260,12 @@ if (sliderContainer) {
         }, 1000);
     }
     
-    // Logic for the parallax mouse-move effect in the first banner
     function initializeParallax(bannerElement) {
         bannerElement.addEventListener('mousemove', (e) => {
             const { clientX, clientY } = e;
             const { left, top, width, height } = bannerElement.getBoundingClientRect();
-            const x = (clientX - left - width / 2) / 25; // How much to move on X-axis
-            const y = (clientY - top - height / 2) / 25; // How much to move on Y-axis
+            const x = (clientX - left - width / 2) / 25;
+            const y = (clientY - top - height / 2) / 25;
             const visuals = bannerElement.querySelectorAll('.visual-element');
             visuals.forEach(el => {
                 const depth = parseFloat(el.getAttribute('data-depth')) || 0.2;
