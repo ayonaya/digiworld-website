@@ -21,18 +21,6 @@
         <a href="contact.html" class="nav-link-pro">Contact</a>
       </nav>
       <div class="header-controls">
-        <div class="dropdown" id="currencyDropdown">
-          <button class="dropdown-toggle" type="button">
-            <span id="currentCurrLabel">USD</span> <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
-          </button>
-          <div class="dropdown-menu" id="currencyMenu">
-            <a href="#" class="dropdown-item" data-currency="USD">USD</a>
-            <a href="#" class="dropdown-item" data-currency="LKR">LKR</a>
-            <a href="#" class="dropdown-item" data-currency="EUR">EUR</a>
-            <a href="#" class="dropdown-item" data-currency="GBP">GBP</a>
-            <a href="#" class="dropdown-item" data-currency="INR">INR</a>
-          </div>
-        </div>
         <button class="cart-btn" id="cartBtn" aria-label="Open cart">
           <i class="fas fa-shopping-cart"></i>
           <span>Cart</span>
@@ -111,9 +99,9 @@
         <div class="footer-col">
             <h3>Customer Care</h3>
             <ul>
-                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="#">FAQ</a></li>
                 <li><a href="#">How to Buy</a></li>
-                <li><a href="refund-policy.html">Refund Policy</a></li>
+                <li><a href="#">Refund Policy</a></li>
             </ul>
         </div>
         <div class="footer-col">
@@ -127,8 +115,8 @@
         <div class="footer-col">
             <h3>We Accept</h3>
             <div class="payment-methods-logos">
-                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" title="PayPal and Credit Cards">
-                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" title="NowPayments Crypto">
+                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards">
+                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto">
             </div>
         </div>
     </div>
@@ -146,17 +134,21 @@
       <div class="mini-cart-items" id="miniCartItems"></div>
       <div class="mini-cart-footer">
         <div class="mini-cart-total" id="miniCartTotal"></div>
-        <button class="mini-cart-checkout" onclick="window.location.href='checkout.html'">Checkout</button>
+        <button class="mini-cart-checkout" onclick="window.location.href='cart.html'">Go to Cart</button>
       </div>
     </div>
   </div>
   <nav class="dw-bottom-nav">
     <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
     <a href="index.html#products"><i class="fas fa-th-large"></i><span>Products</span></a>
-    <button id="mobileCartBtn"><i class="fas fa-shopping-cart"></i></button>
+    <button id="mobileCartBtn" class="dw-nav-cart"><i class="fas fa-shopping-cart"></i></button>
     <a href="account.html"><i class="fas fa-user"></i><span>Account</span></a>
   </nav>
 
-<script src="details.js" defer></script>
+<!-- ================================================================= -->
+<!-- CRITICAL FIX: Added type="module" to the script tag below -->
+<!-- ================================================================= -->
+<script src="details.js" type="module" defer></script>
+
 </body>
 </html>

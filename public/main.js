@@ -1,252 +1,224 @@
-// /main.js
-import { initializeCart, addToCart, renderMiniCart } from './cart-manager.js';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>DigiWorld - Instant Digital Keys for Software and Games</title>
+  <meta name="description" content="Your trusted source for genuine digital keys. Get instant delivery on Windows, Microsoft Office, antivirus software, and more. Secure payments and 24/7 support.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <!-- I have removed the broken manifest link that was causing a 404 error in your console -->
+</head>
+<body>
+  
+<header class="site-header">
+  <div class="header-main-pro header-desktop">
+    <span class="logo-pro">DigiWorld</span>
+    <nav>
+      <a href="#" class="nav-link-pro active" data-page="home">Home</a>
+      <a href="#" class="nav-link-pro" data-page="products">Products</a>
+      <a href="#" class="nav-link-pro" data-page="contact">Contact</a>
+      <a href="#" class="nav-link-pro" data-page="checkout">Checkout</a>
+    </nav>
+    <div class="lang-currency-wrap">
+      <div class="lang-currency-switcher">
+        <div class="dropdown" id="langDropdown">
+          <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="langMenu" aria-label="Select Language">
+            <span class="flag" id="currentLangFlag">🇺🇸</span>
+            <span id="currentLangLabel">English</span>
+            <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
+          </button>
+          <div class="dropdown-menu" id="langMenu" role="menu" aria-labelledby="langDropdown">
+            <div class="dropdown-item" data-lang="en">🇺🇸 English</div>
+            <div class="dropdown-item" data-lang="si">🇱🇰 සිංහල</div>
+            <div class="dropdown-item" data-lang="ta">🇮🇳 தமிழ்</div>
+            <div class="dropdown-item" data-lang="ru">🇷🇺 Русский</div>
+            <div class="dropdown-item" data-lang="zh">🇨🇳 中文</div>
+            <div class="dropdown-item" data-lang="es">🇪🇸 Español</div>
+          </div>
+        </div>
+        <div class="dropdown" id="currencyDropdown">
+          <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="currencyMenu" aria-label="Select Currency">
+            <span id="currentCurrSymbol">$</span><span id="currentCurrLabel">USD</span>
+            <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
+          </button>
+          <div class="dropdown-menu" id="currencyMenu" role="menu" aria-labelledby="currencyDropdown">
+            <div class="dropdown-item" data-curr="USD">$ USD</div>
+            <div class="dropdown-item" data-curr="LKR">🇱🇰 LKR</div>
+            <div class="dropdown-item" data-curr="INR">₹ INR</div>
+            <div class="dropdown-item" data-curr="EUR">€ EUR</div>
+            <div class="dropdown-item" data-curr="GBP">£ GBP</div>
+          </div>
+        </div>
+      </div>
+      <button id="loginBtn" class="auth-btn" style="display:none;">Login</button>
+      <button id="signupBtn" class="auth-btn" style="display:none;">Signup</button>
+      <div class="account-dropdown" style="display:none; position: relative;">
+        <button id="accountBtn" aria-haspopup="true" aria-expanded="false" aria-controls="accountMenu" class="account-btn" aria-label="User Account">
+          Account
+          <svg width="12" height="7" style="margin-left:4px;" viewBox="0 0 12 7" fill="none" stroke="#fe724c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 1l5 5 5-5" />
+          </svg>
+        </button>
+        <div id="accountMenu" role="menu" aria-labelledby="accountBtn" hidden class="account-menu" tabindex="-1">
+          </div>
+      </div>
+      <button class="cart-btn" id="cartBtn" aria-label="Open cart">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10" cy="20" r="1.5"/>
+          <circle cx="18" cy="20" r="1.5"/>
+          <path d="M2 2h2l2.6 12.59a2 2 0 0 0 2 1.41h9.68a2 2 0 0 0 2-1.41l1.72-7.59H6"/>
+        </svg>
+        <span>Cart</span>
+        <span class="cart-icon-badge" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+  <form class="search-bar-modern" autocomplete="off" onsubmit="return false;" role="search">
+    <select class="category-dropdown" aria-label="Select category">
+      <option>All Categories</option>
+      <option>Windows</option>
+      <option>Office</option>
+      <option>Development Tools</option>
+    </select>
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search for products…"
+      aria-autocomplete="list"
+      aria-controls="searchSuggestionsDesktop"
+      aria-expanded="false"
+      aria-label="Search products"
+    />
+    <button class="search-btn-modern" type="submit">Search</button>
+    <div class="search-suggestions" id="searchSuggestionsDesktop" role="listbox"></div>
+  </form>
+</header>
 
-document.addEventListener('DOMContentLoaded', async function() {
-    // --- DOM ELEMENTS ---
-    const productGrid = document.getElementById('productGrid');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const sortProductsControl = document.getElementById('sortProducts');
-    const langDropdown = document.getElementById('langDropdown');
-    const currencyDropdown = document.getElementById('currencyDropdown');
-    const searchInputDesktop = document.getElementById('searchInput');
-    const searchSuggestionsDesktop = document.getElementById('searchSuggestionsDesktop');
-    const searchInputMobile = document.getElementById('mobileSearch');
-    const searchSuggestionsMobile = document.getElementById('searchSuggestionsMobile');
-    const slides = document.querySelectorAll('.banner-slide');
-    const controls = document.getElementById('bannerSliderControls');
-    const backBtn = document.getElementById('dwBackToTop');
-
-    // --- APP STATE ---
-    let allProducts = [];
-    let currentLang = 'en';
-    let currentCurr = localStorage.getItem('userCurrency') || 'USD';
-    let currentSlide = 0;
-    let slideTimer = null;
-    const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
-    const langFlags = { en: '🇺🇸', si: '🇱🇰', ta: '🇮🇳', ru: '🇷🇺', zh: '🇨🇳', es: '🇪🇸' };
-    const langLabels = { en: 'English', si: 'සිංහල', ta: 'தமிழ்', ru: 'Русский', zh: '中文', es: 'Español' };
-
-    // --- FUNCTIONS ---
-
-    function renderProducts(list) {
-        if (!productGrid) return;
-        productGrid.innerHTML = list.map((prod) => {
-            const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
-            const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
-            const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
-            const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
-            return `
-                <div class="product-card" data-product-id="${prod.id}">
-                    ${hotBadgeHTML}
-                    <div class="card-image-container">
-                        <a href="product-details.html?id=${prod.id}">
-                            <img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" />
-                        </a>
-                    </div>
-                    <div class="card-content-wrapper">
-                        <h3 class="product-name">${name}</h3>
-                        <div class="tag-delivery">${deliveryText}</div>
-                        <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
-                        <div class="card-buttons">
-                            <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                            <a href="checkout.html" class="card-btn buy-now" data-id="${prod.id}">Buy Now</a>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    function showSkeletonLoaders() {
-        if (!productGrid) return;
-        productGrid.innerHTML = Array(8).fill('').map(() => `
-            <div class="skeleton-card">
-                <div class="skeleton-image"></div>
-                <div class="skeleton-content">
-                    <div class="skeleton-line"></div>
-                    <div class="skeleton-line short"></div>
-                </div>
-            </div>`).join('');
-    }
-
-    function applyFiltersAndSorting() {
-        let filteredProducts = [...allProducts];
-        if (categoryFilter && categoryFilter.value !== 'all') {
-            filteredProducts = filteredProducts.filter(p => p.category === categoryFilter.value);
-        }
-        if (sortProductsControl) {
-            const sortValue = sortProductsControl.value;
-            switch (sortValue) {
-                case 'price-asc':
-                    filteredProducts.sort((a, b) => (a.price[currentCurr] || a.price['USD']) - (b.price[currentCurr] || b.price['USD']));
-                    break;
-                case 'price-desc':
-                    filteredProducts.sort((a, b) => (b.price[currentCurr] || b.price['USD']) - (a.price[currentCurr] || a.price['USD']));
-                    break;
-                case 'name-asc':
-                    filteredProducts.sort((a, b) => ((a.name[currentLang] || a.name.en).localeCompare(b.name[currentLang] || b.name.en)));
-                    break;
-                case 'name-desc':
-                    filteredProducts.sort((a, b) => ((b.name[currentLang] || b.name.en).localeCompare(a.name[currentLang] || a.name.en)));
-                    break;
-            }
-        }
-        renderProducts(filteredProducts);
-    }
+<main>
+  <section class="main-section" aria-label="Featured products">
+    <div class="product-controls">
+      <div class="control-group">
+        <label for="categoryFilter">Category:</label>
+        <select id="categoryFilter">
+          <option value="all">All Products</option>
+          <option value="Office">Office</option>
+          <option value="Windows">Windows</option>
+          <option value="Development">Development Tools</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="sortProducts">Sort by:</label>
+        <select id="sortProducts">
+          <option value="default">Default</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name-asc">Name: A to Z</option>
+          <option value="name-desc">Name: Z to A</option>
+        </select>
+      </div>
+    </div>
     
-    function animateImageToCart(event) {
-        const mainCartIcon = window.innerWidth <= 650 ? document.getElementById('dwNavCart') : document.getElementById('cartBtn');
-        const card = event.target.closest('.product-card');
-        if (!card || !mainCartIcon) return;
-        const productImage = card.querySelector('.card-image');
-        const startRect = productImage.getBoundingClientRect();
-        const flyingImage = productImage.cloneNode(true);
-        flyingImage.classList.add('flying-image');
-        Object.assign(flyingImage.style, {
-            left: `${startRect.left}px`,
-            top: `${startRect.top}px`,
-            width: `${startRect.width}px`,
-            height: `${startRect.height}px`
-        });
-        document.body.appendChild(flyingImage);
-        requestAnimationFrame(() => {
-            const endRect = mainCartIcon.getBoundingClientRect();
-            Object.assign(flyingImage.style, {
-                left: `${endRect.left + endRect.width / 2}px`,
-                top: `${endRect.top + endRect.height / 2}px`,
-                width: '20px',
-                height: '20px',
-                transform: 'scale(0.1)',
-                opacity: '0'
-            });
-        });
-        flyingImage.addEventListener('transitionend', () => flyingImage.remove());
-    }
+    <div class="section-title">Featured Products</div>
+    <div class="product-grid" id="productGrid">
+        <!-- Products will be loaded here by JavaScript -->
+    </div>
+  </section>
+</main>
 
-    function handleSearch(inputElement, suggestionsElement) {
-        const val = inputElement.value.trim().toLowerCase();
-        if (val.length < 1) {
-            suggestionsElement.style.display = 'none';
-            return;
-        }
-        const result = allProducts.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(val));
-        if (result.length === 0) {
-            suggestionsElement.style.display = 'none';
-            return;
-        }
-        suggestionsElement.innerHTML = result.map(p => {
-            const name = p.name[currentLang] || p.name.en;
-            const highlightedName = name.replace(new RegExp(val, 'gi'), `<b>$&</b>`);
-            return `<div class="suggestion-item" onclick="window.location='product-details.html?id=${p.id}'">${highlightedName}</div>`;
-        }).join('');
-        suggestionsElement.style.display = 'block';
-    }
+<div class="mini-cart-overlay" id="miniCartOverlay" role="dialog" aria-modal="true" aria-labelledby="miniCartTitle"></div>
+<div
+  class="mini-cart-drawer"
+  id="miniCartDrawer"
+  aria-labelledby="miniCartTitle"
+  tabindex="-1"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="mini-cart-header">
+    <span id="miniCartTitle">Your Cart</span>
+    <button class="mini-cart-close" id="miniCartClose" aria-label="Close cart">&times;</button>
+  </div>
+  <div class="mini-cart-items" id="miniCartItems" tabindex="0"></div>
+  <div class="mini-cart-footer">
+    <div class="mini-cart-total" id="miniCartTotal"></div>
+    <button class="mini-cart-checkout" onclick="window.location.href='checkout.html'">Checkout</button>
+  </div>
+</div>
 
-    function showSlide(i) {
-        slides.forEach((slide, idx) => slide.classList.toggle('active', idx === i));
-        Array.from(controls.children).forEach((dot, idx) => dot.classList.toggle('active', idx === i));
-        currentSlide = i;
-    }
+<footer class="site-footer">
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h3>Customer Care</h3>
+            <ul>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="#">How to Buy</a></li>
+                <li><a href="refund-policy.html">Refund Policy</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3>About DigiWorld</h3>
+            <ul>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+                <li><a href="#">Terms & Conditions</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h3>We Accept</h3>
+            <div class="payment-methods-logos">
+                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" title="PayPal and Credit Cards">
+                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" title="NowPayments Crypto">
+            </div>
+        </div>
+        <div class="footer-col">
+            <h3>Stay Connected</h3>
+            <p>Get exclusive deals and updates straight to your inbox.</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="your.email@example.com" aria-label="Email for newsletter">
+                <button type="submit">Go</button>
+            </form>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        &copy; 2025 DigiWorld. All rights reserved.
+    </div>
+</footer>
 
-    function nextSlide() { showSlide((currentSlide + 1) % slides.length); }
-    function resetSlideTimer() { clearInterval(slideTimer); if (slides.length > 1) slideTimer = setInterval(nextSlide, 5200); }
-    function closeDropdowns() { document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open')); }
-    function toggleDropdown(id) {
-        const dropdown = document.getElementById(id);
-        const wasOpen = dropdown.classList.contains('open');
-        closeDropdowns();
-        if (!wasOpen) dropdown.classList.add('open');
-    }
+<nav class="dw-bottom-nav" id="dwBottomNav" aria-label="Mobile navigation">
+  <a href="#" class="dw-nav-home dw-nav-active" id="dwNavHome" tabindex="0" aria-current="page" aria-label="Home">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fd7e1a" stroke-width="2"><path d="M4 12L12 4l8 8M4 12V20h16v-8" /></svg>
+    <span>Home</span>
+  </a>
+  <a href="#" class="dw-nav-categories" id="dwNavCategories" tabindex="0" aria-label="Categories">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fd7e1a" stroke-width="2"><circle cx="7" cy="7" r="3" /><circle cx="17" cy="7" r="3" /><circle cx="7" cy="17" r="3" /><circle cx="17" cy="17" r="3" /></svg>
+    <span>Categories</span>
+  </a>
+  <a href="#" class="dw-nav-cart" id="dwNavCart" tabindex="0" aria-label="Cart">
+    <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+      <circle cx="10" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" />
+      <path d="M2 2h2l2.6 12.59a2 2 0 0 0 2 1.41h9.68a2 2 0 0 0 2-1.41l1.72-7.59H6" />
+    </svg>
+    <span class="cart-icon-badge" id="dwCartCount">0</span>
+  </a>
+  <a href="account.html" class="dw-nav-account" id="dwNavAccount" tabindex="0" aria-label="Account">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fd7e1a" stroke-width="2"><circle cx="12" cy="8" r="4" /><path d="M2 20c0-4 8-7 10-7s10 3 10 7" /></svg>
+    <span>Account</span>
+  </a>
+</nav>
 
-    // --- INITIALIZATION & FETCH ---
-    showSkeletonLoaders();
-    try {
-        const response = await fetch('/.netlify/functions/get-products');
-        const data = await response.json();
-        if (!data.success) throw new Error('Failed to fetch products');
-        allProducts = data.products;
-        
-        renderProducts(allProducts);
-        initializeCart(allProducts); // Initialize the cart manager with product data
-    } catch (error) {
-        console.error("Error fetching products:", error);
-        if (productGrid) productGrid.innerHTML = `<p style="color:red; text-align:center; grid-column: 1 / -1;">Could not load products.</p>`;
-    }
+<button id="dwBackToTop" title="Back to Top" aria-label="Back to Top" style="display:none;">↑</button>
 
-    // --- EVENT LISTENERS ---
-    if(categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndSorting);
-    if(sortProductsControl) sortProductsControl.addEventListener('change', applyFiltersAndSorting);
+<!-- ================================================================= -->
+<!-- CRITICAL FIX: Added type="module" to the script tag below -->
+<!-- ================================================================= -->
+<script src="main.js" type="module" defer></script>
 
-    document.body.addEventListener('click', function(e) {
-        const target = e.target;
-        if (target.closest('.add-to-cart')) {
-            const prodId = target.closest('.add-to-cart').dataset.id;
-            addToCart(prodId);
-            animateImageToCart(e);
-        }
-        if (target.closest('.buy-now')) {
-            e.preventDefault();
-            const prodId = target.closest('.buy-now').dataset.id;
-            // Add to cart and redirect to checkout
-            addToCart(prodId);
-            window.location.href = `checkout.html`;
-        }
-    });
-
-    // Language and Currency Dropdowns
-    document.querySelectorAll('#langMenu .dropdown-item').forEach(el => {
-        el.onclick = () => {
-            currentLang = el.getAttribute('data-lang');
-            document.getElementById('currentLangFlag').textContent = langFlags[currentLang];
-            document.getElementById('currentLangLabel').textContent = langLabels[currentLang];
-            applyFiltersAndSorting();
-            renderMiniCart();
-            closeDropdowns();
-        }
-    });
-
-    document.querySelector('#langDropdown .dropdown-toggle').onclick = (e) => { e.stopPropagation(); toggleDropdown('langDropdown'); };
-    
-    document.querySelectorAll('#currencyMenu .dropdown-item').forEach(el => {
-        el.onclick = () => {
-            currentCurr = el.getAttribute('data-curr');
-            localStorage.setItem('userCurrency', currentCurr);
-            document.getElementById('currentCurrSymbol').textContent = (currencySymbols[currentCurr] || '$');
-            document.getElementById('currentCurrLabel').textContent = currentCurr;
-            applyFiltersAndSorting();
-            renderMiniCart();
-            closeDropdowns();
-        }
-    });
-
-    document.querySelector('#currencyDropdown .dropdown-toggle').onclick = (e) => { e.stopPropagation(); toggleDropdown('currencyDropdown'); };
-    
-    document.body.addEventListener('click', closeDropdowns);
-    
-    // Search Functionality
-    searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
-    searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile));
-    
-    document.addEventListener('click', () => {
-        if (searchSuggestionsDesktop) searchSuggestionsDesktop.style.display = 'none';
-        if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
-    });
-
-    // Banner Slider
-    if (slides.length > 0 && controls) {
-        slides.forEach((_, idx) => {
-            const dot = document.createElement('div');
-            dot.className = 'banner-slider-dot';
-            dot.onclick = () => { showSlide(idx); resetSlideTimer(); }
-            controls.appendChild(dot);
-        });
-        showSlide(0); // Show the first slide initially
-        resetSlideTimer();
-    }
-    
-    // Back to Top Button
-    if(backBtn) backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
-    window.addEventListener('scroll', () => {
-        if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
-    });
-});
+</body>
+</html>
