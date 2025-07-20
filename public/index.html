@@ -227,16 +227,19 @@
 
   if (accountBtn) { // Add a check to prevent errors if the button isn't found
       console.log("Account button was found, adding click listener."); // DEBUGGING LINE
-      accountBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
-      });
-  }
+      // In the inline script of index.html, replace the two click listeners
+
+  accountBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    // This now adds/removes a class instead of changing the style directly
+    accountMenu.classList.toggle('show');
+  });
   
   document.addEventListener('click', () => {
-      if(accountMenu) accountMenu.style.display = 'none';
+      // This now removes the class when clicking elsewhere
+      accountMenu.classList.remove('show');
   });
-
+  
   auth.onAuthStateChanged(user => {
     if (user) {
       loginBtn.style.display = 'none';

@@ -2362,3 +2362,9 @@
         50% { background-color: #e2e5e7; }
         100% { background-color: #eef0f2; }
     }
+/* In styles.css, add this new rule */
+.account-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
