@@ -155,10 +155,8 @@
             const password = sessionStorage.getItem('adminPassword');
             if (!password) throw new Error('Session expired. Please log in again.');
             
-            // =================================================================
-            // CRITICAL FIX: Using the /api/ path prefix
-            // =================================================================
-            const response = await fetch(`/api/${endpoint}`, {
+            // NOTE: Using the standard Netlify functions path
+            const response = await fetch(`/.netlify/functions/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ adminPassword: password, ...body })
@@ -178,69 +176,43 @@
             loginMessage.style.color = isError ? 'var(--danger)' : 'inherit';
         }
 
-        async function fetchAdminData() {
-            // Inside the async function fetchAdminData()
+        async function showDashboard() {
+            const password = sessionStorage.getItem('adminPassword');
+            if (!password) {
+                showLogin();
+                return;
+            }
 
-try {
-    console.log("1. Starting to fetch admin data..."); // DEBUG LINE
+            try {
+                // Fetch all necessary data from the single endpoint
+                const response = await fetch('/.netlify/functions/get-admin-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminPassword: password })
+                });
 
-    const response = await fetch('/.netlify/functions/get-admin-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminPassword })
-    });
-    
-    console.log("2. Received response from server:", response); // DEBUG LINE
-    
-    if (response.status === 401) throw new Error('Incorrect password.');
-    if (!response.ok) throw new Error('Failed to fetch admin data.');
+                if (!response.ok) {
+                    if (response.status === 401) throw new Error('Incorrect password.');
+                    throw new Error('Failed to fetch data.');
+                }
 
-    const result = await response.json();
-    
-    console.log("3. Parsed JSON result:", result); // DEBUG LINE
-    
-    if (!result.success) throw new Error(result.message || "An unknown error occurred.");
-    
-    const data = result.data;
-    
-    console.log("4. Final data object to be rendered:", data); // DEBUG LINE
+                const result = await response.json();
+                if (!result.success) throw new Error(result.message);
+                
+                allProductsData = result.data.products || []; // Store product data for modals
 
-    // The rest of your rendering logic remains the same...
-    if (data.products) {
-        productSelect.innerHTML = data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
-    }
-    
-    if (data.inventory) {
-        inventoryTableBody.innerHTML = Object.entries(data.inventory).map(([id, count]) => `
-            <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
-        `).join('') || `<tr><td colspan="2" class="text-center p-4">No inventory data.</td></tr>`;
-    }
+                // Render the entire dashboard with the fetched data
+                renderDashboard(result.data);
+                
+                // Show the dashboard and hide the login form
+                loginContainer.classList.add('hidden');
+                dashboardContainer.classList.remove('hidden');
+                dashboardGrid.style.display = 'grid';
 
-    if(data.pendingReviews && data.pendingReviews.length > 0) { // Changed 'reviews' to 'pendingReviews' to match your get-admin-data.js
-        pendingReviewsList.innerHTML = data.pendingReviews.map(r => `
-            <div class="p-4 border rounded-lg bg-gray-50" data-review-id="${r.id}">
-                <p class="font-bold">${r.authorName} on "${r.productId}"</p>
-                <p class="text-sm text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
-                <p class="mt-2 text-gray-700">${r.reviewText}</p>
-                <div class="mt-3 text-right">
-                    <button data-action="delete" class="review-action-btn text-sm font-semibold text-red-600 hover:text-red-800 mr-2">Delete</button>
-                    <button data-action="approve" class="review-action-btn text-sm font-semibold text-green-600 hover:text-green-800">Approve</button>
-                </div>
-            </div>
-        `).join('');
-    } else {
-        pendingReviewsList.innerHTML = `<p class="text-gray-500">No pending reviews.</p>`;
-    }
-    
-    // Also, one more important fix from the updated files
-    allProductsData = data.products || [];
-
-    return true;
-
-} catch (error) {
-    console.error('CRITICAL ERROR inside fetchAdminData:', error); // DEBUG LINE
-    return false;
-}
+            } catch (error) {
+                console.error("Dashboard failed to load:", error);
+                showLogin(error.message, true);
+            }
         }
 
         function renderDashboard(data) {
@@ -256,8 +228,8 @@ try {
                     <div class="dashboard-card">
                         <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
                         <table id="ordersTable">
-                            <thead><tr><th>Order ID</th><th>Product</th><th>Email</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-                            <tbody>${renderTableRows(data.orders, o => `<tr><td>${o.id.slice(0,15)}...</td><td>${o.productId || (o.cart && o.cart[0] ? o.cart[0].id : 'N/A')}</td><td>${o.customerEmail}</td><td>${o.totalAmount || o.amount} ${o.currency}</td><td>${o.status}</td><td>${new Date(o.createdAt).toLocaleDateString()}</td></tr>`, '<tr><td colspan="6">No recent orders.</td></tr>')}</tbody>
+                            <thead><tr><th>Order ID</th><th>Product/Cart</th><th>Email</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+                            <tbody>${renderTableRows(data.orders, o => `<tr><td>${o.id.slice(0,15)}...</td><td>${o.productId || (o.cart && o.cart.length ? `${o.cart.length} items` : 'N/A')}</td><td>${o.customerEmail}</td><td>${(o.totalAmount || o.amount).toFixed(2)} ${o.currency}</td><td>${o.status}</td><td>${new Date(o.createdAt).toLocaleDateString()}</td></tr>`, '<tr><td colspan="6">No recent orders.</td></tr>')}</tbody>
                         </table>
                     </div>
                 </div>
@@ -287,7 +259,7 @@ try {
         
         function renderTableRows(data, rowTemplate, emptyMessage) {
             if (data && data.length > 0) return data.map(rowTemplate).join('');
-            return emptyMessage;
+            return `<tr><td colspan="100%" style="text-align:center; padding: 20px;">${emptyMessage}</td></tr>`;
         }
 
         function openModal(modal) { modal.classList.add('show'); }
@@ -328,7 +300,7 @@ try {
                 if (confirm(`Are you sure you want to delete "${productName}"? This cannot be undone.`)) {
                     try {
                         await apiCall('delete-product', { productId });
-                        fetchAdminData();
+                        showDashboard(); // Refresh data
                     } catch (error) { alert(`Error: ${error.message}`); }
                 }
             }
@@ -341,32 +313,43 @@ try {
             const action = button.dataset.action;
             try {
                 await apiCall('moderate-review', { reviewId, action });
-                fetchAdminData();
+                showDashboard(); // Refresh data
             } catch (error) { alert(`Error: ${error.message}`); }
         }
+        
+        function setupFormListener(form, endpoint, messageEl, getBody) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                messageEl.textContent = 'Processing...';
+                messageEl.style.color = 'inherit';
+                try {
+                    const body = getBody();
+                    const result = await apiCall(endpoint, body);
+                    messageEl.textContent = result.message || 'Success!';
+                    messageEl.style.color = 'var(--success)';
+                    setTimeout(() => {
+                        closeModal(form.closest('.modal-overlay'));
+                        messageEl.textContent = '';
+                        showDashboard();
+                    }, 1500);
+                } catch (error) {
+                    messageEl.textContent = `Error: ${error.message}`;
+                    messageEl.style.color = 'var(--danger)';
+                }
+            });
+        }
 
-        forms.editProduct.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageEl = document.getElementById('editProductMessage');
-            messageEl.textContent = 'Saving...';
-            const productId = forms.editProduct.editProductId.value;
-            const productData = {
+        setupFormListener(forms.editProduct, 'update-product', document.getElementById('editProductMessage'), () => ({
+            productId: forms.editProduct.editProductId.value,
+            productData: {
                 'name.en': forms.editProduct.editProductNameEn.value,
                 'price.USD': Number(forms.editProduct.editProductPriceUSD.value),
                 'category': forms.editProduct.editProductCategory.value
-            };
-            try {
-                await apiCall('update-product', { productId, productData });
-                messageEl.textContent = 'Success!'; messageEl.style.color = 'var(--success)';
-                setTimeout(() => { closeModal(modals.editProduct); messageEl.textContent = ''; fetchAdminData(); }, 1000);
-            } catch (error) { messageEl.textContent = `Error: ${error.message}`; messageEl.style.color = 'var(--danger)'; }
-        });
+            }
+        }));
 
-        forms.createProduct.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageEl = document.getElementById('createProductMessage');
-            messageEl.textContent = 'Creating...';
-            const productData = {
+        setupFormListener(forms.createProduct, 'create-product', document.getElementById('createProductMessage'), () => ({
+            productData: {
                 id: forms.createProduct.createProductId.value,
                 name: { en: forms.createProduct.createProductNameEn.value },
                 price: { USD: Number(forms.createProduct.createProductPriceUSD.value) },
@@ -374,26 +357,13 @@ try {
                 image: forms.createProduct.createProductImage.value,
                 desc: { en: forms.createProduct.createProductDescEn.value },
                 isHot: false, delivery: { en: "Instant Delivery" }, features: { en: [] }, requirements: { en: [] }, activation: { en: [] }
-            };
-            try {
-                await apiCall('create-product', { productData });
-                messageEl.textContent = 'Success!'; messageEl.style.color = 'var(--success)';
-                setTimeout(() => { closeModal(modals.createProduct); messageEl.textContent = ''; fetchAdminData(); }, 1000);
-            } catch (error) { messageEl.textContent = `Error: ${error.message}`; messageEl.style.color = 'var(--danger)'; }
-        });
+            }
+        }));
 
-        forms.addKeys.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const messageEl = document.getElementById('addKeysMessage');
-            messageEl.textContent = 'Adding keys...';
-            const productId = forms.addKeys.addKeysProductId.value;
-            const keys = forms.addKeys.addKeysTextarea.value;
-            try {
-                const result = await apiCall('add-keys', { productId, keys });
-                messageEl.textContent = result.message; messageEl.style.color = 'var(--success)';
-                setTimeout(() => { closeModal(modals.addKeys); messageEl.textContent = ''; fetchAdminData(); }, 1500);
-            } catch (error) { messageEl.textContent = `Error: ${error.message}`; messageEl.style.color = 'var(--danger)'; }
-        });
+        setupFormListener(forms.addKeys, 'add-keys', document.getElementById('addKeysMessage'), () => ({
+            productId: forms.addKeys.addKeysProductId.value,
+            keys: forms.addKeys.addKeysTextarea.value
+        }));
         
         Object.values(modals).forEach(modal => {
             modal.addEventListener('click', (e) => {
@@ -403,15 +373,16 @@ try {
             });
         });
 
+        // Check if already logged in from a previous session
         if (sessionStorage.getItem('adminPassword')) {
-            fetchAdminData();
+            showDashboard();
         }
 
-        loginForm.addEventListener('submit', async (e) => {
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const password = document.getElementById('adminPassword').value;
             sessionStorage.setItem('adminPassword', password);
-            await fetchAdminData();
+            showDashboard();
         });
 
         logoutBtn.addEventListener('click', () => showLogin());
