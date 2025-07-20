@@ -432,39 +432,4 @@ document.addEventListener('DOMContentLoaded', async function() {
             renderFlashSale();
         }, 4000); // Rotate every 4 seconds
     }
-    async function initializePage() {
-        // This check ensures we only try to fetch products if a grid exists on the page
-        if (!productGrid && !flashSaleGrid) {
-            initializeCart([]);
-            return; 
-        }
-
-        if (productGrid) {
-            showSkeletonLoaders();
-        }
-
-        try {
-            const response = await fetch('/.netlify/functions/get-products');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            if (!data.success) throw new Error(data.message || 'API error');
-            allProducts = data.products;
-            
-            initializeCart(allProducts);
-            
-            // Initialize main product grid if it exists
-            if (productGrid) {
-                applyFiltersAndSorting();
-            }
-
-            // Initialize flash sale grid if it exists
-            if (flashSaleGrid) {
-                initializeFlashSale(allProducts);
-            }
-
-        } catch (error) {
-            console.error("Error fetching products:", error);
-            if (productGrid) {
-                productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
-            }
-        }
+    
