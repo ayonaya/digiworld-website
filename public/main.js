@@ -130,13 +130,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 
     // =================================================================
-    // SECTION 2: BANNER & SLIDER LOGIC
+    // SECTION 2: ADVANCED BANNER SLIDER LOGIC
     // =================================================================
-    
     const sliderContainer = document.getElementById('hero-slider');
     if (sliderContainer) {
         const bannerFiles = ['banner_1_powerful.html', 'banner_2_final.html', 'banner_3_unique.html', 'banner_4_flashsale.html'];
-        const loadBanners = async () => {
+        async function loadBanners() {
             for (const file of bannerFiles) {
                 try {
                     const response = await fetch(file);
@@ -149,8 +148,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 } catch (error) { console.error('Error loading banner:', error); }
             }
             initializeSlider();
-        };
-        const initializeSlider = () => {
+        }
+        function initializeSlider() {
             const slides = document.querySelectorAll('.slider-slide');
             const nextBtn = document.querySelector('.slider-nav.next');
             const prevBtn = document.querySelector('.slider-nav.prev');
@@ -164,26 +163,63 @@ document.addEventListener('DOMContentLoaded', async function() {
             const startSlider = () => { clearInterval(slideInterval); slideInterval = setInterval(nextSlide, 8000); };
             nextBtn.addEventListener('click', () => { nextSlide(); startSlider(); });
             prevBtn.addEventListener('click', () => { prevSlide(); startSlider(); });
-        };
+        }
         loadBanners();
     }
     const observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
                 const countdownTimer = document.getElementById("countdown-timer");
-                if (countdownTimer && !countdownTimer.hasAttribute('data-initialized')) { initializeCountdown(countdownTimer); countdownTimer.setAttribute('data-initialized', 'true'); }
+                if (countdownTimer && !countdownTimer.hasAttribute('data-initialized')) {
+                    initializeCountdown(countdownTimer);
+                    countdownTimer.setAttribute('data-initialized', 'true');
+                }
                 const uniqueBanner = document.querySelector('.unique-banner');
-                if (uniqueBanner && !uniqueBanner.hasAttribute('data-initialized')) { initializeParallax(uniqueBanner); uniqueBanner.setAttribute('data-initialized', 'true'); }
+                if (uniqueBanner && !uniqueBanner.hasAttribute('data-initialized')) {
+                    initializeParallax(uniqueBanner);
+                    uniqueBanner.setAttribute('data-initialized', 'true');
+                }
             }
         }
     });
-    if (sliderContainer) { observer.observe(sliderContainer, { childList: true, subtree: true }); }
-    const initializeCountdown = (timerElement) => { /* Banner countdown logic */ };
-    const initializeParallax = (bannerElement) => { /* Parallax logic */ };
-    
+    if (sliderContainer) {
+        observer.observe(sliderContainer, { childList: true, subtree: true });
+    }
+    function initializeCountdown(timerElement) {
+        const countDownDate = new Date().getTime() + (24 * 60 * 60 * 1000);
+        const timer = setInterval(() => {
+            const distance = countDownDate - new Date().getTime();
+            if (distance < 0) {
+                clearInterval(timer);
+                timerElement.innerHTML = "<h2>SALE EXPIRED</h2>";
+                return;
+            }
+            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+            document.getElementById("days").innerText = d.toString().padStart(2, '0');
+            document.getElementById("hours").innerText = h.toString().padStart(2, '0');
+            document.getElementById("minutes").innerText = m.toString().padStart(2, '0');
+            document.getElementById("seconds").innerText = s.toString().padStart(2, '0');
+        }, 1000);
+    }
+    function initializeParallax(bannerElement) {
+        bannerElement.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            const { left, top, width, height } = bannerElement.getBoundingClientRect();
+            const x = (clientX - left - width / 2) / 25;
+            const y = (clientY - top - height / 2) / 25;
+            const visuals = bannerElement.querySelectorAll('.visual-element');
+            visuals.forEach(el => {
+                const depth = parseFloat(el.getAttribute('data-depth')) || 0.2;
+                el.style.transform = `translateX(${x * depth}px) translateY(${y * depth}px)`;
+            });
+        });
+    }
 
     // =================================================================
-    // SECTION 3: FLASH SALE LOGIC
+    // SECTION 3: FLASH SALE LOGIC (NOW CORRECTLY PLACED AND CALLED)
     // =================================================================
     function initializeFlashSale(products) {
         if (!flashSaleGrid || products.length < 5) {
@@ -256,9 +292,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // =================================================================
-    // FINAL INITIALIZATION - The single, unified entry point
+    // FINAL INITIALIZATION - This is the single entry point
     // =================================================================
-    
     async function initializePage() {
         if (!productGrid && !flashSaleGrid) {
             initializeCart([]);
@@ -303,7 +338,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
         window.addEventListener('scroll', () => { if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none'; });
     }
-    // Added back the missing filter and search listeners
     if(categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndSorting);
     if(sortProductsControl) sortProductsControl.addEventListener('change', applyFiltersAndSorting);
     if (searchInputDesktop) { searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop)); }
@@ -313,7 +347,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
     });
 
-
     initializePage(); // This single call starts everything
 
-}); // <-- FINAL CLOSING BRACKET
+});
