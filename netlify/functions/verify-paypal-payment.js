@@ -1,10 +1,10 @@
-// netlify/functions/verify-paypal-payment.js
+// /netlify/functions/verify-paypal-payment.js
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const { getAndMarkKeyAsUsed } = require('./firestore-key-manager'); 
-const { db } = require('./firebase-admin'); // Modified: Import db from firebase-admin.js
+const { db } = require('./firebase-admin');
 
-// Configure the email transporter using environment variables
+// Configure the email transporter
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -17,18 +17,20 @@ const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
 const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
 const PAYPAL_API_BASE_URL = 'https://api-m.paypal.com';
 
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const { orderID, email, productId, amount, currency } = JSON.parse(event.body); 
+    // =================================================================
+    // UPGRADE: Now expects a 'cart' array instead of a single 'productId'
+    // =================================================================
+    const { orderID, email, cart, amount, currency } = JSON.parse(event.body); 
 
-    if (!orderID || !email || !productId || !amount || !currency) {
+    if (!orderID || !email || !cart || cart.length === 0 || !amount || !currency) {
         return { 
             statusCode: 400, 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ message: 'Missing required fields for PayPal verification.' }) 
+            body: JSON.stringify({ success: false, message: 'Missing required fields for verification.' }) 
         };
     }
 
@@ -36,38 +38,32 @@ exports.handler = async (event, context) => {
         console.error("PayPal API keys are not set.");
         return { 
             statusCode: 500, 
-            headers: { 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ message: "PayPal service not configured." }) 
+            body: JSON.stringify({ success: false, message: "PayPal service not configured." }) 
         };
     }
 
     try {
+        // Create the main order document in Firestore
         const orderDocRef = db.collection('orders').doc(orderID);
         await orderDocRef.set({
-            productId: productId,
+            cart: cart, // Store the array of purchased items
             customerEmail: email,
-            amount: parseFloat(amount),
+            totalAmount: parseFloat(amount),
             currency: currency,
             paymentGateway: 'paypal',
             status: 'initiated',
             createdAt: new Date().toISOString()
-        }, { merge: true });
-        console.log(`PayPal Order ${orderID} details saved/updated in Firestore.`);
+        });
 
+        // Verify the payment with PayPal API
         const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString('base64');
         const tokenResponse = await axios.post(`${PAYPAL_API_BASE_URL}/v1/oauth2/token`, 'grant_type=client_credentials', {
-            headers: {
-                'Authorization': `Basic ${auth}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' }
         });
         const accessToken = tokenResponse.data.access_token;
 
         const captureResponse = await axios.post(`${PAYPAL_API_BASE_URL}/v2/checkout/orders/${orderID}/capture`, {}, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }
         });
 
         const paypalStatus = captureResponse.data.status;
@@ -75,63 +71,70 @@ exports.handler = async (event, context) => {
         if (paypalStatus === 'COMPLETED') {
             console.log(`PayPal payment COMPLETED for Order ID: ${orderID}`);
 
-            // THIS IS THE LINE THAT WAS FIXED
-            const key = await getAndMarkKeyAsUsed(productId, email, orderID); 
+            let fulfilledKeys = [];
+            let outOfStockItems = [];
 
-            if (!key) {
-                console.error(`No digital key available for PayPal order ${orderID} for product ${productId}.`);
+            // =================================================================
+            // UPGRADE: Loop through the cart and get a key for each item
+            // =================================================================
+            for (const item of cart) {
+                // We need to get 'item.quantity' number of keys for this 'item.id'
+                for (let i = 0; i < item.quantity; i++) {
+                    const key = await getAndMarkKeyAsUsed(item.id, email, orderID);
+                    if (key) {
+                        fulfilledKeys.push({ productName: item.name, key: key });
+                    } else {
+                        outOfStockItems.push(item.name);
+                    }
+                }
+            }
+
+            // If any items were out of stock, notify the admin
+            if (outOfStockItems.length > 0) {
                 await transporter.sendMail({
                     from: `"DigiWorld Alert" <${process.env.GMAIL_USER}>`,
                     to: process.env.GMAIL_USER, 
-                    subject: `URGENT: Key Stock Alert for Product: ${productId}`,
-                    text: `Payment finished for PayPal order ${orderID}, but no digital key could be retrieved for product ID: ${productId}. Please restock immediately.`
+                    subject: `URGENT: Key Stock Alert for Order ${orderID}`,
+                    text: `Payment finished for order ${orderID}, but the following items were out of stock:\n\n${outOfStockItems.join('\n')}\n\nPlease restock and fulfill manually for customer: ${email}`
                 });
-                await orderDocRef.update({ status: 'key_unavailable', paymentStatusPaypal: paypalStatus });
-                return { 
-                    statusCode: 200, 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ success: true, message: 'Payment verified, but no key available. Admin notified for manual delivery.' }) 
-                };
+            }
+            
+            // If at least one key was fulfilled, send it to the customer
+            if (fulfilledKeys.length > 0) {
+                const emailBody = `Thank you for your purchase from DigiWorld!\n\nYour PayPal payment for order ${orderID} has been successfully processed.\n\nHere are your digital license key(s):\n\n${fulfilledKeys.map(fk => `${fk.productName}:\n${fk.key}`).join('\n\n')}\n\nIf you have any questions, please reply to this email.`;
+                
+                await transporter.sendMail({
+                    from: `"DigiWorld" <${process.env.GMAIL_USER}>`,
+                    to: email,
+                    subject: `Your DigiWorld Digital License(s) for Order ${orderID}`,
+                    text: emailBody
+                });
             }
 
-            await transporter.sendMail({
-                from: `"DigiWorld" <${process.env.GMAIL_USER}>`,
-                to: email,
-                subject: `Your DigiWorld Digital License for Order ${orderID} (PayPal Payment)`,
-                text: `Thank you for your purchase from DigiWorld!\n\nYour PayPal payment for order ${orderID} has been successfully processed.\n\nHere is your digital license key: ${key}\n\nIf you have any questions, please reply to this email.`
-            });
+            // Update the final order status
+            const finalStatus = outOfStockItems.length > 0 ? 'partially_fulfilled' : 'completed';
+            await orderDocRef.update({ status: finalStatus, paymentStatusPaypal: paypalStatus, fulfilledAt: new Date().toISOString() });
 
-            console.log(`Digital key for PayPal order ${orderID} sent to ${email}.`);
-            await orderDocRef.update({ status: 'completed', paymentStatusPaypal: paypalStatus, fulfilledAt: new Date().toISOString() });
             return { 
                 statusCode: 200, 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ success: true, message: 'Payment verified and key delivered.' }) 
+                body: JSON.stringify({ success: true, message: 'Payment verified and key(s) delivered.' }) 
             };
 
         } else {
-            console.warn(`PayPal payment status for Order ID ${orderID}: ${paypalStatus}`);
+            // Handle non-completed payment statuses
             await orderDocRef.update({ status: 'failed', paymentStatusPaypal: paypalStatus });
             return { 
                 statusCode: 400, 
-                headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify({ success: false, message: `PayPal payment not completed. Status: ${paypalStatus}` }) 
             };
         }
 
     } catch (error) {
         console.error('Error verifying PayPal payment:', error.response ? error.response.data : error.message);
-        const orderDocRef = db.collection('orders').doc(orderID);
-        await orderDocRef.update({ status: 'error', errorDetails: error.response ? error.response.data : error.message }).catch(e => console.error("Failed to update order status on error:", e));
-
+        await db.collection('orders').doc(orderID).update({ status: 'error', errorDetails: error.message }).catch(e => console.error("Failed to update order status on error:", e));
         return {
-            statusCode: error.response && error.response.status ? error.response.status : 500,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                success: false,
-                message: 'Failed to verify PayPal payment.',
-                error: error.response ? error.response.data : error.message
-            }),
+            statusCode: 500,
+            body: JSON.stringify({ success: false, message: 'Failed to verify PayPal payment.' }),
         };
     }
 };

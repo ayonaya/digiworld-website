@@ -12,7 +12,7 @@ exports.handler = async (event) => {
         
         // This should be the same password you use to log in.
         // For better security, you could use an environment variable here.
-        const SERVER_ADMIN_PASSWORD = "DigiWorLdadmin2025!";
+        const SERVER_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
         // --- Security Check ---
         if (adminPassword !== SERVER_ADMIN_PASSWORD) {
