@@ -1448,7 +1448,7 @@
   vertical-align: middle;
 }
 .account-menu {
-  position: absolute;
+ position: absolute;
   top: 100%;
   right: 0;
   background: #fff;
@@ -1456,19 +1456,22 @@
   box-shadow: 0 6px 20px rgba(255, 114, 76, 0.3);
   padding: 12px 0;
   min-width: 160px;
+  /* Start hidden */
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
   z-index: 1500;
   display: flex;
   flex-direction: column;
 }
-.account-menu.show {
+
+.account-dropdown:hover .account-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
+
 .account-menu a,
 .account-menu button {
   padding: 10px 24px;
@@ -1482,11 +1485,12 @@
   transition: background-color 0.2s, color 0.2s;
   white-space: nowrap;
 }
+
 .account-menu a:hover,
 .account-menu button:hover {
   background-color: #fe724c;
   color: white;
-  border-radius: 8px;
+  border-radius: 8px; /* Optional: adds a nice touch */
 }
 @media (max-width: 650px) {
   #accountBtn {

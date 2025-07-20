@@ -215,14 +215,15 @@
   // --- END DEBUGGING LINES ---
 
   function renderLoggedInMenu() {
-    accountMenu.innerHTML = `
-      <a href="profile.html">Profile</a>
-      <a href="orders.html">Orders</a>
-      <a href="downloads.html">Downloads</a>
-      <button id="logoutBtn">Logout</button>
-    `;
-    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
-  }
+  accountMenu.innerHTML = `
+    <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+    <a href="orders.html"><i class="fas fa-box"></i> Orders</a>
+    <a href="downloads.html"><i class="fas fa-download"></i> Downloads</a>
+    <a href="wishlist.html"><i class="fas fa-heart"></i> Wishlist</a> <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  `;
+  // Add Font Awesome icons for a better look
+  document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+}
 
   if (accountBtn) { // Add a check to prevent errors if the button isn't found
       console.log("Account button was found, adding click listener."); // DEBUGGING LINE
