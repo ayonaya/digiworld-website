@@ -179,16 +179,68 @@
         }
 
         async function fetchAdminData() {
-            try {
-                const result = await apiCall('get-admin-data', {});
-                loginContainer.classList.add('hidden');
-                dashboardContainer.classList.remove('hidden');
-                allProductsData = result.data.products || [];
-                renderDashboard(result.data);
-            } catch (error) {
-                console.error('Failed to fetch admin data:', error);
-                showLogin(`Error: ${error.message}. Please try logging in again.`, true);
-            }
+            // Inside the async function fetchAdminData()
+
+try {
+    console.log("1. Starting to fetch admin data..."); // DEBUG LINE
+
+    const response = await fetch('/.netlify/functions/get-admin-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminPassword })
+    });
+    
+    console.log("2. Received response from server:", response); // DEBUG LINE
+    
+    if (response.status === 401) throw new Error('Incorrect password.');
+    if (!response.ok) throw new Error('Failed to fetch admin data.');
+
+    const result = await response.json();
+    
+    console.log("3. Parsed JSON result:", result); // DEBUG LINE
+    
+    if (!result.success) throw new Error(result.message || "An unknown error occurred.");
+    
+    const data = result.data;
+    
+    console.log("4. Final data object to be rendered:", data); // DEBUG LINE
+
+    // The rest of your rendering logic remains the same...
+    if (data.products) {
+        productSelect.innerHTML = data.products.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+    }
+    
+    if (data.inventory) {
+        inventoryTableBody.innerHTML = Object.entries(data.inventory).map(([id, count]) => `
+            <tr class="bg-white border-b"><td class="py-4 px-6 font-medium text-gray-900">${id}</td><td class="py-4 px-6">${count}</td></tr>
+        `).join('') || `<tr><td colspan="2" class="text-center p-4">No inventory data.</td></tr>`;
+    }
+
+    if(data.pendingReviews && data.pendingReviews.length > 0) { // Changed 'reviews' to 'pendingReviews' to match your get-admin-data.js
+        pendingReviewsList.innerHTML = data.pendingReviews.map(r => `
+            <div class="p-4 border rounded-lg bg-gray-50" data-review-id="${r.id}">
+                <p class="font-bold">${r.authorName} on "${r.productId}"</p>
+                <p class="text-sm text-yellow-500">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</p>
+                <p class="mt-2 text-gray-700">${r.reviewText}</p>
+                <div class="mt-3 text-right">
+                    <button data-action="delete" class="review-action-btn text-sm font-semibold text-red-600 hover:text-red-800 mr-2">Delete</button>
+                    <button data-action="approve" class="review-action-btn text-sm font-semibold text-green-600 hover:text-green-800">Approve</button>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        pendingReviewsList.innerHTML = `<p class="text-gray-500">No pending reviews.</p>`;
+    }
+    
+    // Also, one more important fix from the updated files
+    allProductsData = data.products || [];
+
+    return true;
+
+} catch (error) {
+    console.error('CRITICAL ERROR inside fetchAdminData:', error); // DEBUG LINE
+    return false;
+}
         }
 
         function renderDashboard(data) {
