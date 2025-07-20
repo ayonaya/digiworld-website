@@ -1875,7 +1875,9 @@
       display: flex;
       align-items: center;
       gap: 15px;
-    }
+      position: relative; /* Add this if it's not there */
+  z-index: 10;       /* <-- ADD THIS LINE */
+}
     .dropdown { position: relative; }
     .dropdown-toggle {
         background: rgba(255, 255, 255, 0.15); border: none; font-size: 0.98em; font-weight: 700;
