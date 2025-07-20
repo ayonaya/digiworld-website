@@ -3217,3 +3217,244 @@
     .timer-unit .number { font-size: 2rem; }
     #countdown-timer { gap: 0.5rem; }
 }
+/* =================================================================== */
+/* ============== FINAL & COMPLETE HERO BANNER STYLES ================ */
+/* =================================================================== */
+
+/* 1. Main Slider Container */
+.hero-slider-wrapper {
+    position: relative;
+    width: 95%;
+    max-width: 1400px;
+    margin: 24px auto;
+    overflow: hidden;
+}
+
+#hero-slider {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 7; /* A good desktop aspect ratio */
+    border-radius: 24px;  /* The curved shape you wanted */
+    overflow: hidden;
+    background-color: #f0f0f0;
+}
+
+.slider-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.slider-slide.active {
+    opacity: 1;
+}
+
+/* 2. Banner Internal Content Alignment (The Crucial Fix) */
+/* This forces every banner to be a flexible container */
+.slider-slide > section {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* MOBILE FIRST: Stack content vertically */
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+    box-sizing: border-box; /* Ensures padding doesn't break layout */
+    overflow: hidden; /* Prevents anything from spilling out */
+}
+
+/* Hide decorative images on mobile to save space */
+.visuals-layer, .right-visual {
+    display: none;
+}
+
+/* Force content layers to not have a fixed width on mobile */
+.banner-content-layer, .left-content {
+    flex-basis: auto;
+    padding: 0;
+}
+
+/* Reduce text and button sizes on mobile */
+.unique-banner h2, .powerful-banner h2, .glass-banner h3, .flash-sale-content h2 {
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+    margin-bottom: 0.5rem;
+}
+.unique-banner p, .powerful-banner p, .glass-banner p, .flash-sale-content p {
+    font-size: clamp(0.8rem, 3vw, 1rem);
+    margin-bottom: 1rem;
+}
+.pro-btn, .cta-buttons a, .pro-btn-glass, .pro-btn-flash {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* 3. DESKTOP Layout Restoration */
+/* When the screen is larger, switch back to a row layout */
+@media (min-width: 992px) {
+    #hero-slider {
+        aspect-ratio: 16 / 6; /* Make it wider on desktop */
+    }
+
+    .slider-slide > section {
+        flex-direction: row; /* Go back to side-by-side */
+        text-align: left;
+        justify-content: space-between;
+        padding: 2rem 4rem;
+    }
+
+    /* Show decorative images again */
+    .visuals-layer, .right-visual {
+        display: block;
+    }
+
+    /* Restore original widths and padding */
+    .banner-content-layer {
+        flex-basis: 50%;
+    }
+    .left-content {
+        flex-basis: 55%;
+        padding-right: 2rem;
+    }
+    .unique-banner h2, .powerful-banner h2 {
+        font-size: 3.5rem;
+    }
+}
+
+/* 4. Navigation Buttons */
+.slider-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.slider-nav:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+    transform: translateY(-50%) scale(1.1);
+}
+.slider-nav.prev { left: 16px; }
+.slider-nav.next { right: 16px; }
+/* =================================================================== */
+/* ===================== FINAL FLASH SALE STYLES ===================== */
+/* =================================================================== */
+
+.flash-sale-section .section-title {
+    color: var(--badge-red);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.flash-sale-card {
+    border: 2px solid var(--primary);
+    box-shadow: 0 8px 30px rgba(245, 114, 36, 0.2);
+    opacity: 0;
+    animation: flash-sale-pop-in 0.5s ease-out forwards;
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+.flash-sale-card.exiting {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.flash-sale-card:nth-child(1) { animation-delay: 0.1s; }
+.flash-sale-card:nth-child(2) { animation-delay: 0.2s; }
+.flash-sale-card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes flash-sale-pop-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.flash-sale-card .price-container {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.flash-sale-card .sale-price {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin: 0;
+}
+
+.flash-sale-card .original-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #888;
+    margin: 0;
+}
+
+/* Countdown Timer Styles */
+.countdown-timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.timer-unit {
+    text-align: center;
+    background: #fff7f5;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #fee0d1;
+    min-width: 60px;
+}
+
+.timer-unit .number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    display: block;
+    line-height: 1;
+    animation: pulse-number 1s infinite alternate;
+}
+
+.timer-unit .label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.timer-separator {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    transform: translateY(-5px);
+    animation: blink-separator 2s infinite;
+}
+
+@keyframes pulse-number {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+@keyframes blink-separator {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}

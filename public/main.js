@@ -323,3 +323,112 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 });
+// =================================================================
+    // SECTION 3: FLASH SALE LOGIC (with Daily Products, Countdown & Animation)
+    // =================================================================
+    const flashSaleGrid = document.getElementById('flashSaleGrid');
+
+    function initializeFlashSale(products) {
+        if (!flashSaleGrid || products.length < 5) {
+            const flashSaleSection = document.querySelector('.flash-sale-section');
+            if(flashSaleSection) flashSaleSection.style.display = 'none';
+            return;
+        }
+
+        // --- Step 1: Create a "seeded" random function using today's date ---
+        const today = new Date().toISOString().slice(0, 10);
+        let seed = 0;
+        for (let i = 0; i < today.length; i++) {
+            seed += today.charCodeAt(i);
+        }
+        const seededRandom = () => {
+            const x = Math.sin(seed++) * 10000;
+            return x - Math.floor(x);
+        };
+
+        // --- Step 2: Select 5 products for the day ---
+        const shuffled = [...products].sort(() => 0.5 - seededRandom());
+        const saleProducts = shuffled.slice(0, 5);
+
+        // --- Step 3: Add discounted price to the 5 products ---
+        const flashSaleItems = saleProducts.map(prod => {
+            const originalPrice = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
+            const salePrice = originalPrice * 0.90; // 10% discount
+            return { ...prod, originalPrice, salePrice };
+        });
+
+        let currentIndex = 0;
+
+        // --- Step 4: Function to render the products (with sliding animation) ---
+        function renderFlashSale() {
+            const existingCards = flashSaleGrid.querySelectorAll('.flash-sale-card');
+            existingCards.forEach(card => card.classList.add('exiting'));
+
+            setTimeout(() => {
+                const itemsToDisplay = [];
+                for (let i = 0; i < 3; i++) {
+                    itemsToDisplay.push(flashSaleItems[(currentIndex + i) % flashSaleItems.length]);
+                }
+                flashSaleGrid.innerHTML = itemsToDisplay.map(prod => {
+                    const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
+                    const currencySymbol = currencySymbols[currentCurr] || '$';
+                    return `
+                        <div class="product-card flash-sale-card">
+                            <div class="card-image-container">
+                                <a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a>
+                            </div>
+                            <div class="card-content-wrapper">
+                                <h3 class="product-name">${name}</h3>
+                                <div class="price-container">
+                                    <p class="product-price sale-price">${currencySymbol}${prod.salePrice.toFixed(2)}</p>
+                                    <p class="product-price original-price"><s>${currencySymbol}${prod.originalPrice.toFixed(2)}</s></p>
+                                </div>
+                                <div class="card-buttons">
+                                    <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+            }, 400); 
+        }
+
+        // --- Step 5: Start the countdown timer ---
+        function startCountdown() {
+            const countdownHoursEl = document.getElementById('countdown-hours');
+            const countdownMinutesEl = document.getElementById('countdown-minutes');
+            const countdownSecondsEl = document.getElementById('countdown-seconds');
+
+            if(!countdownHoursEl) return; // Don't run if the elements don't exist
+
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0); 
+            
+            const timerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = tomorrow - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    window.location.reload(); 
+                    return;
+                }
+
+                const hours = Math.floor(distance / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                countdownHoursEl.textContent = hours.toString().padStart(2, '0');
+                countdownMinutesEl.textContent = minutes.toString().padStart(2, '0');
+                countdownSecondsEl.textContent = seconds.toString().padStart(2, '0');
+            }, 1000);
+        }
+
+        // --- Step 6: Rotate the products automatically ---
+        renderFlashSale();
+        startCountdown();
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % flashSaleItems.length;
+            renderFlashSale();
+        }, 4000); // Rotate every 4 seconds
+    }

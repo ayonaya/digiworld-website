@@ -72,6 +72,43 @@
 </header>
 
 <main>
+      <section class="hero-slider-wrapper">
+            <div id="hero-slider"></div>
+            <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
+            <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
+        </section>
+      <section class="main-section flash-sale-section">
+    <div class="section-title">
+        <i class="fas fa-bolt"></i> Flash Sale
+    </div>
+
+    <div id="flashSaleCountdown" class="countdown-timer-container">
+        <div class="timer-unit">
+            <span id="countdown-hours" class="number">00</span>
+            <span class="label">Hours</span>
+        </div>
+        <div class="timer-separator">:</div>
+        <div class="timer-unit">
+            <span id="countdown-minutes" class="number">00</span>
+            <span class="label">Minutes</span>
+        </div>
+        <div class="timer-separator">:</div>
+        <div class="timer-unit">
+            <span id="countdown-seconds" class="number">00</span>
+            <span class="label">Seconds</span>
+        </div>
+    </div>
+    <div class="product-grid" id="flashSaleGrid">
+        </div>
+</section>
+    
+    <div class="section-title">Featured Products</div>
+    <div class="product-grid" id="productGrid">
+        </div>
+  </section>
+
+  
+
   <section class="main-section" aria-label="Featured products">
     <div class="product-controls">
       <div class="control-group">
@@ -94,11 +131,7 @@
         </select>
       </div>
     </div>
-    
-    <div class="section-title">Featured Products</div>
-    <div class="product-grid" id="productGrid">
-        </div>
-  </section>
+
 </main>
 
 <div class="mini-cart-overlay" id="miniCartOverlay" role="dialog" aria-modal="true" aria-labelledby="miniCartTitle"></div>
