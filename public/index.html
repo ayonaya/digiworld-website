@@ -36,6 +36,10 @@
                 <span class="welcome-text">Welcome</span>
                 <span class="auth-action">Sign In / Register</span>
             </div>
+            <div class="auth-dropdown-menu">
+                <div id="authDropdownContent">
+                    </div>
+            </div>
         </div>
         
         <button class="header-btn cart-btn" id="cartBtn" aria-label="Open cart">
@@ -190,56 +194,72 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // --- Auth Modal and Header Logic ---
+  // --- Elements ---
   const accountControl = document.getElementById('accountControl');
   const authModal = document.getElementById('authModal');
   const authModalClose = document.getElementById('authModalClose');
+  const authDropdownContent = document.getElementById('authDropdownContent');
   const modalMessage = document.getElementById('modal-message');
 
+  // --- Modal Functions ---
   const openAuthModal = () => authModal.classList.add('show');
   const closeAuthModal = () => authModal.classList.remove('show');
 
+  // --- Render Functions for Dropdown ---
+  function renderLoggedOutMenu() {
+      authDropdownContent.innerHTML = `
+          <button class="auth-dropdown-signin-btn" id="dropdownSignInBtn">Sign In</button>
+          <a href="#" class="register-link" id="dropdownRegisterBtn">Register</a>
+      `;
+      // Add listeners to open the modal from the dropdown
+      document.getElementById('dropdownSignInBtn').addEventListener('click', openAuthModal);
+      document.getElementById('dropdownRegisterBtn').addEventListener('click', openAuthModal);
+  }
+
+  function renderLoggedInMenu(user) {
+      authDropdownContent.innerHTML = `
+          <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+          <a href="orders.html"><i class="fas fa-box"></i> My Orders</a>
+          <a href="downloads.html"><i class="fas fa-download"></i> My Downloads</a>
+          <a href="wishlist.html"><i class="fas fa-heart"></i> Wish List</a>
+          <hr>
+          <a href="#" id="dropdownLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      `;
+      document.getElementById('dropdownLogoutBtn').addEventListener('click', () => auth.signOut());
+  }
+
+  // --- Main Auth Logic ---
   auth.onAuthStateChanged(user => {
     const welcomeText = accountControl.querySelector('.welcome-text');
     const authAction = accountControl.querySelector('.auth-action');
     if (user) {
-      // User is logged in
+      // User is LOGGED IN
       welcomeText.textContent = 'Welcome';
       authAction.textContent = user.displayName || user.email.split('@')[0];
-      accountControl.onclick = () => {
-        // Logged-in users are sent to their account page
-        window.location.href = 'account.html';
-      };
+      renderLoggedInMenu(user);
     } else {
-      // User is logged out
+      // User is LOGGED OUT
       welcomeText.textContent = 'Welcome';
       authAction.textContent = 'Sign In / Register';
-      accountControl.onclick = openAuthModal;
+      renderLoggedOutMenu();
     }
   });
 
-  // Modal event listeners
+  // --- Modal Event Listeners ---
   authModalClose.addEventListener('click', closeAuthModal);
   authModal.addEventListener('click', (e) => {
     if (e.target === authModal) closeAuthModal();
   });
 
-  // --- Firebase Auth Handlers for Modal Buttons ---
+  // Firebase Auth Handlers (for the modal)
   const googleProvider = new firebase.auth.GoogleAuthProvider();
-  const appleProvider = new firebase.auth.OAuthProvider('apple.com');
-
   document.getElementById('googleSignInBtn').addEventListener('click', () => {
-    auth.signInWithPopup(googleProvider).catch(err => {
-        modalMessage.textContent = err.message;
-        modalMessage.style.color = 'red';
-    });
+    auth.signInWithPopup(googleProvider).catch(err => modalMessage.textContent = err.message);
   });
-
+  
+  const appleProvider = new firebase.auth.OAuthProvider('apple.com');
   document.getElementById('appleSignInBtn').addEventListener('click', () => {
-    auth.signInWithPopup(appleProvider).catch(err => {
-        modalMessage.textContent = err.message;
-        modalMessage.style.color = 'red';
-    });
+    auth.signInWithPopup(appleProvider).catch(err => modalMessage.textContent = err.message);
   });
 
   document.getElementById('emailLoginForm').addEventListener('submit', (e) => {
@@ -257,7 +277,7 @@
       auth.sendSignInLinkToEmail(email, actionCodeSettings)
         .then(() => {
           window.localStorage.setItem('emailForSignIn', email);
-          modalMessage.textContent = `A sign-in link has been sent to ${email}. Please check your inbox.`;
+          modalMessage.textContent = `A sign-in link has been sent to ${email}. Check your inbox.`;
           modalMessage.style.color = 'green';
         })
         .catch(err => {

@@ -155,7 +155,6 @@
             const password = sessionStorage.getItem('adminPassword');
             if (!password) throw new Error('Session expired. Please log in again.');
             
-            // NOTE: Using the standard Netlify functions path
             const response = await fetch(`/.netlify/functions/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -184,7 +183,6 @@
             }
 
             try {
-                // Fetch all necessary data from the single endpoint
                 const response = await fetch('/.netlify/functions/get-admin-data', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -199,12 +197,9 @@
                 const result = await response.json();
                 if (!result.success) throw new Error(result.message);
                 
-                allProductsData = result.data.products || []; // Store product data for modals
-
-                // Render the entire dashboard with the fetched data
+                allProductsData = result.data.products || [];
                 renderDashboard(result.data);
                 
-                // Show the dashboard and hide the login form
                 loginContainer.classList.add('hidden');
                 dashboardContainer.classList.remove('hidden');
                 dashboardGrid.style.display = 'grid';
@@ -215,11 +210,7 @@
             }
         }
 
-// In admin.html, find the renderDashboard function. 
-        // Replace the ENTIRE function with this corrected version.
-
         function renderDashboard(data) {
-            // This is the HTML that builds your dashboard structure.
             dashboardGrid.innerHTML = `
                 <div style="display: flex; flex-direction: column; gap: 30px;">
                     <div class="dashboard-card">
@@ -254,14 +245,19 @@
                     </div>
                     <div class="dashboard-card">
                         <h3><i class="fas fa-star"></i> Pending Reviews</h3>
-                        <div id="pendingReviewsList">${(data.pendingReviews && data.pendingReviews.length > 0) ? data.pendingReviews.map(r => `<div class="review-card" id="review-${r.id}"><div><strong>${r.authorName}</strong> on <em>${r.productId}</em> (${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)})</div><p>${r.reviewText}</p><div class="review-actions"><button class="btn btn-success" data-id="${r.id}" data-action="approve">Approve</button><button class="btn btn-danger" data-id="${r.id}" data-action="delete">Delete</button></div></div>`).join('') : '<p>No pending reviews.</p>'}</div>
+                        <div id="pendingReviewsList">${(data.pendingReviews && data.pendingReviews.length > 0) ? data.pendingReviews.map(r => `
+                            <div class="review-card" id="review-${r.id}">
+                                <div><strong>${r.authorName}</strong> on <em>${r.productId}</em> (${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)})</div>
+                                <p>${r.reviewText}</p>
+                                <div class="review-actions">
+                                    <button class="btn btn-success" data-id="${r.id}" data-action="approve">Approve</button>
+                                    <button class="btn btn-danger" data-id="${r.id}" data-action="delete">Delete</button>
+                                </div>
+                            </div>`).join('') : '<p>No pending reviews.</p>'}
+                        </div>
                     </div>
                 </div>
             `;
-            
-            // --- CRITICAL FIX ---
-            // This function is now called *after* the HTML above has been created,
-            // so the buttons exist and the listeners can be attached correctly.
             bindDashboardEvents();
         }
                 
@@ -308,20 +304,20 @@
                 if (confirm(`Are you sure you want to delete "${productName}"? This cannot be undone.`)) {
                     try {
                         await apiCall('delete-product', { productId });
-                        showDashboard(); // Refresh data
+                        showDashboard();
                     } catch (error) { alert(`Error: ${error.message}`); }
                 }
             }
         }
 
         async function handleReviewActions(e) {
-            const button = e.target.closest('button');
+            const button = e.target.closest('button.btn'); // Correctly targets buttons with the 'btn' class
             if (!button) return;
             const reviewId = button.dataset.id;
             const action = button.dataset.action;
             try {
                 await apiCall('moderate-review', { reviewId, action });
-                showDashboard(); // Refresh data
+                showDashboard();
             } catch (error) { alert(`Error: ${error.message}`); }
         }
         
@@ -381,7 +377,6 @@
             });
         });
 
-        // Check if already logged in from a previous session
         if (sessionStorage.getItem('adminPassword')) {
             showDashboard();
         }
@@ -398,3 +393,4 @@
     </script>
 </body>
 </html>
+}

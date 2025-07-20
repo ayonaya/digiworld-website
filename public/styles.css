@@ -2557,3 +2557,84 @@
     border: none; font-size: 1.1rem; font-weight: 700;
     cursor: pointer; background: var(--primary); color: white;
 }
+/* Add this to the end of styles.css */
+
+/* Auth Dropdown Menu Styles */
+.account-control {
+    position: relative; /* Required for the dropdown positioning */
+}
+
+.auth-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    padding: 15px;
+    margin-top: 10px;
+    z-index: 2000;
+    
+    /* Animation setup */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Show the dropdown on hover */
+.account-control:hover .auth-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.auth-dropdown-signin-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    background: #000;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.auth-dropdown-menu .register-link {
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.auth-dropdown-menu hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 15px 0;
+}
+
+.auth-dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 15px;
+    color: #333;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.auth-dropdown-menu a:hover {
+    background-color: #f0f2f5;
+}
+
+.auth-dropdown-menu .fas {
+    width: 20px;
+    text-align: center;
+    color: #888;
+}
