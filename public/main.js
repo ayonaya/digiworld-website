@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // --- DOM Elements ---
     const productGrid = document.getElementById('productGrid');
-    const flashSaleGrid = document.getElementById('flashSaleGrid');
+    const flashSaleCarousel = document.getElementById('flashSaleCarousel');
     const categoryFilter = document.getElementById('categoryFilter');
     const sortProductsControl = document.getElementById('sortProducts');
     const langCurrencyBtn = document.getElementById('langCurrencyBtn');
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // =================================================================
+   // =================================================================
     // SECTION 3: FLASH SALE CAROUSEL LOGIC (with Clickable Slides)
     // =================================================================
     function initializeFlashSale(products) {
@@ -259,14 +259,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         function updateCarousel() {
             slides.forEach((slide, index) => {
-                slide.classList.remove('fs-slide-center', 'fs-slide-left', 'fs-slide-right', 'fs-slide-far-left', 'fs-slide-far-right');
+                slide.classList.remove('fs-slide-center', 'fs-slide-left', 'fs-slide-right', 'fs-slide-far');
                 let pos = (index - currentIndex + totalSlides) % totalSlides;
                 if (pos === 0) slide.classList.add('fs-slide-center');
                 else if (pos === 1) slide.classList.add('fs-slide-right');
                 else if (pos === totalSlides - 1) slide.classList.add('fs-slide-left');
-                else if (pos === 2) slide.classList.add('fs-slide-far-right');
-                else if (pos === totalSlides - 2) slide.classList.add('fs-slide-far-left');
-                else slide.classList.add('fs-slide-far-right');
+                else slide.classList.add('fs-slide-far');
             });
         }
 
@@ -285,17 +283,16 @@ document.addEventListener('DOMContentLoaded', async function() {
             autoRotateInterval = setInterval(moveToNext, 4000);
         }
 
-        // --- NEW: Click listener for the slides ---
         flashSaleCarousel.addEventListener('click', (e) => {
             const clickedCard = e.target.closest('.flash-sale-card');
             if (!clickedCard) return;
 
             if (clickedCard.classList.contains('fs-slide-right')) {
                 moveToNext();
-                startAutoRotate(); // Restart timer
+                startAutoRotate();
             } else if (clickedCard.classList.contains('fs-slide-left')) {
                 moveToPrev();
-                startAutoRotate(); // Restart timer
+                startAutoRotate();
             }
         });
 
@@ -304,9 +301,30 @@ document.addEventListener('DOMContentLoaded', async function() {
         startAutoRotate();
     }
 
-    function startCountdown() { /* ... Unchanged ... */ }
+    function startCountdown() {
+        const countdownHoursEl = document.getElementById('countdown-hours');
+        const countdownMinutesEl = document.getElementById('countdown-minutes');
+        const countdownSecondsEl = document.getElementById('countdown-seconds');
+        if(!countdownHoursEl) return;
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0); 
+        const timerInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = tomorrow - now;
+            if (distance < 0) { clearInterval(timerInterval); window.location.reload(); return; }
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // Corrected this line
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            countdownHoursEl.textContent = hours.toString().padStart(2, '0');
+            countdownMinutesEl.textContent = minutes.toString().padStart(2, '0');
+            countdownSecondsEl.textContent = seconds.toString().padStart(2, '0');
+        }, 1000);
+    }
 
     async function initializePage() {
+        const flashSaleCarousel = document.getElementById('flashSaleCarousel');
+        const productGrid = document.getElementById('productGrid');
         if (!productGrid && !flashSaleCarousel) {
             initializeCart([]);
             return;
@@ -326,6 +344,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (productGrid) productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
         }
     }
-
+    
+    // All other functions and event listeners are here, correct and unchanged...
+    // For brevity, they are implied, but the full script would contain them.
+    // The call to initializePage() at the end runs everything.
     initializePage();
 });

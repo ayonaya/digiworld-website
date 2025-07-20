@@ -3365,21 +3365,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 520px; /* Increased height for better focus effect */
+    height: 520px;
     position: relative;
 }
 
 .flash-sale-carousel .product-card {
     position: absolute;
     width: 300px;
-    transition: transform 0.5s ease, opacity 0.5s ease, z-index 0.5s;
+    transition: transform 0.5s ease, opacity 0.5s ease, z-index 0s 0.25s;
     opacity: 0.5;
     z-index: 1;
 }
 
 /* Style for the card in the center (active) */
 .flash-sale-carousel .fs-slide-center {
-    transform: translateX(0) scale(1.15); /* Slightly larger */
+    transform: translateX(0) scale(1.15);
     opacity: 1;
     z-index: 3;
     border: 2px solid var(--primary);
@@ -3400,16 +3400,10 @@
 }
 
 /* Styles for hidden cards */
-.flash-sale-carousel .fs-slide-far-left {
-    transform: translateX(-120%) scale(0.6);
+.flash-sale-carousel .fs-slide-far {
+    transform: translateX(0) scale(0.6);
     opacity: 0;
-    pointer-events: none; /* Make them unclickable */
-}
-
-.flash-sale-carousel .fs-slide-far-right {
-    transform: translateX(120%) scale(0.6);
-    opacity: 0;
-    pointer-events: none; /* Make them unclickable */
+    pointer-events: none;
 }
 
 /* Countdown Timer Styles */
