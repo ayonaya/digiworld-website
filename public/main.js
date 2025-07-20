@@ -211,8 +211,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-   // =================================================================
-    // SECTION 3: FLASH SALE CAROUSEL LOGIC (with Clickable Slides)
+    // =================================================================
+    // SECTION 3: FLASH SALE CAROUSEL LOGIC
     // =================================================================
     function initializeFlashSale(products) {
         const flashSaleSection = document.querySelector('.flash-sale-section');
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const now = new Date().getTime();
             const distance = tomorrow - now;
             if (distance < 0) { clearInterval(timerInterval); window.location.reload(); return; }
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); // Corrected this line
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
             countdownHoursEl.textContent = hours.toString().padStart(2, '0');
@@ -323,8 +323,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     async function initializePage() {
-        const flashSaleCarousel = document.getElementById('flashSaleCarousel');
-        const productGrid = document.getElementById('productGrid');
         if (!productGrid && !flashSaleCarousel) {
             initializeCart([]);
             return;
@@ -345,8 +343,5 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
-    // All other functions and event listeners are here, correct and unchanged...
-    // For brevity, they are implied, but the full script would contain them.
-    // The call to initializePage() at the end runs everything.
     initializePage();
 });
