@@ -2638,3 +2638,589 @@
     text-align: center;
     color: #888;
 }
+/* =================================================================== */
+/* ================== BANNER 1: UNIQUE MICROSOFT KEYS ================ */
+/* =================================================================== */
+
+.unique-banner {
+    position: relative;
+    width: 100%; /* Changed for slider */
+    height: 100%; /* Changed for slider */
+    background: linear-gradient(135deg, #1e1e1e 0%, #121212 100%);
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    transform-style: preserve-3d;
+    display: flex; /* Added for centering */
+    justify-content: center; /* Added for centering */
+    align-items: center; /* Added for centering */
+}
+
+.banner-content-layer {
+    position: relative;
+    z-index: 5;
+    padding: 3rem 4rem;
+    width: 50%;
+    text-align: left;
+}
+
+.unique-banner h2 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 87, 34, 0.4);
+    animation: slide-up 1s ease-out 0.2s forwards;
+    opacity: 0;
+}
+
+.unique-banner p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: rgba(255,255,255,0.8);
+    max-width: 450px;
+    animation: slide-up 1s ease-out 0.4s forwards;
+    opacity: 0;
+}
+
+.unique-banner .pro-btn {
+    background: linear-gradient(45deg, #FF4500, #FF6347);
+    color: #fff;
+    padding: 1rem 2.5rem;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(255, 69, 0, 0.4);
+    display: inline-block;
+    animation: slide-up 1s ease-out 0.6s forwards;
+    opacity: 0;
+}
+
+.unique-banner .pro-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 30px rgba(255, 69, 0, 0.6);
+}
+
+@keyframes slide-up {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.visuals-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.visual-element {
+    position: absolute;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.logo-windows {
+    top: 15%;
+    right: 10%;
+    width: 250px;
+    color: #FF4500;
+    animation: float-logo 8s ease-in-out infinite;
+    z-index: 3;
+}
+
+.logo-office {
+    bottom: 10%;
+    right: 35%;
+    width: 180px;
+    color: #d32f2f;
+    animation: float-logo 10s ease-in-out infinite 1s;
+    z-index: 2;
+}
+
+.shape-1 {
+    top: 5%; left: 45%; width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255, 69, 0, 0.2) 0%, transparent 70%);
+    animation: pulse-shape 12s infinite;
+}
+
+.shape-2 {
+    bottom: -20%; right: -10%; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(211, 47, 47, 0.15) 0%, transparent 70%);
+    animation: pulse-shape 15s infinite 2s;
+}
+
+@keyframes float-logo {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes pulse-shape {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+/* =================================================================== */
+/* =============== BANNER 2: STREAMING & VPNS (POWERFUL) ============= */
+/* =================================================================== */
+
+.powerful-banner {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4rem 5%;
+    background: linear-gradient(135deg, #2a2a2e 0%, #1a1a1a 100%);
+    color: #fff;
+    overflow: hidden;
+    border: 1px solid rgba(255, 107, 0, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.powerful-banner::before, .powerful-banner::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #FF4500, #FF6347);
+    animation: pulse-glow 8s infinite alternate;
+}
+
+.powerful-banner::before {
+    width: 400px; height: 400px; top: -150px; left: -100px; opacity: 0.2; filter: blur(80px);
+}
+
+.powerful-banner::after {
+    width: 300px; height: 300px; bottom: -120px; right: -80px; opacity: 0.25; filter: blur(60px); animation-delay: -4s;
+}
+
+@keyframes pulse-glow {
+    from { transform: scale(0.9); opacity: 0.15; }
+    to { transform: scale(1.1); opacity: 0.25; }
+}
+
+.promo-badge {
+    position: absolute;
+    top: 25px; left: -10px;
+    background-color: #d32f2f;
+    color: #fff;
+    padding: 0.8rem 1.5rem 0.8rem 2.5rem;
+    font-weight: bold;
+    z-index: 3;
+    clip-path: polygon(0% 0%, 100% 0%, 90% 50%, 100% 100%, 0% 100%, 10% 50%);
+    animation: slide-in-badge 1s ease-out 0.5s forwards;
+    opacity: 0;
+}
+
+@keyframes slide-in-badge {
+    from { transform: translateX(-100%); opacity: 0;}
+    to { transform: translateX(0); opacity: 1;}
+}
+
+.left-content {
+    flex-basis: 55%;
+    padding-right: 2rem;
+    z-index: 2;
+}
+
+.powerful-banner h2 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 15px rgba(255, 87, 34, 0.5);
+}
+
+.powerful-banner p {
+    font-size: 1.25rem;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+    max-width: 500px;
+}
+
+.cta-buttons a {
+    display: inline-block;
+    padding: 1rem 2rem;
+    margin: 0.5rem 1rem 0.5rem 0;
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 50px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.cta-primary {
+    background: linear-gradient(45deg, #FF4500, #FF6347);
+    box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4);
+}
+
+.cta-secondary {
+    background-color: transparent;
+    border: 2px solid #ff6347;
+}
+
+.cta-buttons a:hover {
+    transform: translateY(-3px) scale(1.05);
+}
+
+.right-visual {
+    flex-basis: 45%;
+    position: relative;
+    z-index: 2;
+    animation: float-main 6s ease-in-out infinite;
+}
+
+@keyframes float-main {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+.right-visual .card-stack {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 16/10;
+}
+
+.card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    transition: transform 0.5s ease-out;
+    background: linear-gradient(45deg, #FF6347, #FF4500);
+    padding: 10px;
+}
+
+.card-1 {
+    transform: rotate(-5deg) translate(-10%, -5%);
+    z-index: 1;
+}
+
+.card-2 {
+    transform: rotate(5deg) translate(10%, 5%);
+    z-index: 2;
+}
+
+.image-container {
+     width: 100%;
+     height: 100%;
+     background-size: cover;
+     background-position: center;
+     border-radius: 10px;
+}
+
+.card-1 .image-container {
+    background-image: url('https://images.unsplash.com/photo-1558507314-78326ade135d?q=80&w=2070&auto=format&fit=crop');
+}
+
+.card-2 .image-container {
+    background-image: url('https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?q=80&w=2070&auto=format&fit=crop');
+}
+
+.powerful-banner:hover .card-1 {
+     transform: rotate(-8deg) translate(-20%, -5%) scale(1.05);
+}
+
+.powerful-banner:hover .card-2 {
+     transform: rotate(8deg) translate(0%, 5%) scale(1.05);
+}
+
+/* =================================================================== */
+/* ============= BANNER 3: ANTIVIRUS & GAMING (GLASS) ================ */
+/* =================================================================== */
+
+.glass-banner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.glass-banner .background-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: linear-gradient(-45deg, #d32f2f, #ff4500, #ff6347, #b71c1c);
+    background-size: 400% 400%;
+    animation: gradient-flow 15s ease infinite;
+}
+
+.glass-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5%;
+    box-sizing: border-box;
+}
+
+.content-section {
+    flex-basis: 45%;
+    text-align: center;
+    animation: fade-in-content 1s ease-out 0.5s forwards;
+    opacity: 0;
+}
+
+@keyframes fade-in-content {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.content-section .icon {
+    font-size: 6rem;
+    color: #fff;
+    text-shadow: 0 0 25px rgba(255, 107, 0, 0.6);
+    margin-bottom: 1rem;
+    animation: float-icon 6s ease-in-out infinite;
+}
+
+.content-section.gaming .icon { animation-delay: -3s; }
+
+@keyframes float-icon {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+
+.content-section h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.content-section p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 1.5rem;
+}
+
+.pro-btn-glass {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 0.8rem 2rem;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 107, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.pro-btn-glass:hover {
+    background: rgba(255, 107, 0, 0.8);
+    border-color: transparent;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+}
+
+.separator {
+    width: 2px;
+    height: 70%;
+    background: linear-gradient(to bottom, transparent, rgba(255,107,0,0.7), transparent);
+    z-index: 3;
+}
+
+/* =================================================================== */
+/* ================== BANNER 4: FLASH SALE PROMOTION ================= */
+/* =================================================================== */
+
+.flash-sale-banner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.background-slideshow .slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    animation: ken-burns 20s infinite;
+}
+
+.background-slideshow .slide.active {
+    opacity: 1;
+}
+
+.background-slideshow .slide:nth-child(2) { animation-delay: -5s; }
+.background-slideshow .slide:nth-child(3) { animation-delay: -10s; }
+.background-slideshow .slide:nth-child(4) { animation-delay: -15s; }
+
+@keyframes ken-burns {
+    0% { transform: scale(1.1) translateX(-5%); }
+    50% { transform: scale(1.2) translateX(5%); }
+    100% { transform: scale(1.1) translateX(-5%); }
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1;
+}
+
+.flash-sale-content {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+}
+
+.flash-sale-content h2 {
+    font-size: 5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    animation: flicker 2s infinite alternate;
+    text-shadow: 0 0 10px #FF4500, 0 0 20px #FF4500, 0 0 40px #d32f2f, 0 0 60px #d32f2f;
+}
+
+@keyframes flicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+        text-shadow: 0 0 10px #FF4500, 0 0 20px #FF4500, 0 0 40px #d32f2f, 0 0 60px #d32f2f;
+    }
+    20%, 24%, 55% {        
+        text-shadow: none;
+    }
+}
+
+.flash-sale-content p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+#countdown-timer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.timer-unit {
+    background: rgba(0,0,0,0.5);
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 107, 0, 0.5);
+}
+
+.timer-unit span {
+    display: block;
+}
+
+.timer-unit .number {
+    font-size: 3rem;
+    font-weight: bold;
+    line-height: 1;
+    color: #FF6B00;
+}
+
+.timer-unit .label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.pro-btn-flash {
+    background: linear-gradient(45deg, #FF4500, #FF6347);
+    color: #fff;
+    padding: 1.2rem 3rem;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 25px rgba(255, 69, 0, 0.5);
+    display: inline-block;
+    text-transform: uppercase;
+    animation: pulse-button 1.5s infinite;
+}
+
+@keyframes pulse-button {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* =================================================================== */
+/* ===================== RESPONSIVE ADJUSTMENTS ====================== */
+/* =================================================================== */
+
+@media (max-width: 992px) {
+    /* Banner 1 */
+    .unique-banner {
+        flex-direction: column;
+        height: auto;
+        padding: 2rem;
+    }
+    .banner-content-layer {
+        width: 100%;
+        text-align: center;
+        padding: 1rem;
+    }
+    .unique-banner p { max-width: 100%; }
+    .visuals-layer { display: none; }
+
+    /* Banner 2 */
+    .powerful-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    .left-content {
+        padding-right: 0;
+        margin-bottom: 3rem;
+    }
+    .cta-buttons {
+        justify-content: center;
+    }
+    .powerful-banner h2 { font-size: 2.5rem; }
+    .powerful-banner p { max-width: 100%; }
+
+    /* Banner 3 */
+    .glass-banner { height: auto; }
+    .glass-panel { flex-direction: column; padding: 3rem 5%; height: auto;}
+    .separator { display: none; }
+    .content-section:first-child { margin-bottom: 3rem; }
+    .content-section h3 { font-size: 2rem; }
+
+    /* Banner 4 */
+    .flash-sale-banner { height: auto; padding: 4rem 2rem; }
+    .flash-sale-content h2 { font-size: 3rem; }
+    .timer-unit .number { font-size: 2rem; }
+    #countdown-timer { gap: 0.5rem; }
+}
