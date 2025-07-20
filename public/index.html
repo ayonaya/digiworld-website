@@ -152,8 +152,9 @@
         <div class="footer-col">
             <h3>Customer Care</h3>
             <ul>
-                <li><a href="faq.html">FAQ</a></li>
-                <li><a href="refund-policy.html">Refund Policy</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">How to Buy</a></li>
+                <li><a href="#">Refund Policy</a></li>
             </ul>
         </div>
         <div class="footer-col">
@@ -161,14 +162,14 @@
             <ul>
                 <li><a href="about.html">About Us</a></li>
                 <li><a href="contact.html">Contact Us</a></li>
-                <li><a href="terms.html">Terms & Conditions</a></li>
+                <li><a href="#">Terms & Conditions</a></li>
             </ul>
         </div>
         <div class="footer-col">
             <h3>We Accept</h3>
             <div class="payment-methods-logos">
-                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" title="PayPal and Credit Cards">
-                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" title="NowPayments Crypto">
+                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards">
+                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto">
             </div>
         </div>
     </div>
@@ -189,13 +190,15 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
+  // This inline script handles the immediate visibility of the login/account buttons
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
+    authDomain: "digiworld-46a1e.firebaseapp.com",
+    projectId: "digiworld-46a1e",
+    storageBucket: "digiworld-46a1e.appspot.com",
+    messagingSenderId: "242235397710",
+    appId: "1:242235397710:web:a80c15cc285188610cd51f",
+    measurementId: "G-R8C4BWHXBL"
   };
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
@@ -218,8 +221,7 @@
 
   accountBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    const isVisible = accountMenu.style.display === 'flex';
-    accountMenu.style.display = isVisible ? 'none' : 'flex';
+    accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
   });
   
   document.addEventListener('click', () => {
