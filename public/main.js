@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const searchSuggestionsDesktop = document.getElementById('searchSuggestionsDesktop');
     const searchInputMobile = document.getElementById('mobileSearch');
     const searchSuggestionsMobile = document.getElementById('searchSuggestionsMobile');
+    const sliderContainer = document.getElementById('hero-slider');
 
     // --- App State ---
     let allProducts = [];
@@ -322,6 +323,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         }, 1000);
     }
 
+    // =================================================================
+    // FINAL INITIALIZATION & EVENT LISTENERS
+    // =================================================================
     async function initializePage() {
         if (!productGrid && !flashSaleCarousel) {
             initializeCart([]);
@@ -343,5 +347,24 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
-    initializePage();
+    // --- All Event Listeners are now correctly placed ---
+    document.body.addEventListener('click', (e) => {
+        if (e.target.closest('.add-to-cart')) { addToCart(e.target.closest('.add-to-cart').dataset.id); }
+        if (e.target.closest('.buy-now')) { addToCart(e.target.closest('.buy-now').dataset.id); window.location.href = 'checkout.html'; }
+    });
+    if(backBtn) {
+        backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
+        window.addEventListener('scroll', () => { if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none'; });
+    }
+    if(categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndSorting);
+    if(sortProductsControl) sortProductsControl.addEventListener('change', applyFiltersAndSorting);
+    if (searchInputDesktop) { searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop)); }
+    if (searchInputMobile) { searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile)); }
+    document.addEventListener('click', () => {
+        if (searchSuggestionsDesktop) searchSuggestionsDesktop.style.display = 'none';
+        if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
+    });
+
+    initializePage(); // This single call starts everything
+
 });
