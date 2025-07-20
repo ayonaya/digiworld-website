@@ -13,8 +13,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     const categoryFilter = document.getElementById('categoryFilter');
     const sortProductsControl = document.getElementById('sortProducts');
     const langCurrencyBtn = document.getElementById('langCurrencyBtn');
-    const searchInputDesktop = document.getElementById('searchInput');
     const backBtn = document.getElementById('dwBackToTop');
+    const searchInputDesktop = document.getElementById('searchInput');
+    const searchSuggestionsDesktop = document.getElementById('searchSuggestionsDesktop');
+    const searchInputMobile = document.getElementById('mobileSearch');
+    const searchSuggestionsMobile = document.getElementById('searchSuggestionsMobile');
 
 
     // --- App State ---
@@ -73,7 +76,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         productGrid.innerHTML = list.map((prod) => {
             const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
             const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
-            // THIS LINE IS NOW CORRECTLY ADDED BACK:
             const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
             const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
             
@@ -108,12 +110,47 @@ document.addEventListener('DOMContentLoaded', async function() {
             filteredProducts = filteredProducts.filter(p => p.category === categoryFilter.value);
         }
         if (sortProductsControl) {
-            // Your sorting logic would go here based on the sort control's value
+            const sortValue = sortProductsControl.value;
+            switch (sortValue) {
+                case 'price-asc':
+                    filteredProducts.sort((a, b) => (a.price[currentCurr] || a.price['USD']) - (b.price[currentCurr] || b.price['USD']));
+                    break;
+                case 'price-desc':
+                    filteredProducts.sort((a, b) => (b.price[currentCurr] || b.price['USD']) - (a.price[currentCurr] || a.price['USD']));
+                    break;
+                case 'name-asc':
+                    filteredProducts.sort((a, b) => ((a.name[currentLang] || a.name.en).localeCompare(b.name[currentLang] || b.name.en)));
+                    break;
+                case 'name-desc':
+                    filteredProducts.sort((a, b) => ((b.name[currentLang] || b.name.en).localeCompare(a.name[currentLang] || a.name.en)));
+                    break;
+            }
         }
         renderProducts(filteredProducts);
     }
+    
+    // --- Search Functionality (Restored) ---
+    function handleSearch(inputElement, suggestionsElement) {
+        if (!suggestionsElement) return;
+        const val = inputElement.value.trim().toLowerCase();
+        if (val.length < 1) {
+            suggestionsElement.style.display = 'none';
+            return;
+        }
+        const result = allProducts.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(val));
+        if (result.length === 0) {
+            suggestionsElement.style.display = 'none';
+            return;
+        }
+        suggestionsElement.innerHTML = result.map(p => {
+            const name = p.name[currentLang] || p.name.en;
+            const highlightedName = name.replace(new RegExp(val, 'gi'), `<b>$&</b>`);
+            return `<div class="suggestion-item" onclick="window.location='product-details.html?id=${p.id}'">${highlightedName}</div>`;
+        }).join('');
+        suggestionsElement.style.display = 'block';
+    }
 
-    // --- DATA FETCHING & INITIALIZATION ---
+    // --- Data Fetching & Initialization ---
     if (productGrid) {
         showSkeletonLoaders();
         try {
@@ -129,10 +166,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
         }
     } else {
-        initializeCart([]); // Initialize cart for other pages
+        // Still initialize cart for pages that don't show products
+        initializeCart([]);
     }
 
-    // --- GLOBAL EVENT LISTENERS ---
+    // --- Global Event Listeners ---
     document.body.addEventListener('click', function(e) {
         const target = e.target;
         if (target.closest('.add-to-cart')) {
@@ -143,11 +181,22 @@ document.addEventListener('DOMContentLoaded', async function() {
             window.location.href = 'checkout.html';
         }
     });
+
+    if (searchInputDesktop) {
+        searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
+    }
+    if (searchInputMobile) {
+        searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile));
+    }
+    document.addEventListener('click', () => {
+        if (searchSuggestionsDesktop) searchSuggestionsDesktop.style.display = 'none';
+        if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
+    });
     
     if(backBtn) {
         backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
         window.addEventListener('scroll', () => {
-             backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
+             if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
         });
     }
 
