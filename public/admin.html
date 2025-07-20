@@ -1,144 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigiWorld - Admin Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        :root {
-            --primary: #f57224; --primary-dark: #d45703; --accent: #fe724c;
-            --card-bg: #fff; --bg: #f0f2f5; --radius: 12px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --success: #28a745; --danger: #e74c3c; --info: #3498db;
-        }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); margin: 0; color: #333; -webkit-font-smoothing: antialiased; }
-        .admin-container { max-width: 1400px; margin: 30px auto; padding: 20px; }
-        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .admin-header h1 { font-weight: 900; color: var(--primary-dark); margin: 0; }
-        .login-container { max-width: 400px; margin: 100px auto; padding: 40px; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
-        .login-container h2 { margin-top: 0; font-weight: 700; }
-        .login-container input { width: 100%; padding: 12px; margin: 10px 0 20px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover { background-color: var(--primary-dark); transform: translateY(-2px); }
-        .btn-danger { background-color: var(--danger); color: white; }
-        .btn-success { background-color: var(--success); color: white; }
-        .dashboard { display: none; grid-template-columns: 2fr 1fr; gap: 30px; }
-        .dashboard-card { background-color: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); }
-        .dashboard-card h3 { margin-top: 0; font-weight: 700; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; vertical-align: middle;}
-        th { font-weight: 700; font-size: 0.85rem; color: #888; text-transform: uppercase; }
-        .action-btn { color: white; border: none; padding: 6px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; cursor: pointer; margin-right: 5px; }
-        .edit-btn { background-color: var(--info); }
-        .delete-btn { background-color: var(--danger); }
-        .hidden { display: none !important; }
-        .review-card { padding: 15px 0; border-bottom: 1px solid #eee; }
-        .review-card:last-child { border-bottom: none; }
-        .review-actions { margin-top: 10px; display: flex; gap: 10px; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
-        .modal-overlay.show { opacity: 1; visibility: visible; }
-        .modal-content { background: white; padding: 30px; border-radius: var(--radius); width: 90%; max-width: 600px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s; }
-        .modal-overlay.show .modal-content { transform: scale(1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { margin: 0; font-weight: 700; }
-        .modal-close { font-size: 1.5rem; cursor: pointer; background: none; border: none; }
-        .admin-form .form-group { margin-bottom: 15px; }
-        .admin-form label { display: block; margin-bottom: 5px; font-weight: 600; }
-        .admin-form input, .admin-form select, .admin-form textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; font-family: 'Poppins', sans-serif; font-size: 1rem; }
-        .admin-form textarea { min-height: 80px; resize: vertical; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .message { text-align: center; margin-top: 15px; font-weight: 600; padding: 10px; border-radius: 8px; }
-        @media (max-width: 900px) {
-            .dashboard { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-<body>
-
-    <div class="login-container" id="loginContainer">
-        <h2>Admin Login</h2>
-        <form id="loginForm">
-            <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
-            <button type="submit" class="btn btn-primary">Login</button>
-        </form>
-        <div id="loginMessage" class="message"></div>
-    </div>
-
-    <div class="admin-container hidden" id="dashboardContainer">
-        <div class="admin-header">
-            <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
-            <button id="logoutBtn" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </div>
-        <div class="dashboard" id="dashboardGrid">
-            </div>
-    </div>
-
-    <div class="modal-overlay hidden" id="editProductModal">
-        <div class="modal-content">
-            <div class="modal-header"><h2>Edit Product</h2><button class="modal-close">&times;</button></div>
-            <form id="editProductForm" class="admin-form">
-                <input type="hidden" id="editProductId">
-                <div class="form-group"><label for="editProductNameEn">Product Name (EN)</label><input type="text" id="editProductNameEn" required></div>
-                <div class="form-grid">
-                    <div class="form-group"><label for="editProductPriceUSD">Price (USD)</label><input type="number" id="editProductPriceUSD" step="0.01" required></div>
-                    <div class="form-group"><label for="editProductCategory">Category</label><input type="text" id="editProductCategory" required></div>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
-                <div id="editProductMessage" class="message"></div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal-overlay hidden" id="createProductModal">
-        <div class="modal-content">
-            <div class="modal-header"><h2>Create New Product</h2><button class="modal-close">&times;</button></div>
-            <form id="createProductForm" class="admin-form">
-                <div class="form-group"><label for="createProductId">Product ID (e.g., 'win11-home')</label><input type="text" id="createProductId" required></div>
-                <div class="form-group"><label for="createProductNameEn">Product Name (EN)</label><input type="text" id="createProductNameEn" required></div>
-                <div class="form-grid">
-                    <div class="form-group"><label for="createProductPriceUSD">Price (USD)</label><input type="number" id="createProductPriceUSD" step="0.01" required></div>
-                    <div class="form-group"><label for="createProductCategory">Category</label><input type="text" id="createProductCategory" placeholder="e.g., Windows, Office" required></div>
-                </div>
-                <div class="form-group"><label for="createProductImage">Image URL</label><input type="url" id="createProductImage" required></div>
-                <div class="form-group"><label for="createProductDescEn">Description (EN)</label><textarea id="createProductDescEn" required></textarea></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Product</button>
-                <div id="createProductMessage" class="message"></div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal-overlay hidden" id="addKeysModal">
-        <div class="modal-content">
-            <div class="modal-header"><h2>Add Digital Keys</h2><button class="modal-close">&times;</button></div>
-            <form id="addKeysForm" class="admin-form">
-                <div class="form-group">
-                    <label for="addKeysProductId">Select Product</label>
-                    <select id="addKeysProductId" required></select>
-                </div>
-                <div class="form-group">
-                    <label for="addKeysTextarea">Enter Keys (one per line)</label>
-                    <textarea id="addKeysTextarea" rows="10" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Keys to Inventory</button>
-                <div id="addKeysMessage" class="message"></div>
-            </form>
-        </div>
-    </div>
-
-    <script>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- CACHED DOM ELEMENTS ---
         const loginContainer = document.getElementById('loginContainer');
         const dashboardContainer = document.getElementById('dashboardContainer');
         const dashboardGrid = document.getElementById('dashboardGrid');
         const loginForm = document.getElementById('loginForm');
         const logoutBtn = document.getElementById('logoutBtn');
-        let allProductsData = [];
-        
+
         const modals = {
             editProduct: document.getElementById('editProductModal'),
             createProduct: document.getElementById('createProductModal'),
@@ -150,6 +18,12 @@
             createProduct: document.getElementById('createProductForm'),
             addKeys: document.getElementById('addKeysForm')
         };
+        
+        let allProductsData = []; // Cache for product data
+
+        // =================================================================
+        // API & STATE MANAGEMENT
+        // =================================================================
 
         async function apiCall(endpoint, body) {
             const password = sessionStorage.getItem('adminPassword');
@@ -183,18 +57,7 @@
             }
 
             try {
-                const response = await fetch('/.netlify/functions/get-admin-data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminPassword: password })
-                });
-
-                if (!response.ok) {
-                    if (response.status === 401) throw new Error('Incorrect password.');
-                    throw new Error('Failed to fetch data.');
-                }
-
-                const result = await response.json();
+                const result = await apiCall('get-admin-data', {});
                 if (!result.success) throw new Error(result.message);
                 
                 allProductsData = result.data.products || [];
@@ -202,7 +65,6 @@
                 
                 loginContainer.classList.add('hidden');
                 dashboardContainer.classList.remove('hidden');
-                dashboardGrid.style.display = 'grid';
 
             } catch (error) {
                 console.error("Dashboard failed to load:", error);
@@ -210,14 +72,19 @@
             }
         }
 
+        // =================================================================
+        // RENDERING
+        // =================================================================
+
         function renderDashboard(data) {
+            dashboardGrid.style.display = 'none'; // Hide before re-rendering to prevent flicker
             dashboardGrid.innerHTML = `
                 <div style="display: flex; flex-direction: column; gap: 30px;">
                     <div class="dashboard-card">
                         <h3><i class="fas fa-box-open"></i> Product Management</h3>
                         <table id="productsTable">
                             <thead><tr><th>Product Name</th><th>Price (USD)</th><th>Category</th><th>Actions</th></tr></thead>
-                            <tbody>${renderTableRows(data.products, p => `<tr data-product-row-id="${p.id}"><td>${p.name.en}</td><td>$${p.price.USD ? p.price.USD.toFixed(2) : 'N/A'}</td><td>${p.category}</td><td><button class="action-btn edit-btn" data-id="${p.id}"><i class="fas fa-edit"></i> Edit</button><button class="action-btn delete-btn" data-id="${p.id}"><i class="fas fa-trash"></i> Delete</button></td></tr>`, '<tr><td colspan="4">No products found.</td></tr>')}</tbody>
+                            <tbody>${renderTableRows(data.products, p => `<tr data-product-row-id="${p.id}"><td>${p.name.en}</td><td>$${p.price.USD ? p.price.USD.toFixed(2) : 'N/A'}</td><td>${p.category}</td><td><button class="action-btn edit-btn" data-action="editProduct" data-id="${p.id}"><i class="fas fa-edit"></i> Edit</button><button class="action-btn delete-btn" data-action="deleteProduct" data-id="${p.id}"><i class="fas fa-trash"></i> Delete</button></td></tr>`, '<tr><td colspan="4">No products found.</td></tr>')}</tbody>
                         </table>
                     </div>
                     <div class="dashboard-card">
@@ -232,8 +99,8 @@
                     <div class="dashboard-card">
                         <h3><i class="fas fa-cogs"></i> Admin Actions</h3>
                         <div style="display: flex; flex-direction: column; gap: 15px;">
-                            <button class="btn btn-primary" id="openCreateProductModalBtn"><i class="fas fa-plus-circle"></i> Create New Product</button>
-                            <button class="btn btn-primary" id="openAddKeysModalBtn"><i class="fas fa-key"></i> Add Digital Keys</button>
+                            <button class="btn btn-primary" data-action="openCreateProductModal"><i class="fas fa-plus-circle"></i> Create New Product</button>
+                            <button class="btn btn-primary" data-action="openAddKeysModal"><i class="fas fa-key"></i> Add Digital Keys</button>
                         </div>
                     </div>
                     <div class="dashboard-card">
@@ -250,76 +117,80 @@
                                 <div><strong>${r.authorName}</strong> on <em>${r.productId}</em> (${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)})</div>
                                 <p>${r.reviewText}</p>
                                 <div class="review-actions">
-                                    <button class="btn btn-success" data-id="${r.id}" data-action="approve">Approve</button>
-                                    <button class="btn btn-danger" data-id="${r.id}" data-action="delete">Delete</button>
+                                    <button class="btn btn-success" data-id="${r.id}" data-action="approveReview">Approve</button>
+                                    <button class="btn btn-danger" data-id="${r.id}" data-action="deleteReview">Delete</button>
                                 </div>
                             </div>`).join('') : '<p>No pending reviews.</p>'}
                         </div>
                     </div>
                 </div>
             `;
-            bindDashboardEvents();
+            dashboardGrid.style.display = 'grid'; // Show after rendering
         }
                 
         function renderTableRows(data, rowTemplate, emptyMessage) {
             if (data && data.length > 0) return data.map(rowTemplate).join('');
-            return `<tr><td colspan="100%" style="text-align:center; padding: 20px;">${emptyMessage}</td></tr>`;
+            return `<tr><td colspan="100%" style="text-align:center; padding: 20px;">${emptyMessage || 'No items found.'}</td></tr>`;
         }
 
         function openModal(modal) { modal.classList.add('show'); }
         function closeModal(modal) { modal.classList.remove('show'); }
 
-        function bindDashboardEvents() {
-            document.getElementById('openCreateProductModalBtn').addEventListener('click', () => {
-                forms.createProduct.reset();
-                openModal(modals.createProduct);
-            });
-            document.getElementById('openAddKeysModalBtn').addEventListener('click', () => {
-                const productSelect = document.getElementById('addKeysProductId');
-                productSelect.innerHTML = allProductsData.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
-                forms.addKeys.reset();
-                openModal(modals.addKeys);
-            });
-            document.getElementById('productsTable').addEventListener('click', handleProductActions);
-            document.getElementById('pendingReviewsList').addEventListener('click', handleReviewActions);
-        }
+        // =================================================================
+        // EVENT HANDLERS (using Event Delegation)
+        // =================================================================
 
-        async function handleProductActions(e) {
-            const targetButton = e.target.closest('button.action-btn');
-            if (!targetButton) return;
-            const productId = targetButton.dataset.id;
+        dashboardContainer.addEventListener('click', async (e) => {
+            const target = e.target.closest('button');
+            if (!target) return;
 
-            if (targetButton.classList.contains('edit-btn')) {
-                const product = allProductsData.find(p => p.id === productId);
-                if (!product) return;
-                forms.editProduct.editProductId.value = product.id;
-                forms.editProduct.editProductNameEn.value = product.name.en;
-                forms.editProduct.editProductPriceUSD.value = product.price.USD;
-                forms.editProduct.editProductCategory.value = product.category;
-                openModal(modals.editProduct);
-            }
+            const action = target.dataset.action;
+            const id = target.dataset.id;
             
-            if (targetButton.classList.contains('delete-btn')) {
-                const productName = allProductsData.find(p => p.id === productId)?.name.en || 'this product';
-                if (confirm(`Are you sure you want to delete "${productName}"? This cannot be undone.`)) {
-                    try {
-                        await apiCall('delete-product', { productId });
-                        showDashboard();
-                    } catch (error) { alert(`Error: ${error.message}`); }
-                }
-            }
-        }
-
-        async function handleReviewActions(e) {
-            const button = e.target.closest('button.btn');
-            if (!button) return;
-            const reviewId = button.dataset.id;
-            const action = button.dataset.action;
             try {
-                await apiCall('moderate-review', { reviewId, action });
-                showDashboard();
-            } catch (error) { alert(`Error: ${error.message}`); }
-        }
+                switch (action) {
+                    case 'openCreateProductModal':
+                        forms.createProduct.reset();
+                        openModal(modals.createProduct);
+                        break;
+
+                    case 'openAddKeysModal':
+                        const productSelect = document.getElementById('addKeysProductId');
+                        productSelect.innerHTML = allProductsData.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+                        forms.addKeys.reset();
+                        openModal(modals.addKeys);
+                        break;
+
+                    case 'editProduct':
+                        const product = allProductsData.find(p => p.id === id);
+                        if (!product) return;
+                        forms.editProduct.editProductId.value = product.id;
+                        forms.editProduct.editProductNameEn.value = product.name.en;
+                        forms.editProduct.editProductPriceUSD.value = product.price.USD;
+                        forms.editProduct.editProductCategory.value = product.category;
+                        openModal(modals.editProduct);
+                        break;
+                    
+                    case 'deleteProduct':
+                        const productName = allProductsData.find(p => p.id === id)?.name.en || 'this product';
+                        if (confirm(`Are you sure you want to delete "${productName}"? This cannot be undone.`)) {
+                            await apiCall('delete-product', { productId: id });
+                            showDashboard(); // Refresh
+                        }
+                        break;
+
+                    case 'approveReview':
+                    case 'deleteReview':
+                        const reviewAction = action === 'approveReview' ? 'approve' : 'delete';
+                        await apiCall('moderate-review', { reviewId: id, action: reviewAction });
+                        showDashboard(); // Refresh
+                        break;
+                }
+            } catch (error) {
+                alert(`Error performing action: ${error.message}`);
+                console.error(`Action failed: ${action}`, error);
+            }
+        });
         
         function setupFormListener(form, endpoint, messageEl, getBody) {
             form.addEventListener('submit', async (e) => {
@@ -342,7 +213,12 @@
                 }
             });
         }
+        
+        // =================================================================
+        // INITIALIZATION
+        // =================================================================
 
+        // Setup all form submission listeners
         setupFormListener(forms.editProduct, 'update-product', document.getElementById('editProductMessage'), () => ({
             productId: forms.editProduct.editProductId.value,
             productData: {
@@ -369,6 +245,7 @@
             keys: forms.addKeys.addKeysTextarea.value
         }));
         
+        // Setup listeners for closing modals
         Object.values(modals).forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
@@ -377,6 +254,7 @@
             });
         });
 
+        // Setup login/logout and initial state
         if (sessionStorage.getItem('adminPassword')) {
             showDashboard();
         }
@@ -391,5 +269,3 @@
         logoutBtn.addEventListener('click', () => showLogin());
     });
     </script>
-</body>
-</html>
