@@ -3,6 +3,80 @@ import { initializeCart, addToCart, renderMiniCart } from './cart-manager.js';
 
 document.addEventListener('DOMContentLoaded', async function() {
     // --- DOM ELEMENTS ---
+    // In main.js, add this inside the DOMContentLoaded listener, near the top
+
+    // --- NEW: AliExpress Style Modal Logic ---
+    const langCurrencyBtn = document.getElementById('langCurrencyBtn');
+    
+    // Create the modal HTML dynamically
+    const modalHTML = `
+    <div class="ali-modal" id="langCurrencyModal" aria-modal="true" role="dialog">
+        <div class="ali-modal-content">
+            <h3>Settings</h3>
+            
+            <label for="modalLangSelect">Language</label>
+            <select id="modalLangSelect">
+                <option value="en">🇺🇸 English</option>
+                <option value="si">🇱🇰 සිංහල</option>
+                <option value="ta">🇮🇳 தமிழ்</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="zh">🇨🇳 中文</option>
+                <option value="es">🇪🇸 Español</option>
+            </select>
+            
+            <label for="modalCurrSelect">Currency</label>
+            <select id="modalCurrSelect">
+                <option value="USD">$ USD</option>
+                <option value="LKR">🇱🇰 LKR</option>
+                <option value="INR">₹ INR</option>
+                <option value="EUR">€ EUR</option>
+                <option value="GBP">£ GBP</option>
+            </select>
+            
+            <div class="ali-modal-actions">
+                <button class="ali-modal-btn cancel" id="modalCancelBtn">Cancel</button>
+                <button class="ali-modal-btn save" id="modalSaveBtn">Save</button>
+            </div>
+        </div>
+    </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    const langCurrencyModal = document.getElementById('langCurrencyModal');
+    const modalSaveBtn = document.getElementById('modalSaveBtn');
+    const modalCancelBtn = document.getElementById('modalCancelBtn');
+    const modalLangSelect = document.getElementById('modalLangSelect');
+    const modalCurrSelect = document.getElementById('modalCurrSelect');
+
+    langCurrencyBtn.addEventListener('click', () => {
+        // Set current values in modal before showing
+        modalLangSelect.value = currentLang;
+        modalCurrSelect.value = currentCurr;
+        langCurrencyModal.classList.add('show');
+    });
+
+    const closeModal = () => langCurrencyModal.classList.remove('show');
+    
+    modalCancelBtn.addEventListener('click', closeModal);
+    langCurrencyModal.addEventListener('click', (e) => {
+        if (e.target === langCurrencyModal) closeModal(); // Close if clicking on the overlay
+    });
+
+    modalSaveBtn.addEventListener('click', () => {
+        // Save Language
+        currentLang = modalLangSelect.value;
+        document.getElementById('currentLangFlag').textContent = langFlags[currentLang];
+        
+        // Save Currency
+        currentCurr = modalCurrSelect.value;
+        localStorage.setItem('userCurrency', currentCurr);
+        document.getElementById('currentCurrLabel').textContent = currentCurr;
+
+        applyFiltersAndSorting();
+        renderMiniCart();
+        closeModal();
+    });
+    // --- End of New Modal Logic ---
     const productGrid = document.getElementById('productGrid');
     const categoryFilter = document.getElementById('categoryFilter');
     const sortProductsControl = document.getElementById('sortProducts');

@@ -24,40 +24,35 @@
       <a href="products.html" class="nav-link-pro">Products</a>
       <a href="contact.html" class="nav-link-pro">Contact</a>
     </nav>
-    <div class="header-controls">
-        <div class="lang-currency-wrap">
-          <div class="lang-currency-switcher">
-            <div class="dropdown" id="langDropdown">
-              <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-                <span class="flag" id="currentLangFlag">🇺🇸</span>
-                <span id="currentLangLabel">English</span>
-                <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
-              </button>
-              <div class="dropdown-menu" id="langMenu">
-                <div class="dropdown-item" data-lang="en">🇺🇸 English</div>
-                <div class="dropdown-item" data-lang="si">🇱🇰 සිංහල</div>
-                <div class="dropdown-item" data-lang="ta">🇮🇳 தமிழ்</div>
-                <div class="dropdown-item" data-lang="ru">🇷🇺 Русский</div>
-                <div class="dropdown-item" data-lang="zh">🇨🇳 中文</div>
-                <div class="dropdown-item" data-lang="es">🇪🇸 Español</div>
-              </div>
+<div class="header-controls">
+    
+    <button class="header-btn" id="langCurrencyBtn" aria-label="Language and Currency Settings">
+        <i class="fas fa-globe"></i>
+        <span id="currentLangFlag">🇺🇸</span> /
+        <span id="currentCurrLabel">USD</span>
+        <i class="fas fa-chevron-down"></i>
+    </button>
+    
+    <div class="account-dropdown">
+        <button id="accountBtn" class="header-btn" aria-label="User Account">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </button>
+        <div id="accountMenu" class="account-menu">
             </div>
-            <div class="dropdown" id="currencyDropdown">
-              <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-                <span id="currentCurrSymbol">$</span><span id="currentCurrLabel">USD</span>
-                <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
-              </button>
-              <div class="dropdown-menu" id="currencyMenu">
-                <div class="dropdown-item" data-curr="USD">$ USD</div>
-                <div class="dropdown-item" data-curr="LKR">🇱🇰 LKR</div>
-                <div class="dropdown-item" data-curr="INR">₹ INR</div>
-                <div class="dropdown-item" data-curr="EUR">€ EUR</div>
-                <div class="dropdown-item" data-curr="GBP">£ GBP</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
+    </div>
+    
+    <button class="header-btn cart-btn" id="cartBtn" aria-label="Open cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Cart</span>
+        <span class="cart-icon-badge" id="cartCount">0</span>
+    </button>
+    
+    <button id="loginBtn" class="header-btn" style="display:none;">
+        <i class="fas fa-user"></i>
+        <span>Sign In / Register</span>
+    </button>
+</div>        
         <button id="loginBtn" class="auth-btn" style="display:none;">Login</button>
         <button id="signupBtn" class="auth-btn" style="display:none;">Signup</button>
         <div class="account-dropdown" style="display:none; position: relative;">
