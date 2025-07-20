@@ -215,7 +215,11 @@
             }
         }
 
+// In admin.html, find the renderDashboard function. 
+        // Replace the ENTIRE function with this corrected version.
+
         function renderDashboard(data) {
+            // This is the HTML that builds your dashboard structure.
             dashboardGrid.innerHTML = `
                 <div style="display: flex; flex-direction: column; gap: 30px;">
                     <div class="dashboard-card">
@@ -254,9 +258,13 @@
                     </div>
                 </div>
             `;
+            
+            // --- CRITICAL FIX ---
+            // This function is now called *after* the HTML above has been created,
+            // so the buttons exist and the listeners can be attached correctly.
             bindDashboardEvents();
         }
-        
+                
         function renderTableRows(data, rowTemplate, emptyMessage) {
             if (data && data.length > 0) return data.map(rowTemplate).join('');
             return `<tr><td colspan="100%" style="text-align:center; padding: 20px;">${emptyMessage}</td></tr>`;

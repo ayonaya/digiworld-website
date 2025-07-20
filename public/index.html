@@ -190,7 +190,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
-  // This inline script handles the immediate visibility of the login/account buttons
   const firebaseConfig = {
     apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
     authDomain: "digiworld-46a1e.firebaseapp.com",
@@ -208,6 +207,12 @@
   const accountDropdown = document.querySelector('.account-dropdown');
   const accountBtn = document.getElementById('accountBtn');
   const accountMenu = document.getElementById('accountMenu');
+  
+  // --- DEBUGGING LINES ---
+  console.log("Checking elements right after page loads:");
+  console.log("Found Account Button:", accountBtn);
+  console.log("Found Account Menu:", accountMenu);
+  // --- END DEBUGGING LINES ---
 
   function renderLoggedInMenu() {
     accountMenu.innerHTML = `
@@ -219,13 +224,16 @@
     document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
   }
 
-  accountBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
-  });
+  if (accountBtn) { // Add a check to prevent errors if the button isn't found
+      console.log("Account button was found, adding click listener."); // DEBUGGING LINE
+      accountBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
+      });
+  }
   
   document.addEventListener('click', () => {
-      accountMenu.style.display = 'none';
+      if(accountMenu) accountMenu.style.display = 'none';
   });
 
   auth.onAuthStateChanged(user => {
