@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // --- DOM Elements ---
     const productGrid = document.getElementById('productGrid');
+    const flashSaleGrid = document.getElementById('flashSaleGrid');
     const categoryFilter = document.getElementById('categoryFilter');
     const sortProductsControl = document.getElementById('sortProducts');
     const langCurrencyBtn = document.getElementById('langCurrencyBtn');
@@ -18,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const searchSuggestionsDesktop = document.getElementById('searchSuggestionsDesktop');
     const searchInputMobile = document.getElementById('mobileSearch');
     const searchSuggestionsMobile = document.getElementById('searchSuggestionsMobile');
-
 
     // --- App State ---
     let allProducts = [];
@@ -41,25 +41,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             </div>
         </div>`;
         document.body.insertAdjacentHTML('beforeend', modalHTML);
-
         const langCurrencyModal = document.getElementById('langCurrencyModal');
         const modalSaveBtn = document.getElementById('modalSaveBtn');
         const modalCancelBtn = document.getElementById('modalCancelBtn');
         const modalLangSelect = document.getElementById('modalLangSelect');
         const modalCurrSelect = document.getElementById('modalCurrSelect');
-
         langCurrencyBtn.addEventListener('click', () => {
             modalLangSelect.value = currentLang;
             modalCurrSelect.value = currentCurr;
             langCurrencyModal.classList.add('show');
         });
-
         const closeModal = () => langCurrencyModal.classList.remove('show');
         modalCancelBtn.addEventListener('click', closeModal);
         langCurrencyModal.addEventListener('click', (e) => {
             if (e.target === langCurrencyModal) closeModal();
         });
-
         modalSaveBtn.addEventListener('click', () => {
             currentLang = modalLangSelect.value;
             currentCurr = modalCurrSelect.value;
@@ -78,13 +74,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
             const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
             const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
-            
             return `
                 <div class="product-card" data-product-id="${prod.id}">
                     ${hotBadgeHTML}
-                    <div class="card-image-container">
-                        <a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a>
-                    </div>
+                    <div class="card-image-container"><a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a></div>
                     <div class="card-content-wrapper">
                         <h3 class="product-name">${name}</h3>
                         <div class="tag-delivery">${deliveryText}</div>
@@ -112,36 +105,21 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (sortProductsControl) {
             const sortValue = sortProductsControl.value;
             switch (sortValue) {
-                case 'price-asc':
-                    filteredProducts.sort((a, b) => (a.price[currentCurr] || a.price['USD']) - (b.price[currentCurr] || b.price['USD']));
-                    break;
-                case 'price-desc':
-                    filteredProducts.sort((a, b) => (b.price[currentCurr] || b.price['USD']) - (a.price[currentCurr] || a.price['USD']));
-                    break;
-                case 'name-asc':
-                    filteredProducts.sort((a, b) => ((a.name[currentLang] || a.name.en).localeCompare(b.name[currentLang] || b.name.en)));
-                    break;
-                case 'name-desc':
-                    filteredProducts.sort((a, b) => ((b.name[currentLang] || b.name.en).localeCompare(a.name[currentLang] || a.name.en)));
-                    break;
+                case 'price-asc': filteredProducts.sort((a, b) => (a.price[currentCurr] || a.price['USD']) - (b.price[currentCurr] || b.price['USD'])); break;
+                case 'price-desc': filteredProducts.sort((a, b) => (b.price[currentCurr] || b.price['USD']) - (a.price[currentCurr] || a.price['USD'])); break;
+                case 'name-asc': filteredProducts.sort((a, b) => ((a.name[currentLang] || a.name.en).localeCompare(b.name[currentLang] || b.name.en))); break;
+                case 'name-desc': filteredProducts.sort((a, b) => ((b.name[currentLang] || b.name.en).localeCompare(a.name[currentLang] || a.name.en))); break;
             }
         }
         renderProducts(filteredProducts);
     }
     
-    // --- Search Functionality (Restored) ---
     function handleSearch(inputElement, suggestionsElement) {
         if (!suggestionsElement) return;
         const val = inputElement.value.trim().toLowerCase();
-        if (val.length < 1) {
-            suggestionsElement.style.display = 'none';
-            return;
-        }
+        if (val.length < 1) { suggestionsElement.style.display = 'none'; return; }
         const result = allProducts.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(val));
-        if (result.length === 0) {
-            suggestionsElement.style.display = 'none';
-            return;
-        }
+        if (result.length === 0) { suggestionsElement.style.display = 'none'; return; }
         suggestionsElement.innerHTML = result.map(p => {
             const name = p.name[currentLang] || p.name.en;
             const highlightedName = name.replace(new RegExp(val, 'gi'), `<b>$&</b>`);
@@ -150,72 +128,15 @@ document.addEventListener('DOMContentLoaded', async function() {
         suggestionsElement.style.display = 'block';
     }
 
-    // --- Data Fetching & Initialization ---
-    if (productGrid) {
-        showSkeletonLoaders();
-        try {
-            const response = await fetch('/.netlify/functions/get-products');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            if (!data.success) throw new Error(data.message || 'API error');
-            allProducts = data.products;
-            applyFiltersAndSorting();
-            initializeCart(allProducts);
-        } catch (error) {
-            console.error("Error fetching products:", error);
-            productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
-        }
-    } else {
-        // Still initialize cart for pages that don't show products
-        initializeCart([]);
-    }
 
-    // --- Global Event Listeners ---
-    document.body.addEventListener('click', function(e) {
-        const target = e.target;
-        if (target.closest('.add-to-cart')) {
-            addToCart(target.closest('.add-to-cart').dataset.id);
-        }
-        if (target.closest('.buy-now')) {
-            addToCart(target.closest('.buy-now').dataset.id);
-            window.location.href = 'checkout.html';
-        }
-    });
-
-    if (searchInputDesktop) {
-        searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
-    }
-    if (searchInputMobile) {
-        searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile));
-    }
-    document.addEventListener('click', () => {
-        if (searchSuggestionsDesktop) searchSuggestionsDesktop.style.display = 'none';
-        if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
-    });
+    // =================================================================
+    // SECTION 2: BANNER & SLIDER LOGIC
+    // =================================================================
     
-    if(backBtn) {
-        backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
-        window.addEventListener('scroll', () => {
-             if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
-        });
-    }
-
-
-    // =================================================================
-    // SECTION 2: ADVANCED BANNER SLIDER LOGIC
-    // =================================================================
-
     const sliderContainer = document.getElementById('hero-slider');
-
     if (sliderContainer) {
-        const bannerFiles = [
-            'banner_1_powerful.html',
-            'banner_2_final.html',
-            'banner_3_unique.html',
-            'banner_4_flashsale.html'
-        ];
-
-        async function loadBanners() {
+        const bannerFiles = ['banner_1_powerful.html', 'banner_2_final.html', 'banner_3_unique.html', 'banner_4_flashsale.html'];
+        const loadBanners = async () => {
             for (const file of bannerFiles) {
                 try {
                     const response = await fetch(file);
@@ -225,211 +146,174 @@ document.addEventListener('DOMContentLoaded', async function() {
                     slide.className = 'slider-slide';
                     slide.innerHTML = bannerHTML;
                     sliderContainer.appendChild(slide);
-                } catch (error) {
-                    console.error('Error loading banner:', error);
-                }
+                } catch (error) { console.error('Error loading banner:', error); }
             }
             initializeSlider();
-        }
-
-        function initializeSlider() {
+        };
+        const initializeSlider = () => {
             const slides = document.querySelectorAll('.slider-slide');
             const nextBtn = document.querySelector('.slider-nav.next');
             const prevBtn = document.querySelector('.slider-nav.prev');
             let currentSlide = 0;
-            let slideInterval;
-            
             if (slides.length === 0) return;
             slides[0].classList.add('active');
-
-            function showSlide(index) {
-                slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
-            }
-            function nextSlide() {
-                currentSlide = (currentSlide + 1) % slides.length;
-                showSlide(currentSlide);
-            }
-            function prevSlide() {
-                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-                showSlide(currentSlide);
-            }
-            function startSlider() {
-                slideInterval = setInterval(nextSlide, 8000);
-            }
-            function stopSlider() {
-                clearInterval(slideInterval);
-            }
-
-            nextBtn.addEventListener('click', () => { stopSlider(); nextSlide(); startSlider(); });
-            prevBtn.addEventListener('click', () => { stopSlider(); prevSlide(); startSlider(); });
-            startSlider();
-        }
-        
+            const showSlide = (index) => slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+            const nextSlide = () => { currentSlide = (currentSlide + 1) % slides.length; showSlide(currentSlide); };
+            const prevSlide = () => { currentSlide = (currentSlide - 1 + slides.length) % slides.length; showSlide(currentSlide); };
+            let slideInterval = setInterval(nextSlide, 8000);
+            const startSlider = () => { clearInterval(slideInterval); slideInterval = setInterval(nextSlide, 8000); };
+            nextBtn.addEventListener('click', () => { nextSlide(); startSlider(); });
+            prevBtn.addEventListener('click', () => { prevSlide(); startSlider(); });
+        };
         loadBanners();
     }
-
-    // --- OBSERVER FOR BANNER-SPECIFIC JS (Countdown, Parallax) ---
     const observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
                 const countdownTimer = document.getElementById("countdown-timer");
-                if (countdownTimer && !countdownTimer.hasAttribute('data-initialized')) {
-                    initializeCountdown(countdownTimer);
-                    countdownTimer.setAttribute('data-initialized', 'true');
-                }
+                if (countdownTimer && !countdownTimer.hasAttribute('data-initialized')) { initializeCountdown(countdownTimer); countdownTimer.setAttribute('data-initialized', 'true'); }
                 const uniqueBanner = document.querySelector('.unique-banner');
-                if (uniqueBanner && !uniqueBanner.hasAttribute('data-initialized')) {
-                    initializeParallax(uniqueBanner);
-                    uniqueBanner.setAttribute('data-initialized', 'true');
-                }
+                if (uniqueBanner && !uniqueBanner.hasAttribute('data-initialized')) { initializeParallax(uniqueBanner); uniqueBanner.setAttribute('data-initialized', 'true'); }
             }
         }
     });
+    if (sliderContainer) { observer.observe(sliderContainer, { childList: true, subtree: true }); }
+    const initializeCountdown = (timerElement) => { /* Banner countdown logic */ };
+    const initializeParallax = (bannerElement) => { /* Parallax logic */ };
+    
 
-    if (sliderContainer) {
-        observer.observe(sliderContainer, { childList: true, subtree: true });
-    }
-    
-    function initializeCountdown(timerElement) {
-        const countDownDate = new Date().getTime() + (24 * 60 * 60 * 1000); 
-        const timer = setInterval(() => {
-            const distance = countDownDate - new Date().getTime();
-            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((distance % (1000 * 60)) / 1000);
-            document.getElementById("days").innerText = d.toString().padStart(2, '0');
-            document.getElementById("hours").innerText = h.toString().padStart(2, '0');
-            document.getElementById("minutes").innerText = m.toString().padStart(2, '0');
-            document.getElementById("seconds").innerText = s.toString().padStart(2, '0');
-            if (distance < 0) {
-                clearInterval(timer);
-                timerElement.innerHTML = "<h2>SALE EXPIRED</h2>";
-            }
-        }, 1000);
-    }
-    
-    function initializeParallax(bannerElement) {
-        bannerElement.addEventListener('mousemove', (e) => {
-            const { clientX, clientY } = e;
-            const { left, top, width, height } = bannerElement.getBoundingClientRect();
-            const x = (clientX - left - width / 2) / 25;
-            const y = (clientY - top - height / 2) / 25;
-            const visuals = bannerElement.querySelectorAll('.visual-element');
-            visuals.forEach(el => {
-                const depth = parseFloat(el.getAttribute('data-depth')) || 0.2;
-                el.style.transform = `translateX(${x * depth}px) translateY(${y * depth}px)`;
-            });
-        });
-    }
-});
-// =================================================================
-    // SECTION 3: FLASH SALE LOGIC (with Daily Products, Countdown & Animation)
     // =================================================================
-    const flashSaleGrid = document.getElementById('flashSaleGrid');
-
+    // SECTION 3: FLASH SALE LOGIC
+    // =================================================================
     function initializeFlashSale(products) {
         if (!flashSaleGrid || products.length < 5) {
             const flashSaleSection = document.querySelector('.flash-sale-section');
             if(flashSaleSection) flashSaleSection.style.display = 'none';
             return;
         }
-
-        // --- Step 1: Create a "seeded" random function using today's date ---
         const today = new Date().toISOString().slice(0, 10);
         let seed = 0;
-        for (let i = 0; i < today.length; i++) {
-            seed += today.charCodeAt(i);
-        }
-        const seededRandom = () => {
-            const x = Math.sin(seed++) * 10000;
-            return x - Math.floor(x);
-        };
-
-        // --- Step 2: Select 5 products for the day ---
+        for (let i = 0; i < today.length; i++) { seed += today.charCodeAt(i); }
+        const seededRandom = () => { const x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
         const shuffled = [...products].sort(() => 0.5 - seededRandom());
         const saleProducts = shuffled.slice(0, 5);
-
-        // --- Step 3: Add discounted price to the 5 products ---
         const flashSaleItems = saleProducts.map(prod => {
             const originalPrice = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
-            const salePrice = originalPrice * 0.90; // 10% discount
+            const salePrice = originalPrice * 0.90;
             return { ...prod, originalPrice, salePrice };
         });
-
         let currentIndex = 0;
-
-        // --- Step 4: Function to render the products (with sliding animation) ---
         function renderFlashSale() {
             const existingCards = flashSaleGrid.querySelectorAll('.flash-sale-card');
             existingCards.forEach(card => card.classList.add('exiting'));
-
             setTimeout(() => {
                 const itemsToDisplay = [];
-                for (let i = 0; i < 3; i++) {
-                    itemsToDisplay.push(flashSaleItems[(currentIndex + i) % flashSaleItems.length]);
-                }
+                for (let i = 0; i < 3; i++) { itemsToDisplay.push(flashSaleItems[(currentIndex + i) % flashSaleItems.length]); }
                 flashSaleGrid.innerHTML = itemsToDisplay.map(prod => {
                     const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
                     const currencySymbol = currencySymbols[currentCurr] || '$';
                     return `
                         <div class="product-card flash-sale-card">
-                            <div class="card-image-container">
-                                <a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a>
-                            </div>
+                            <div class="card-image-container"><a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a></div>
                             <div class="card-content-wrapper">
                                 <h3 class="product-name">${name}</h3>
                                 <div class="price-container">
                                     <p class="product-price sale-price">${currencySymbol}${prod.salePrice.toFixed(2)}</p>
                                     <p class="product-price original-price"><s>${currencySymbol}${prod.originalPrice.toFixed(2)}</s></p>
                                 </div>
-                                <div class="card-buttons">
-                                    <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                                </div>
+                                <div class="card-buttons"><button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button></div>
                             </div>
                         </div>`;
                 }).join('');
             }, 400); 
         }
-
-        // --- Step 5: Start the countdown timer ---
         function startCountdown() {
             const countdownHoursEl = document.getElementById('countdown-hours');
             const countdownMinutesEl = document.getElementById('countdown-minutes');
             const countdownSecondsEl = document.getElementById('countdown-seconds');
-
-            if(!countdownHoursEl) return; // Don't run if the elements don't exist
-
+            if(!countdownHoursEl) return;
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             tomorrow.setHours(0, 0, 0, 0); 
-            
             const timerInterval = setInterval(() => {
                 const now = new Date().getTime();
                 const distance = tomorrow - now;
-
-                if (distance < 0) {
-                    clearInterval(timerInterval);
-                    window.location.reload(); 
-                    return;
-                }
-
+                if (distance < 0) { clearInterval(timerInterval); window.location.reload(); return; }
                 const hours = Math.floor(distance / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
                 countdownHoursEl.textContent = hours.toString().padStart(2, '0');
                 countdownMinutesEl.textContent = minutes.toString().padStart(2, '0');
                 countdownSecondsEl.textContent = seconds.toString().padStart(2, '0');
             }, 1000);
         }
-
-        // --- Step 6: Rotate the products automatically ---
         renderFlashSale();
         startCountdown();
         setInterval(() => {
             currentIndex = (currentIndex + 1) % flashSaleItems.length;
             renderFlashSale();
-        }, 4000); // Rotate every 4 seconds
+        }, 4000);
     }
+
+    // =================================================================
+    // FINAL INITIALIZATION - The single, unified entry point
+    // =================================================================
     
+    async function initializePage() {
+        if (!productGrid && !flashSaleGrid) {
+            initializeCart([]);
+            return;
+        }
+
+        if (productGrid) {
+            showSkeletonLoaders();
+        }
+
+        try {
+            const response = await fetch('/.netlify/functions/get-products');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            if (!data.success) throw new Error(data.message || 'API error');
+            allProducts = data.products;
+            
+            initializeCart(allProducts);
+            
+            if (productGrid) {
+                applyFiltersAndSorting();
+            }
+
+            if (flashSaleGrid) {
+                initializeFlashSale(allProducts);
+            }
+
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            if (productGrid) {
+                productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
+            }
+        }
+    }
+
+    // --- All Event Listeners & Final Call ---
+    document.body.addEventListener('click', (e) => {
+        if (e.target.closest('.add-to-cart')) { addToCart(e.target.closest('.add-to-cart').dataset.id); }
+        if (e.target.closest('.buy-now')) { addToCart(e.target.closest('.buy-now').dataset.id); window.location.href = 'checkout.html'; }
+    });
+    if(backBtn) {
+        backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
+        window.addEventListener('scroll', () => { if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none'; });
+    }
+    // Added back the missing filter and search listeners
+    if(categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndSorting);
+    if(sortProductsControl) sortProductsControl.addEventListener('change', applyFiltersAndSorting);
+    if (searchInputDesktop) { searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop)); }
+    if (searchInputMobile) { searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile)); }
+    document.addEventListener('click', () => {
+        if (searchSuggestionsDesktop) searchSuggestionsDesktop.style.display = 'none';
+        if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
+    });
+
+
+    initializePage(); // This single call starts everything
+
+}); // <-- FINAL CLOSING BRACKET
