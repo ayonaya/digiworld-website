@@ -311,7 +311,7 @@
         }
 
         async function handleReviewActions(e) {
-            const button = e.target.closest('button.btn'); // Correctly targets buttons with the 'btn' class
+            const button = e.target.closest('button.btn');
             if (!button) return;
             const reviewId = button.dataset.id;
             const action = button.dataset.action;
@@ -391,9 +391,5 @@
         logoutBtn.addEventListener('click', () => showLogin());
     });
     </script>
-    <script src="admin.js" type="module"></script>
 </body>
 </html>
-</body>
-</html>
-}
