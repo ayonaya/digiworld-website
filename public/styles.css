@@ -3458,3 +3458,54 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
+/* =================================================================== */
+/* ============= FINAL BANNER RESPONSIVE OVERRIDE ==================== */
+/* =================================================================== */
+
+/* Force all banner parent sections to be flexible containers */
+.unique-banner, .powerful-banner, .glass-banner, .flash-sale-banner {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding: 1.5rem !important;
+}
+
+/* Force the main content containers to be flexible and wrap */
+.banner-content-layer, .left-content, .glass-panel, .flash-sale-content {
+    width: 100% !important;
+    flex-basis: auto !important;
+    padding: 0 !important;
+}
+
+/* Ensure two-column glass banner stacks properly */
+.glass-panel {
+    flex-direction: column !important;
+    gap: 1.5rem;
+}
+
+/* Hide decorative elements that cause overflow on small screens */
+.visuals-layer, .right-visual {
+    display: none !important;
+}
+
+/* Restore two-column layout and visuals ONLY on large screens */
+@media (min-width: 992px) {
+    .unique-banner, .powerful-banner {
+        flex-direction: row !important;
+        text-align: left !important;
+    }
+
+    .glass-panel {
+        flex-direction: row !important;
+    }
+
+    .visuals-layer, .right-visual {
+        display: block !important;
+    }
+
+    .banner-content-layer, .left-content {
+        flex-basis: 50% !important;
+    }
+}
