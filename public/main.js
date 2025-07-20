@@ -154,9 +154,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     const sliderContainer = document.getElementById('hero-slider');
 
     // Only run banner code if the hero-slider element exists on the page
-    if (sliderContainer) {
-        const bannerFiles = ['banner-1.html', 'banner-2.html', 'banner-3.html', 'banner-4.html'];
-
+// Replace the old code with this correct version
+if (sliderContainer) {
+    const bannerFiles = [
+        'banner_1_powerful.html',
+        'banner_2_final.html',
+        'banner_3_unique.html',
+        'banner_4_flashsale.html'
+    ];
         // This function fetches your banner HTML files and injects them into the slider
         async function loadBanners() {
             for (const file of bannerFiles) {
