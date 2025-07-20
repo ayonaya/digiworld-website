@@ -3348,18 +3348,16 @@
 .slider-nav.prev { left: 16px; }
 .slider-nav.next { right: 16px; }
 /* =================================================================== */
-/* ============== NEW: FLASH SALE CAROUSEL STYLES ================== */
+/* ============== FINAL FLASH SALE CAROUSEL STYLES =================== */
 /* =================================================================== */
 
 .flash-sale-section {
-    /* Ensures the carousel can overflow its container without being cut off */
     overflow: hidden;
 }
 
 .flash-sale-carousel-wrapper {
     position: relative;
     width: 100%;
-    padding: 0 50px; /* Space for the navigation arrows */
     box-sizing: border-box;
 }
 
@@ -3367,14 +3365,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 500px; /* Adjust height as needed */
+    height: 520px; /* Increased height for better focus effect */
     position: relative;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .flash-sale-carousel .product-card {
     position: absolute;
-    width: 300px; /* Fixed width for each card */
+    width: 300px;
     transition: transform 0.5s ease, opacity 0.5s ease, z-index 0.5s;
     opacity: 0.5;
     z-index: 1;
@@ -3382,55 +3379,68 @@
 
 /* Style for the card in the center (active) */
 .flash-sale-carousel .fs-slide-center {
-    transform: translateX(0) scale(1.1);
+    transform: translateX(0) scale(1.15); /* Slightly larger */
     opacity: 1;
     z-index: 3;
     border: 2px solid var(--primary);
     box-shadow: 0 10px 40px rgba(245, 114, 36, 0.3);
 }
 
-/* Styles for the cards to the left and right */
+/* Styles for the cards to the left and right (now clickable) */
 .flash-sale-carousel .fs-slide-left {
     transform: translateX(-60%) scale(0.8);
     z-index: 2;
+    cursor: pointer;
 }
 
 .flash-sale-carousel .fs-slide-right {
     transform: translateX(60%) scale(0.8);
     z-index: 2;
+    cursor: pointer;
 }
 
-/* Styles for the cards that are hidden */
+/* Styles for hidden cards */
 .flash-sale-carousel .fs-slide-far-left {
     transform: translateX(-120%) scale(0.6);
     opacity: 0;
-    z-index: 1;
+    pointer-events: none; /* Make them unclickable */
 }
 
 .flash-sale-carousel .fs-slide-far-right {
     transform: translateX(120%) scale(0.6);
     opacity: 0;
-    z-index: 1;
+    pointer-events: none; /* Make them unclickable */
 }
 
-/* Carousel Navigation Buttons */
-.carousel-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.7);
-    border: 1px solid #ddd;
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.2s ease;
+/* Countdown Timer Styles */
+.countdown-timer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
 }
-.carousel-nav:hover {
-    background-color: #fff;
-    transform: translateY(-50%) scale(1.1);
+.timer-unit {
+    text-align: center;
+    background: #fff7f5;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #fee0d1;
+    min-width: 60px;
 }
-.carousel-nav.prev { left: 0; }
-.carousel-nav.next { right: 0; }
+.timer-unit .number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+.timer-unit .label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #888;
+}
+.timer-separator {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    transform: translateY(-5px);
+}

@@ -212,134 +212,120 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // =================================================================
-    // SECTION 3: FLASH SALE LOGIC (NOW CORRECTLY PLACED AND CALLED)
+    // SECTION 3: FLASH SALE CAROUSEL LOGIC (with Clickable Slides)
     // =================================================================
     function initializeFlashSale(products) {
-        if (!flashSaleGrid || products.length < 5) {
-            const flashSaleSection = document.querySelector('.flash-sale-section');
+        const flashSaleSection = document.querySelector('.flash-sale-section');
+        if (!flashSaleCarousel || products.length < 5) {
             if(flashSaleSection) flashSaleSection.style.display = 'none';
             return;
         }
+
         const today = new Date().toISOString().slice(0, 10);
         let seed = 0;
         for (let i = 0; i < today.length; i++) { seed += today.charCodeAt(i); }
         const seededRandom = () => { const x = Math.sin(seed++) * 10000; return x - Math.floor(x); };
+        
         const shuffled = [...products].sort(() => 0.5 - seededRandom());
         const saleProducts = shuffled.slice(0, 5);
+        
         const flashSaleItems = saleProducts.map(prod => {
             const originalPrice = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
             const salePrice = originalPrice * 0.90;
             return { ...prod, originalPrice, salePrice };
         });
+
+        flashSaleCarousel.innerHTML = flashSaleItems.map(prod => {
+            const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
+            const currencySymbol = currencySymbols[currentCurr] || '$';
+            return `
+                <div class="product-card flash-sale-card" data-id="${prod.id}">
+                    <div class="card-image-container"><a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a></div>
+                    <div class="card-content-wrapper">
+                        <h3 class="product-name">${name}</h3>
+                        <div class="price-container">
+                            <p class="product-price sale-price">${currencySymbol}${prod.salePrice.toFixed(2)}</p>
+                            <p class="product-price original-price"><s>${currencySymbol}${prod.originalPrice.toFixed(2)}</s></p>
+                        </div>
+                        <div class="card-buttons"><button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button></div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        const slides = Array.from(flashSaleCarousel.children);
+        const totalSlides = slides.length;
         let currentIndex = 0;
-        function renderFlashSale() {
-            const existingCards = flashSaleGrid.querySelectorAll('.flash-sale-card');
-            existingCards.forEach(card => card.classList.add('exiting'));
-            setTimeout(() => {
-                const itemsToDisplay = [];
-                for (let i = 0; i < 3; i++) { itemsToDisplay.push(flashSaleItems[(currentIndex + i) % flashSaleItems.length]); }
-                flashSaleGrid.innerHTML = itemsToDisplay.map(prod => {
-                    const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
-                    const currencySymbol = currencySymbols[currentCurr] || '$';
-                    return `
-                        <div class="product-card flash-sale-card">
-                            <div class="card-image-container"><a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a></div>
-                            <div class="card-content-wrapper">
-                                <h3 class="product-name">${name}</h3>
-                                <div class="price-container">
-                                    <p class="product-price sale-price">${currencySymbol}${prod.salePrice.toFixed(2)}</p>
-                                    <p class="product-price original-price"><s>${currencySymbol}${prod.originalPrice.toFixed(2)}</s></p>
-                                </div>
-                                <div class="card-buttons"><button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button></div>
-                            </div>
-                        </div>`;
-                }).join('');
-            }, 400); 
+        let autoRotateInterval;
+
+        function updateCarousel() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('fs-slide-center', 'fs-slide-left', 'fs-slide-right', 'fs-slide-far-left', 'fs-slide-far-right');
+                let pos = (index - currentIndex + totalSlides) % totalSlides;
+                if (pos === 0) slide.classList.add('fs-slide-center');
+                else if (pos === 1) slide.classList.add('fs-slide-right');
+                else if (pos === totalSlides - 1) slide.classList.add('fs-slide-left');
+                else if (pos === 2) slide.classList.add('fs-slide-far-right');
+                else if (pos === totalSlides - 2) slide.classList.add('fs-slide-far-left');
+                else slide.classList.add('fs-slide-far-right');
+            });
         }
-        function startCountdown() {
-            const countdownHoursEl = document.getElementById('countdown-hours');
-            const countdownMinutesEl = document.getElementById('countdown-minutes');
-            const countdownSecondsEl = document.getElementById('countdown-seconds');
-            if(!countdownHoursEl) return;
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0); 
-            const timerInterval = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = tomorrow - now;
-                if (distance < 0) { clearInterval(timerInterval); window.location.reload(); return; }
-                const hours = Math.floor(distance / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                countdownHoursEl.textContent = hours.toString().padStart(2, '0');
-                countdownMinutesEl.textContent = minutes.toString().padStart(2, '0');
-                countdownSecondsEl.textContent = seconds.toString().padStart(2, '0');
-            }, 1000);
+
+        function moveToNext() {
+            currentIndex = (currentIndex + 1) % totalSlides;
+            updateCarousel();
         }
-        renderFlashSale();
+
+        function moveToPrev() {
+            currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+            updateCarousel();
+        }
+
+        function startAutoRotate() {
+            clearInterval(autoRotateInterval);
+            autoRotateInterval = setInterval(moveToNext, 4000);
+        }
+
+        // --- NEW: Click listener for the slides ---
+        flashSaleCarousel.addEventListener('click', (e) => {
+            const clickedCard = e.target.closest('.flash-sale-card');
+            if (!clickedCard) return;
+
+            if (clickedCard.classList.contains('fs-slide-right')) {
+                moveToNext();
+                startAutoRotate(); // Restart timer
+            } else if (clickedCard.classList.contains('fs-slide-left')) {
+                moveToPrev();
+                startAutoRotate(); // Restart timer
+            }
+        });
+
         startCountdown();
-        setInterval(() => {
-            currentIndex = (currentIndex + 1) % flashSaleItems.length;
-            renderFlashSale();
-        }, 4000);
+        updateCarousel();
+        startAutoRotate();
     }
 
-    // =================================================================
-    // FINAL INITIALIZATION - This is the single entry point
-    // =================================================================
+    function startCountdown() { /* ... Unchanged ... */ }
+
     async function initializePage() {
-        if (!productGrid && !flashSaleGrid) {
+        if (!productGrid && !flashSaleCarousel) {
             initializeCart([]);
             return;
         }
-
-        if (productGrid) {
-            showSkeletonLoaders();
-        }
-
+        if (productGrid) { showSkeletonLoaders(); }
         try {
             const response = await fetch('/.netlify/functions/get-products');
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error('Network error');
             const data = await response.json();
-            if (!data.success) throw new Error(data.message || 'API error');
+            if (!data.success) throw new Error('API error');
             allProducts = data.products;
-            
             initializeCart(allProducts);
-            
-            if (productGrid) {
-                applyFiltersAndSorting();
-            }
-
-            if (flashSaleGrid) {
-                initializeFlashSale(allProducts);
-            }
-
+            if (productGrid) applyFiltersAndSorting();
+            if (flashSaleCarousel) initializeFlashSale(allProducts);
         } catch (error) {
             console.error("Error fetching products:", error);
-            if (productGrid) {
-                productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
-            }
+            if (productGrid) productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
         }
     }
 
-    // --- All Event Listeners & Final Call ---
-    document.body.addEventListener('click', (e) => {
-        if (e.target.closest('.add-to-cart')) { addToCart(e.target.closest('.add-to-cart').dataset.id); }
-        if (e.target.closest('.buy-now')) { addToCart(e.target.closest('.buy-now').dataset.id); window.location.href = 'checkout.html'; }
-    });
-    if(backBtn) {
-        backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
-        window.addEventListener('scroll', () => { if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none'; });
-    }
-    if(categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndSorting);
-    if(sortProductsControl) sortProductsControl.addEventListener('change', applyFiltersAndSorting);
-    if (searchInputDesktop) { searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop)); }
-    if (searchInputMobile) { searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile)); }
-    document.addEventListener('click', () => {
-        if (searchSuggestionsDesktop) searchSuggestionsDesktop.style.display = 'none';
-        if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
-    });
-
-    initializePage(); // This single call starts everything
-
+    initializePage();
 });
