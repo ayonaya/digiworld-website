@@ -128,7 +128,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         suggestionsElement.style.display = 'block';
     }
 
-
     // =================================================================
     // SECTION 2: ADVANCED BANNER SLIDER LOGIC
     // =================================================================
@@ -170,15 +169,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
                 const countdownTimer = document.getElementById("countdown-timer");
-                if (countdownTimer && !countdownTimer.hasAttribute('data-initialized')) {
-                    initializeCountdown(countdownTimer);
-                    countdownTimer.setAttribute('data-initialized', 'true');
-                }
+                if (countdownTimer && !countdownTimer.hasAttribute('data-initialized')) { initializeCountdown(countdownTimer); countdownTimer.setAttribute('data-initialized', 'true'); }
                 const uniqueBanner = document.querySelector('.unique-banner');
-                if (uniqueBanner && !uniqueBanner.hasAttribute('data-initialized')) {
-                    initializeParallax(uniqueBanner);
-                    uniqueBanner.setAttribute('data-initialized', 'true');
-                }
+                if (uniqueBanner && !uniqueBanner.hasAttribute('data-initialized')) { initializeParallax(uniqueBanner); uniqueBanner.setAttribute('data-initialized', 'true'); }
             }
         }
     });
