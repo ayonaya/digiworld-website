@@ -1,40 +1,47 @@
-// /netlify/functions/get-products.js
-
 const { db } = require('./firebase-admin');
 
 exports.handler = async (event, context) => {
   try {
-    const productsRef = db.collection('products');
-    const productId = event.queryStringParameters.id;
-
-    // If an ID is provided in the URL, fetch only that product
-    if (productId) {
-      const doc = await productsRef.doc(productId).get();
-      if (!doc.exists) {
-        return { statusCode: 404, body: JSON.stringify({ success: false, message: 'Product not found' }) };
-      }
+    const productsSnapshot = await db.collection('products').get();
+    
+    // Check if there are any products
+    if (productsSnapshot.empty) {
+      console.log('No products found in Firestore.');
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: true, product: { id: doc.id, ...doc.data() } }),
-      };
-    } 
-    // Otherwise, fetch all products
-    else {
-      const snapshot = await productsRef.orderBy('name.en').get();
-      const products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); 
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: true, products: products }),
+        body: JSON.stringify([]),
       };
     }
 
+    // Map Firestore documents to a cleaner product array
+    const products = productsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        category: data.category || 'Uncategorized',
+        isHot: data.isHot || false,
+        name: data.name || { en: 'Unnamed Product' },
+        price: data.price || { LKR: 0, USD: 0 },
+        // IMPORTANT: We map 'imageUrl' from the database to 'image' for the frontend
+        image: data.imageUrl || '', 
+        delivery: data.delivery || { en: '' },
+        desc: data.desc || { en: '' },
+        features: data.features || { en: [] },
+        requirements: data.requirements || { en: [] },
+        activation: data.activation || { en: [] }
+      };
+    });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(products),
+    };
+
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error("Error fetching products from Firestore:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ success: false, message: 'Failed to fetch products.' }),
+      body: JSON.stringify({ message: "Internal server error." }),
     };
   }
 };
