@@ -4,7 +4,7 @@ const admin = require('firebase-admin');
 
 // **FIXED:** Using your existing Netlify key name.
 // Note: We use brackets [] because your key name has spaces.
-const serviceAccount = JSON.parse(Buffer.from(process.env['firebase service account key'], 'base64').toString('ascii'));
+const serviceAccount = JSON.parse(Buffer.from(process.env['FIREBASE_SERVICE_ACCOUNT_KEY'], 'base64').toString('ascii'));
 
 // Initialize Firebase Admin SDK only once
 if (!admin.apps.length) {
