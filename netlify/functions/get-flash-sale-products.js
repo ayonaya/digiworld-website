@@ -19,27 +19,29 @@ const seededRandom = (seed) => {
 
 exports.handler = async () => {
   try {
-    // 1. Use today's date to ensure the products are the same for the whole day
     const today = new Date().toISOString().slice(0, 10);
     const seed = createDailySeed(today);
 
-    // 2. Fetch all products from your database
     const productsSnapshot = await db.collection("products").get();
     const allProducts = productsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    // 3. Shuffle the products array using the daily seed
     const shuffledProducts = [...allProducts].sort(() => 0.5 - seededRandom(seed));
 
-    // 4. Take the first 5 products and give them a 10% discount
-    const flashSaleProducts = shuffledProducts.slice(0, 5).map((product) => ({
-      ...product,
-      originalPrice: product.price,
-      price: parseFloat((product.price * 0.9).toFixed(2)), // Apply 10% discount
-      discount: "10%",
-    }));
+    const flashSaleProducts = shuffledProducts.slice(0, 5).map((product) => {
+      // Convert the price from the database to a number, just in case it's a string
+      const originalPrice = parseFloat(product.price);
+      
+      return {
+        ...product,
+        // ** THE FIX IS HERE **
+        originalPrice: originalPrice, // Now guaranteed to be a number
+        price: parseFloat((originalPrice * 0.9).toFixed(2)), // Discounted price
+        discount: "10%",
+      };
+    });
 
     return {
       statusCode: 200,
