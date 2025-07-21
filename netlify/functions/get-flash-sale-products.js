@@ -1,17 +1,15 @@
 const { db } = require('./firebase-admin');
 
-// Helper function to create a consistent daily "random" seed from the date
+// Helper functions (no changes here)
 const createDailySeed = (dateString) => {
   let hash = 0;
   for (let i = 0; i < dateString.length; i++) {
     const char = dateString.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash |= 0; // Convert to 32bit integer
+    hash |= 0;
   }
   return hash;
 };
-
-// A seeded random number generator to make "randomness" predictable for the day
 const seededRandom = (seed) => {
   let s = Math.sin(seed) * 10000;
   return s - Math.floor(s);
@@ -28,17 +26,30 @@ exports.handler = async () => {
       ...doc.data(),
     }));
 
-    // ** THE FIX IS HERE **
-    // First, filter out any products that don't have a valid price.
-    const validProducts = allProducts.filter(p => p.price != null && !isNaN(p.price));
+    // --- Start of New Diagnostic Logging ---
+    console.log(`DIAGNOSTIC: Found ${allProducts.length} total products in the database.`);
+    console.log("--- Checking each product's price and type before filtering: ---");
+    allProducts.forEach(p => {
+      console.log(`  - Product ID: ${p.id}, Price: ${p.price}, Type: ${typeof p.price}`);
+    });
+    // --- End of New Diagnostic Logging ---
 
-    // Now, shuffle only the products that have a valid price.
+    // Updated filter with more robust checking
+    const validProducts = allProducts.filter(p => {
+        // This check handles numbers, strings with numbers, but rejects empty strings or other text
+        return p.price != null && p.price !== '' && !isNaN(parseFloat(p.price));
+    });
+
+    console.log(`DIAGNOSTIC: Found ${validProducts.length} products remaining after filtering for valid prices.`);
+    
+    if (validProducts.length < 5) {
+        console.warn(`DIAGNOSTIC WARNING: Not enough valid products (${validProducts.length}) for the flash sale carousel to loop properly.`);
+    }
+
     const shuffledProducts = [...validProducts].sort(() => 0.5 - seededRandom(seed));
 
-    // Take the first 5 products and create the sale.
     const flashSaleProducts = shuffledProducts.slice(0, 5).map((product) => {
       const originalPrice = parseFloat(product.price);
-      
       return {
         ...product,
         originalPrice: originalPrice,
@@ -52,10 +63,10 @@ exports.handler = async () => {
       body: JSON.stringify(flashSaleProducts),
     };
   } catch (error) {
-    console.error("Error fetching flash sale products:", error);
+    console.error("DIAGNOSTIC ERROR in get-flash-sale-products:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Internal server error." }),
+      body: JSON.stringify({ message: "Internal server error during flash sale processing." }),
     };
   }
 };
