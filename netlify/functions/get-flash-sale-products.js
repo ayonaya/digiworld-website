@@ -1,6 +1,6 @@
 const { db } = require('./firebase-admin');
 
-// Helper functions
+// Helper functions (no changes needed)
 const createDailySeed = (dateString) => {
   let hash = 0;
   for (let i = 0; i < dateString.length; i++) {
@@ -26,28 +26,15 @@ exports.handler = async () => {
       ...doc.data(),
     }));
 
-    // ** THE FINAL FIX IS HERE **
-    // Filter for products that have a price object with a valid LKR number.
-    const validProducts = allProducts.filter(p => 
-      p.price && 
-      typeof p.price === 'object' && 
-      p.price.LKR != null && 
-      !isNaN(p.price.LKR)
+    // Filter for products that have a valid price object
+    const validProducts = allProducts.filter(p =>
+      p.price && typeof p.price === 'object' && (p.price.LKR || p.price.USD)
     );
 
     const shuffledProducts = [...validProducts].sort(() => 0.5 - seededRandom(seed));
 
-    const flashSaleProducts = shuffledProducts.slice(0, 5).map((product) => {
-      // Use the LKR price from the price object.
-      const originalPrice = parseFloat(product.price.LKR);
-      
-      return {
-        ...product,
-        originalPrice: originalPrice,
-        price: parseFloat((originalPrice * 0.9).toFixed(2)),
-        discount: "10%",
-      };
-    });
+    // Just select the top 5 products. No price calculation here.
+    const flashSaleProducts = shuffledProducts.slice(0, 5);
 
     return {
       statusCode: 200,
