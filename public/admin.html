@@ -135,7 +135,7 @@
         </div>
     </div>
 
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- CACHED DOM ELEMENTS ---
         const loginContainer = document.getElementById('loginContainer');
@@ -269,17 +269,23 @@
             if (data && data.length > 0) return data.map(rowTemplate).join('');
             return `<tr><td colspan="100%" style="text-align:center; padding: 20px;">${emptyMessage || 'No items found.'}</td></tr>`;
         }
+        
+        // =================================================================
+        // MODAL CONTROLS - **THIS IS THE FIX**
+        // =================================================================
 
         function openModal(modal) {
-            // DEBUGGING: Log the modal element to see if it's correct
-            console.log('Attempting to open modal:', modal);
             if (modal) {
+                modal.classList.remove('hidden'); // Fix: Remove hidden class
                 modal.classList.add('show');
-            } else {
-                console.error('Modal element is null or undefined. Cannot open.');
             }
         }
-        function closeModal(modal) { modal.classList.remove('show'); }
+        function closeModal(modal) {
+            if (modal) {
+                modal.classList.remove('show');
+                modal.classList.add('hidden'); // Fix: Add hidden class back
+            }
+        }
 
         // =================================================================
         // EVENT HANDLERS (using Event Delegation)
@@ -291,9 +297,6 @@
 
             const action = target.dataset.action;
             const id = target.dataset.id;
-            
-            // DEBUGGING: Log every button click
-            console.log(`Button clicked! Action: '${action}', ID: '${id}'`);
             
             try {
                 switch (action) {
@@ -397,6 +400,7 @@
         Object.values(modals).forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) {
+                    // Pass the modal element itself to closeModal
                     closeModal(modal);
                 }
             });
@@ -417,5 +421,5 @@
         logoutBtn.addEventListener('click', () => showLogin());
     });
     </script>
-    </body>
+</body>
 </html>
