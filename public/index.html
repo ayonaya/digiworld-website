@@ -5,14 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>DigiWorld - Instant Digital Keys for Software and Games</title>
   <meta name="description" content="Your trusted source for genuine digital keys. Get instant delivery on Windows, Microsoft Office, antivirus software, and more. Secure payments and 24/7 support.">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
 </head>
 <body>
   
@@ -38,7 +42,7 @@
             </div>
             <div class="auth-dropdown-menu">
                 <div id="authDropdownContent">
-                    </div>
+                </div>
             </div>
         </div>
         
@@ -72,55 +76,47 @@
 </header>
 
 <main>
-      <section class="hero-slider-wrapper">
-            <div id="hero-slider"></div>
-            <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
-            <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
-        </section>
-      <section class="main-section flash-sale-section">
-            <div class="section-title">
-                <i class="fas fa-bolt"></i> Flash Sale
-            </div>
-            <div id="flashSaleCountdown" class="countdown-timer-container">
-                <div class="timer-unit"><span id="countdown-hours" class="number">00</span><span class="label">Hours</span></div>
-                <div class="timer-separator">:</div>
-                <div class="timer-unit"><span id="countdown-minutes" class="number">00</span><span class="label">Minutes</span></div>
-                <div class="timer-separator">:</div>
-                <div class="timer-unit"><span id="countdown-seconds" class="number">00</span><span class="label">Seconds</span></div>
-            </div>
-            <div class="flash-sale-carousel-wrapper">
-                <div class="flash-sale-carousel" id="flashSaleCarousel">
-                    </div>
-            </div>
-        </section>
-  <section class="main-section" aria-label="Featured products">
-    <div class="product-controls">
-      <div class="control-group">
-        <label for="categoryFilter">Category:</label>
-        <select id="categoryFilter">
-          <option value="all">All Products</option>
-          <option value="Office">Office</option>
-          <option value="Windows">Windows</option>
-          <option value="Development">Development Tools</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <label for="sortProducts">Sort by:</label>
-        <select id="sortProducts">
-          <option value="default">Default</option>
-          <option value="price-asc">Price: Low to High</option>
-          <option value="price-desc">Price: High to Low</option>
-          <option value="name-asc">Name: A to Z</option>
-          <option value="name-desc">Name: Z to A</option>
-        </select>
-      </div>
-    </div>
-        <section>
-    <div class="section-title">Featured Products</div>
-    <div class="product-grid" id="productGrid">
-        </div>
-  </section>
+    <section class="hero-slider-wrapper">
+        <div id="hero-slider"></div>
+        <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
+        <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
+    </section>
 
+    <section class="flash-sale-carousel py-5">
+      <div class="container">
+        <h2 class="text-center mb-4">Today's Flash Sale</h2>
+        <div class="swiper-container">
+          <div class="swiper-wrapper" id="flash-sale-carousel-wrapper">
+            </div>
+        </div>
+      </div>
+    </section>
+    <section class="main-section" aria-label="Featured products">
+        <div class="product-controls">
+            <div class="control-group">
+                <label for="categoryFilter">Category:</label>
+                <select id="categoryFilter">
+                    <option value="all">All Products</option>
+                    <option value="Office">Office</option>
+                    <option value="Windows">Windows</option>
+                    <option value="Development">Development Tools</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="sortProducts">Sort by:</label>
+                <select id="sortProducts">
+                    <option value="default">Default</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name-asc">Name: A to Z</option>
+                    <option value="name-desc">Name: Z to A</option>
+                </select>
+            </div>
+        </div>
+        <div class="section-title">Featured Products</div>
+        <div class="product-grid" id="productGrid">
+            </div>
+    </section>
 </main>
 
 <div class="mini-cart-overlay" id="miniCartOverlay" role="dialog" aria-modal="true" aria-labelledby="miniCartTitle"></div>
@@ -203,112 +199,123 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
-  // Your Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-    authDomain: "digiworld-46a1e.firebaseapp.com",
-    projectId: "digiworld-46a1e",
-    storageBucket: "digiworld-46a1e.appspot.com",
-    messagingSenderId: "242235397710",
-    appId: "1:242235397710:web:a80c15cc285188610cd51f",
-    measurementId: "G-R8C4BWHXBL"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-
-  // --- Elements ---
-  const accountControl = document.getElementById('accountControl');
-  const authModal = document.getElementById('authModal');
-  const authModalClose = document.getElementById('authModalClose');
-  const authDropdownContent = document.getElementById('authDropdownContent');
-  const modalMessage = document.getElementById('modal-message');
-
-  // --- Modal Functions ---
-  const openAuthModal = () => authModal.classList.add('show');
-  const closeAuthModal = () => authModal.classList.remove('show');
-
-  // --- Render Functions for Dropdown ---
-  function renderLoggedOutMenu() {
-      authDropdownContent.innerHTML = `
-          <button class="auth-dropdown-signin-btn" id="dropdownSignInBtn">Sign In</button>
-          <a href="#" class="register-link" id="dropdownRegisterBtn">Register</a>
-      `;
-      // Add listeners to open the modal from the dropdown
-      document.getElementById('dropdownSignInBtn').addEventListener('click', openAuthModal);
-      document.getElementById('dropdownRegisterBtn').addEventListener('click', openAuthModal);
-  }
-
-  function renderLoggedInMenu(user) {
-      authDropdownContent.innerHTML = `
-          <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
-          <a href="orders.html"><i class="fas fa-box"></i> My Orders</a>
-          <a href="downloads.html"><i class="fas fa-download"></i> My Downloads</a>
-          <a href="wishlist.html"><i class="fas fa-heart"></i> Wish List</a>
-          <hr>
-          <a href="#" id="dropdownLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-      `;
-      document.getElementById('dropdownLogoutBtn').addEventListener('click', () => auth.signOut());
-  }
-
-  // --- Main Auth Logic ---
-  auth.onAuthStateChanged(user => {
-    const welcomeText = accountControl.querySelector('.welcome-text');
-    const authAction = accountControl.querySelector('.auth-action');
-    if (user) {
-      // User is LOGGED IN
-      welcomeText.textContent = 'Welcome';
-      authAction.textContent = user.displayName || user.email.split('@')[0];
-      renderLoggedInMenu(user);
-    } else {
-      // User is LOGGED OUT
-      welcomeText.textContent = 'Welcome';
-      authAction.textContent = 'Sign In / Register';
-      renderLoggedOutMenu();
-    }
-  });
-
-  // --- Modal Event Listeners ---
-  authModalClose.addEventListener('click', closeAuthModal);
-  authModal.addEventListener('click', (e) => {
-    if (e.target === authModal) closeAuthModal();
-  });
-
-  // Firebase Auth Handlers (for the modal)
-  const googleProvider = new firebase.auth.GoogleAuthProvider();
-  document.getElementById('googleSignInBtn').addEventListener('click', () => {
-    auth.signInWithPopup(googleProvider).catch(err => modalMessage.textContent = err.message);
-  });
-  
-  const appleProvider = new firebase.auth.OAuthProvider('apple.com');
-  document.getElementById('appleSignInBtn').addEventListener('click', () => {
-    auth.signInWithPopup(appleProvider).catch(err => modalMessage.textContent = err.message);
-  });
-
-  document.getElementById('emailLoginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('emailInput').value;
-      if (!email) {
-          modalMessage.textContent = "Please enter your email.";
-          modalMessage.style.color = 'red';
-          return;
+  // Securely fetch Firebase config and initialize the app
+  async function initializeFirebase() {
+    try {
+      // NOTE: This assumes you have created the get-firebase-config function
+      const response = await fetch('/.netlify/functions/get-firebase-config');
+      if (!response.ok) {
+        throw new Error('Could not load Firebase configuration.');
       }
-      const actionCodeSettings = {
-        url: window.location.href, // After sign in, redirect back to this page
-        handleCodeInApp: true,
-      };
-      auth.sendSignInLinkToEmail(email, actionCodeSettings)
-        .then(() => {
-          window.localStorage.setItem('emailForSignIn', email);
-          modalMessage.textContent = `A sign-in link has been sent to ${email}. Check your inbox.`;
-          modalMessage.style.color = 'green';
-        })
-        .catch(err => {
-          modalMessage.textContent = err.message;
-          modalMessage.style.color = 'red';
-        });
-  });
+      const firebaseConfig = await response.json();
+      
+      firebase.initializeApp(firebaseConfig);
+      setupAuth();
+
+    } catch (error) {
+      console.error('Firebase initialization failed:', error);
+      document.body.innerHTML = '<h1>Error: Could not initialize the application. Please try again later.</h1>';
+    }
+  }
+
+  function setupAuth() {
+    const auth = firebase.auth();
+    // --- Elements ---
+    const accountControl = document.getElementById('accountControl');
+    const authModal = document.getElementById('authModal');
+    const authModalClose = document.getElementById('authModalClose');
+    const authDropdownContent = document.getElementById('authDropdownContent');
+    const modalMessage = document.getElementById('modal-message');
+
+    // --- Modal Functions ---
+    const openAuthModal = () => authModal.classList.add('show');
+    const closeAuthModal = () => authModal.classList.remove('show');
+
+    // --- Render Functions for Dropdown ---
+    function renderLoggedOutMenu() {
+        authDropdownContent.innerHTML = `
+            <button class="auth-dropdown-signin-btn" id="dropdownSignInBtn">Sign In</button>
+            <a href="#" class="register-link" id="dropdownRegisterBtn">Register</a>
+        `;
+        document.getElementById('dropdownSignInBtn').addEventListener('click', openAuthModal);
+        document.getElementById('dropdownRegisterBtn').addEventListener('click', openAuthModal);
+    }
+
+    function renderLoggedInMenu(user) {
+        authDropdownContent.innerHTML = `
+            <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
+            <a href="orders.html"><i class="fas fa-box"></i> My Orders</a>
+            <a href="downloads.html"><i class="fas fa-download"></i> My Downloads</a>
+            <a href="wishlist.html"><i class="fas fa-heart"></i> Wish List</a>
+            <hr>
+            <a href="#" id="dropdownLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        `;
+        document.getElementById('dropdownLogoutBtn').addEventListener('click', () => auth.signOut());
+    }
+
+    // --- Main Auth Logic ---
+    auth.onAuthStateChanged(user => {
+      const welcomeText = accountControl.querySelector('.welcome-text');
+      const authAction = accountControl.querySelector('.auth-action');
+      if (user) {
+        welcomeText.textContent = 'Welcome';
+        authAction.textContent = user.displayName || user.email.split('@')[0];
+        renderLoggedInMenu(user);
+      } else {
+        welcomeText.textContent = 'Welcome';
+        authAction.textContent = 'Sign In / Register';
+        renderLoggedOutMenu();
+      }
+    });
+
+    // --- Modal Event Listeners ---
+    authModalClose.addEventListener('click', closeAuthModal);
+    authModal.addEventListener('click', (e) => {
+      if (e.target === authModal) closeAuthModal();
+    });
+
+    // Firebase Auth Handlers (for the modal)
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+    document.getElementById('googleSignInBtn').addEventListener('click', () => {
+      auth.signInWithPopup(googleProvider).catch(err => modalMessage.textContent = err.message);
+    });
+    
+    const appleProvider = new firebase.auth.OAuthProvider('apple.com');
+    document.getElementById('appleSignInBtn').addEventListener('click', () => {
+      auth.signInWithPopup(appleProvider).catch(err => modalMessage.textContent = err.message);
+    });
+
+    document.getElementById('emailLoginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('emailInput').value;
+        if (!email) {
+            modalMessage.textContent = "Please enter your email.";
+            modalMessage.style.color = 'red';
+            return;
+        }
+        const actionCodeSettings = {
+          url: window.location.href,
+          handleCodeInApp: true,
+        };
+        auth.sendSignInLinkToEmail(email, actionCodeSettings)
+          .then(() => {
+            window.localStorage.setItem('emailForSignIn', email);
+            modalMessage.textContent = `A sign-in link has been sent to ${email}. Check your inbox.`;
+            modalMessage.style.color = 'green';
+          })
+          .catch(err => {
+            modalMessage.textContent = err.message;
+            modalMessage.style.color = 'red';
+          });
+    });
+  }
+
+  // Start the initialization process when the page loads
+  document.addEventListener('DOMContentLoaded', initializeFirebase);
 </script>
 
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script src="main.js" type="module"></script>
+<script src="flash-sale.js"></script>
 </body>
 </html>

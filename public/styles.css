@@ -3351,90 +3351,43 @@
 /* ============== FINAL FLASH SALE CAROUSEL STYLES =================== */
 /* =================================================================== */
 
-.flash-sale-section {
-    overflow: hidden;
+/* --- Flash Sale Carousel --- */
+.flash-sale-carousel .container {
+  max-width: 1200px;
 }
 
-.flash-sale-carousel-wrapper {
-    position: relative;
-    width: 100%;
-    box-sizing: border-box;
+.swiper-container {
+  width: 100%;
+  padding-top: 50px;
+  padding-bottom: 50px;
 }
 
-.flash-sale-carousel {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 520px;
-    position: relative;
+.swiper-slide {
+  background-position: center;
+  background-size: cover;
+  width: 280px; /* Default width for desktop */
 }
 
-.flash-sale-carousel .product-card {
-    position: absolute;
-    width: 300px;
-    transition: transform 0.5s ease, opacity 0.5s ease, z-index 0s 0.25s;
-    opacity: 0.5;
-    z-index: 1;
+.swiper-slide .card {
+  transition: transform 0.4s ease;
+  border: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Style for the card in the center (active) */
-.flash-sale-carousel .fs-slide-center {
-    transform: translateX(0) scale(1.15);
-    opacity: 1;
-    z-index: 3;
-    border: 2px solid var(--primary);
-    box-shadow: 0 10px 40px rgba(245, 114, 36, 0.3);
+.swiper-slide-active .card {
+  transform: scale(1.05); /* Make the middle slide slightly bigger */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* Styles for the cards to the left and right (now clickable) */
-.flash-sale-carousel .fs-slide-left {
-    transform: translateX(-60%) scale(0.8);
-    z-index: 2;
-    cursor: pointer;
+/* --- Mobile Screen Adjustments --- */
+@media (max-width: 767px) {
+  .swiper-slide {
+    width: 220px; /* Smaller slides on tablets */
+  }
 }
 
-.flash-sale-carousel .fs-slide-right {
-    transform: translateX(60%) scale(0.8);
-    z-index: 2;
-    cursor: pointer;
-}
-
-/* Styles for hidden cards */
-.flash-sale-carousel .fs-slide-far {
-    transform: translateX(0) scale(0.6);
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Countdown Timer Styles */
-.countdown-timer-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 25px;
-}
-.timer-unit {
-    text-align: center;
-    background: #fff7f5;
-    padding: 10px 15px;
-    border-radius: 8px;
-    border: 1px solid #fee0d1;
-    min-width: 60px;
-}
-.timer-unit .number {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-dark);
-}
-.timer-unit .label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #888;
-}
-.timer-separator {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary);
-    transform: translateY(-5px);
+@media (max-width: 480px) {
+  .swiper-slide {
+    width: 180px; /* Even smaller slides for phones */
+  }
 }

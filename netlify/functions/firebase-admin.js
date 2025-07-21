@@ -1,12 +1,10 @@
-// netlify/functions/firebase-admin.js
-
 const admin = require('firebase-admin');
 
 // This check prevents the app from being initialized multiple times,
-// which can happen in a serverless environment.
-if (!admin.apps.length) {
+// which is a best practice in serverless environments.
+if (admin.apps.length === 0) {
   try {
-    // Using the correct environment variable name that we set in Netlify.
+    // Using the exact environment variable name you have set in Netlify.
     const serviceAccountString = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 
     if (!serviceAccountString) {
@@ -15,12 +13,10 @@ if (!admin.apps.length) {
 
     const serviceAccount = JSON.parse(serviceAccountString);
 
-    // This line correctly formats the private key from the environment variable.
-    serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
+
   } catch (error) {
     console.error('CRITICAL: Firebase admin initialization failed.', error);
   }
