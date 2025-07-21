@@ -3347,47 +3347,137 @@
 }
 .slider-nav.prev { left: 16px; }
 .slider-nav.next { right: 16px; }
-/* =================================================================== */
-/* ============== FINAL FLASH SALE CAROUSEL STYLES =================== */
-/* =================================================================== */
+/* --- Final Flash Sale Section --- */
 
-/* --- Flash Sale Carousel --- */
+/* 1. Section Styling */
+.flash-sale-carousel {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+  padding-top: 60px !important;
+  padding-bottom: 60px !important;
+}
 .flash-sale-carousel .container {
   max-width: 1200px;
 }
 
+/* 2. Heading Styling */
+.flash-sale-carousel h2 {
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 15px;
+  margin-bottom: 25px !important;
+}
+.flash-sale-carousel h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: #007bff;
+}
+
+/* 3. Countdown Timer Styling */
+.countdown-timer {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+.timer-box {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  min-width: 90px;
+}
+.timer-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #dc3545; /* A strong red for emphasis */
+  line-height: 1;
+  margin-bottom: 5px;
+  animation: pulse 1s ease-in-out infinite;
+}
+.timer-label {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  color: #6c757d;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.timer-end {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+/* 4. Carousel Container */
 .swiper-container {
   width: 100%;
-  padding-top: 50px;
+  padding-top: 20px;
   padding-bottom: 50px;
 }
 
+/* 5. Slide and Card Styling */
 .swiper-slide {
   background-position: center;
   background-size: cover;
-  width: 280px; /* Default width for desktop */
+  width: 280px;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  opacity: 0.5;
+  transform: scale(0.85);
 }
-
+.swiper-slide-active {
+  opacity: 1;
+  transform: scale(1);
+}
 .swiper-slide .card {
-  transition: transform 0.4s ease;
-  border: none;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+.swiper-slide-active .card {
+   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+.swiper-slide .card-img-top {
+  border-bottom: 1px solid #e9ecef;
 }
 
-.swiper-slide-active .card {
-  transform: scale(1.05); /* Make the middle slide slightly bigger */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+/* 6. Price and Badge Styling */
+.swiper-slide .card-text {
+  font-size: 1.1rem;
+}
+.swiper-slide .card-text strong {
+  font-size: 1.25rem;
+  color: #28a745;
+  font-weight: 700;
+}
+.swiper-slide .badge {
+  font-size: 0.9rem;
+  padding: 6px 10px;
 }
 
 /* --- Mobile Screen Adjustments --- */
 @media (max-width: 767px) {
   .swiper-slide {
-    width: 220px; /* Smaller slides on tablets */
+    width: 220px;
+    opacity: 1;
+    transform: scale(1);
   }
-}
-
-@media (max-width: 480px) {
-  .swiper-slide {
-    width: 180px; /* Even smaller slides for phones */
+  .timer-box {
+    min-width: 70px;
+    padding: 10px;
+  }
+  .timer-value {
+    font-size: 1.8rem;
   }
 }

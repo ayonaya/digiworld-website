@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // --- Helper function to get current currency ---
-  // This checks your site's currency switcher.
-  // We assume LKR is the default if nothing is selected.
+
   function getCurrentCurrencyInfo() {
     const currencyBtn = document.getElementById('langCurrencyBtn');
     if (currencyBtn && currencyBtn.innerText.includes('USD')) {
@@ -10,12 +8,55 @@ document.addEventListener("DOMContentLoaded", () => {
     return { code: 'LKR', symbol: 'Rs' };
   }
 
+  function startCountdownTimer(endDate) {
+    const countdownElement = document.getElementById('flash-sale-countdown');
+    if (!countdownElement) return;
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = new Date(endDate).getTime() - now;
+
+      if (distance < 0) {
+        clearInterval(interval);
+        countdownElement.innerHTML = `<div class="timer-end">The sale has ended!</div>`;
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      countdownElement.innerHTML = `
+        <div class="timer-box">
+            <div class="timer-value">${days}</div>
+            <div class="timer-label">Days</div>
+        </div>
+        <div class="timer-box">
+            <div class="timer-value">${hours}</div>
+            <div class="timer-label">Hours</div>
+        </div>
+        <div class="timer-box">
+            <div class="timer-value">${minutes}</div>
+            <div class="timer-label">Minutes</div>
+        </div>
+        <div class="timer-box">
+            <div class="timer-value">${seconds}</div>
+            <div class="timer-label">Seconds</div>
+        </div>
+      `;
+    }, 1000);
+  }
+
   const fetchFlashSaleProducts = async () => {
     try {
       const response = await fetch("/.netlify/functions/get-flash-sale-products");
       if (!response.ok) throw new Error("Server error");
-      const products = await response.json();
-      renderFlashSaleCarousel(products);
+      const data = await response.json(); // Data now contains { products, saleEndDate }
+      
+      renderFlashSaleCarousel(data.products);
+      startCountdownTimer(data.saleEndDate);
+
     } catch (error) {
       console.error("Could not fetch flash sale products:", error);
       document.querySelector(".flash-sale-carousel").style.display = "none";
@@ -26,14 +67,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const carouselWrapper = document.getElementById("flash-sale-carousel-wrapper");
     if (!carouselWrapper) return;
 
-    carouselWrapper.innerHTML = ""; // Clear old content
+    carouselWrapper.innerHTML = "";
     const currencyInfo = getCurrentCurrencyInfo();
 
     products.forEach((product) => {
-      // Get the correct price based on the selected currency, or fallback to LKR
       const originalPrice = parseFloat(product.price[currencyInfo.code] || product.price.LKR);
-      if (isNaN(originalPrice)) return; // Skip product if price is not a number
-
+      if (isNaN(originalPrice)) return;
       const discountedPrice = originalPrice * 0.9;
 
       const slide = `
@@ -58,36 +97,16 @@ document.addEventListener("DOMContentLoaded", () => {
       carouselWrapper.innerHTML += slide;
     });
 
-    // Initialize Swiper Carousel
     new Swiper(".swiper-container", {
-      effect: "coverflow",
-      grabCursor: true,
-      centeredSlides: true,
-      slidesPerView: "auto",
-      loop: true,
-      autoplay: {
-        delay: 3500,
-        disableOnInteraction: false,
-      },
-      coverflowEffect: {
-        rotate: 30,
-        stretch: 0,
-        depth: 200,
-        modifier: 1,
-        slideShadows: true,
-      },
-      breakpoints: {
-        320: { slidesPerView: 2, spaceBetween: 20 },
-        768: { slidesPerView: 3, spaceBetween: 30 },
-        1024: { slidesPerView: "auto", spaceBetween: 50 },
-      },
+      effect: "coverflow", grabCursor: true, centeredSlides: true, slidesPerView: "auto", loop: true,
+      autoplay: { delay: 3500, disableOnInteraction: false },
+      coverflowEffect: { rotate: 30, stretch: 0, depth: 200, modifier: 1, slideShadows: true },
+      breakpoints: { 320: { slidesPerView: 2, spaceBetween: 20 }, 768: { slidesPerView: 3, spaceBetween: 30 }, 1024: { slidesPerView: 'auto', spaceBetween: 50 }}
     });
-
-    // Add event listener for "Add to Cart" buttons
+    
     carouselWrapper.addEventListener('click', (event) => {
       if (event.target.classList.contains('flash-sale-add-to-cart')) {
         const productId = event.target.dataset.productId;
-        // This assumes addToCart function is globally available from another script
         if (productId && typeof addToCart === 'function') {
           addToCart(productId);
         } else {

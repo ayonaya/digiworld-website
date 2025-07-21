@@ -17,8 +17,13 @@ const seededRandom = (seed) => {
 
 exports.handler = async () => {
   try {
-    const today = new Date().toISOString().slice(0, 10);
-    const seed = createDailySeed(today);
+    const today = new Date();
+    const todayString = today.toISOString().slice(0, 10);
+    const seed = createDailySeed(todayString);
+
+    // Calculate the end of the current day
+    const saleEndDate = new Date(today);
+    saleEndDate.setHours(23, 59, 59, 999);
 
     const productsSnapshot = await db.collection("products").get();
     const allProducts = productsSnapshot.docs.map((doc) => ({
@@ -26,19 +31,20 @@ exports.handler = async () => {
       ...doc.data(),
     }));
 
-    // Filter for products that have a valid price object
     const validProducts = allProducts.filter(p =>
       p.price && typeof p.price === 'object' && (p.price.LKR || p.price.USD)
     );
 
     const shuffledProducts = [...validProducts].sort(() => 0.5 - seededRandom(seed));
-
-    // Just select the top 5 products. No price calculation here.
     const flashSaleProducts = shuffledProducts.slice(0, 5);
 
+    // Return both the products and the calculated end date
     return {
       statusCode: 200,
-      body: JSON.stringify(flashSaleProducts),
+      body: JSON.stringify({
+        products: flashSaleProducts,
+        saleEndDate: saleEndDate.toISOString() // Send as a string
+      }),
     };
   } catch (error) {
     console.error("Error in get-flash-sale-products function:", error);
