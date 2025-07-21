@@ -28,17 +28,21 @@ exports.handler = async () => {
       ...doc.data(),
     }));
 
-    const shuffledProducts = [...allProducts].sort(() => 0.5 - seededRandom(seed));
+    // ** THE FIX IS HERE **
+    // First, filter out any products that don't have a valid price.
+    const validProducts = allProducts.filter(p => p.price != null && !isNaN(p.price));
 
+    // Now, shuffle only the products that have a valid price.
+    const shuffledProducts = [...validProducts].sort(() => 0.5 - seededRandom(seed));
+
+    // Take the first 5 products and create the sale.
     const flashSaleProducts = shuffledProducts.slice(0, 5).map((product) => {
-      // Convert the price from the database to a number, just in case it's a string
       const originalPrice = parseFloat(product.price);
       
       return {
         ...product,
-        // ** THE FIX IS HERE **
-        originalPrice: originalPrice, // Now guaranteed to be a number
-        price: parseFloat((originalPrice * 0.9).toFixed(2)), // Discounted price
+        originalPrice: originalPrice,
+        price: parseFloat((originalPrice * 0.9).toFixed(2)),
         discount: "10%",
       };
     });
