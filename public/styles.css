@@ -3766,3 +3766,97 @@ input {
     text-align: center;
     color: #888;
 }
+/* --- Global Styles & Variables --- */
+:root {
+  --primary: #f57224;
+  --primary-dark: #d45703;
+  --accent: #fe724c;
+  --card-bg: #fff;
+  --bg: #f6f6fa;
+  --radius: 18px;
+  --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+  --success: #28a745;
+  --danger: #e74c3c;
+  --info: #3498db;
+}
+body {
+  background: var(--bg);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  color: #333;
+}
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+/* ... (all other existing global styles remain here) ... */
+
+/* --- Header & Footer Styles (from previous steps) --- */
+/* ... (all header, footer, mobile nav styles are here) ... */
+
+/* --- Account Page Styles --- */
+.account-button {
+  display: flex; align-items: center; gap: 15px; width: 100%;
+  box-sizing: border-box; margin: 15px 0; padding: 15px 20px;
+  font-size: 1.1rem; font-weight: 700; border-radius: 12px;
+  border: 2px solid transparent; cursor: pointer; text-align: left;
+  text-decoration: none; color: white; background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+  transition: all 0.3s ease;
+}
+.account-button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 20px #fd7e1a44;
+}
+
+/* --- Profile Page Styles --- */
+.profile-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.form-group { margin-bottom: 20px; text-align: left; }
+.form-group label { display: block; font-weight: 700; color: #555; margin-bottom: 8px; }
+.form-group input, .form-group textarea {
+  width: 100%; padding: 12px 15px; font-size: 1rem;
+  border-radius: 10px; border: 2px solid #ddd;
+  box-sizing: border-box; transition: border-color 0.3s;
+}
+.danger-zone { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; }
+
+/* --- Cart & Checkout Page Styles --- */
+.cart-container {
+  display: grid; grid-template-columns: 2fr 1fr; gap: 30px;
+}
+.cart-items-card, .cart-summary-card {
+  background: #fff; border-radius: var(--radius); padding: 30px;
+  box-shadow: var(--shadow);
+}
+.checkout-header {
+  background: #f8f9fa; border-bottom: 1px solid #dee2e6;
+  padding: 1rem 0; margin-bottom: 2rem;
+}
+.checkout-container {
+  display: grid; grid-template-columns: 2fr 1fr;
+  gap: 2rem; align-items: flex-start;
+}
+.checkout-card {
+  background: #fff; border-radius: var(--radius); padding: 1.5rem 2rem;
+  box-shadow: var(--shadow); margin-bottom: 2rem;
+}
+
+/* --- Orders & Downloads Page Styles --- */
+.page-title {
+    font-size: 2.5rem; font-weight: 900; color: var(--primary-dark);
+    margin-bottom: 30px; border-bottom: 4px solid var(--primary); padding-bottom: 10px;
+}
+.order-card, .download-card {
+    background-color: var(--card-bg); border-radius: var(--radius); padding: 25px;
+    box-shadow: var(--shadow); margin-bottom: 25px;
+}
+.key-container {
+    display: flex; align-items: center; justify-content: space-between;
+    background-color: #f0f2f5; padding: 12px 18px; border-radius: 10px;
+}
+
+/* --- ADD ALL OTHER STYLES FROM YOUR PREVIOUS FILES HERE --- */
+/* (For brevity, I've included the key new styles. Ensure all your other styles from the main styles.css are also present) */

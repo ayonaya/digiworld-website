@@ -1,200 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>DigiWorld - Account</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
-  <!-- Font Awesome for Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    :root {
-      --primary: #f57224;
-      --primary-dark: #d45703;
-      --accent: #fe724c;
-      --bg: #f6f6fa;
-      --radius: 18px;
-      --shadow: 0 6px 32px #f5722420, 0 2px 6px #0001;
-    }
-    body { 
-      font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif; 
-      background: var(--bg); 
-      margin: 0; 
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .container { 
-      max-width: 400px; 
-      width: 100%;
-      margin: auto; 
-      background: white; 
-      padding: 30px 35px; 
-      border-radius: var(--radius); 
-      box-shadow: var(--shadow);
-      text-align: center;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInSlideUp 0.6s 0.2s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    @keyframes fadeInSlideUp {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    .container h2 {
-        font-weight: 900;
-        color: var(--primary-dark);
-        font-size: 1.9rem;
-        margin-bottom: 10px;
-    }
-    .container .user-email {
-        font-weight: 700;
-        color: #777;
-        margin-top: 0;
-        margin-bottom: 30px;
-        word-break: break-all;
-        font-size: 1rem;
-    }
-    .account-button {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      width: 100%;
-      box-sizing: border-box;
-      margin: 15px 0;
-      padding: 15px 20px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      border-radius: 12px;
-      border: 2px solid transparent;
-      cursor: pointer;
-      text-align: left;
-      text-decoration: none;
-      color: white;
-      background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
-      transition: all 0.3s ease;
-      opacity: 0;
-      transform: translateX(-20px);
-      animation: fadeInSlideLeft 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-    /* Stagger the button animations */
-    .account-button:nth-of-type(1) { animation-delay: 0.4s; }
-    .account-button:nth-of-type(2) { animation-delay: 0.5s; }
-    .account-button:nth-of-type(3) { animation-delay: 0.6s; }
-    .account-button:nth-of-type(4) { animation-delay: 0.7s; }
-    .account-button:nth-of-type(5) { animation-delay: 0.8s; } /* Animation for new button */
-
-    @keyframes fadeInSlideLeft {
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    .account-button:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 20px #fd7e1a44;
-    }
-    .account-button i {
-        font-size: 1.2rem;
-        width: 25px;
-        text-align: center;
-    }
-    #logoutBtn {
-      background: #555;
-      margin-top: 24px;
-    }
-    #logoutBtn:hover {
-        background: #333;
-        box-shadow: 0 4px 15px #44444455;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Shopping Cart - DigiWorld</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
-  <div class="container" id="accountContainer">
-    <!-- Content will be loaded here by JavaScript -->
-    <h2>Loading...</h2>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script>
-    // Your actual Firebase config here
-    const firebaseConfig = {
-      apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-      authDomain: "digiworld-46a1e.firebaseapp.com",
-      projectId: "digiworld-46a1e",
-      storageBucket: "digiworld-46a1e.appspot.com",
-      messagingSenderId: "242235397710",
-      appId: "1:242235397710:web:a80c15cc285188610cd51f",
-      measurementId: "G-R8C4BWHXBL"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    const container = document.getElementById('accountContainer');
-
-    function renderLoggedOut() {
-      container.innerHTML = `
-        <h2>My Account</h2>
-        <a href="login.html" class="account-button"><i class="fas fa-sign-in-alt"></i><span>Login</span></a>
-        <a href="signup.html" class="account-button"><i class="fas fa-user-plus"></i><span>Sign Up</span></a>
-      `;
-    }
-
-    function renderLoggedIn(user) {
-      container.innerHTML = `
-        <h2>Welcome Back!</h2>
-        <p class="user-email">${user.email || 'Your Account'}</p>
-        
-        <!-- Currency Selector -->
-        <div class="account-button" style="padding: 0; align-items: stretch;">
-            <i class="fas fa-coins" style="padding: 15px 20px; border-right: 1px solid rgba(255,255,255,0.2);"></i>
-            <select id="currencySelector" style="background: none; border: none; color: white; font-size: 1.1rem; font-weight: 700; flex-grow: 1; cursor: pointer; padding: 0 15px; font-family: 'Nunito Sans', sans-serif; -webkit-appearance: none; appearance: none;">
-                <option value="USD" style="color: black;">USD - US Dollar</option>
-                <option value="LKR" style="color: black;">LKR - Sri Lankan Rupee</option>
-                <option value="EUR" style="color: black;">EUR - Euro</option>
-                <option value="GBP" style="color: black;">GBP - British Pound</option>
-                <option value="INR" style="color: black;">INR - Indian Rupee</option>
-            </select>
+    <div id="header-placeholder"></div>
+    <main class="container cart-container" id="cartContainer">
+        <div class="cart-items-card">
+            <h2>Your Cart</h2>
+            <div id="cart-items-list"><p>Loading cart...</p></div>
         </div>
-
-        <a href="profile.html" class="account-button"><i class="fas fa-user-circle"></i><span>Profile</span></a>
-        <a href="orders.html" class="account-button"><i class="fas fa-box"></i><span>My Orders</span></a>
-        <a href="downloads.html" class="account-button"><i class="fas fa-download"></i><span>My Downloads</span></a>
-        <button id="logoutBtn" class="account-button"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
-      `;
-      
-      const currencySelector = document.getElementById('currencySelector');
-
-      // On page load, set the selector to the currently saved currency
-      const savedCurrency = localStorage.getItem('userCurrency') || 'USD';
-      currencySelector.value = savedCurrency;
-
-      // When the user selects a new currency, save it to localStorage
-      currencySelector.addEventListener('change', () => {
-          localStorage.setItem('userCurrency', currencySelector.value);
-          // You can add a small confirmation message here if you want
-      });
-
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        auth.signOut();
-      });
-    }
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        // User is signed in.
-        renderLoggedIn(user);
-      } else {
-        // User is signed out.
-        renderLoggedOut();
-      }
-    });
-  </script>
-</body>
+        <div class="cart-summary-card">
+            <h3>Order Summary</h3>
+            <div id="cart-summary-details"></div>
+        </div>
+    </main>
+    <div id="footer-placeholder"></div>
+    <script src="app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="auth.js" type="module"></script>
+    <script src="cart.js" type="module"></script> </body>
 </html>
