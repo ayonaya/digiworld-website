@@ -3860,3 +3860,52 @@ body {
 
 /* --- ADD ALL OTHER STYLES FROM YOUR PREVIOUS FILES HERE --- */
 /* (For brevity, I've included the key new styles. Ensure all your other styles from the main styles.css are also present) */
+/* --- RESTORED: Product Badge Styles --- */
+.badge-hot {
+    position: absolute;
+    top: 10px;
+    left: -10px;
+    background: linear-gradient(45deg, #ff3a5e, var(--accent));
+    color: #fff;
+    padding: 6px 12px 6px 20px;
+    font-size: 0.85rem;
+    font-weight: 900;
+    border-radius: 0 20px 20px 0;
+    box-shadow: 0 2px 8px rgba(255, 58, 94, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 2;
+}
+
+/* --- RESTORED: Modern Skeleton Loader Styles --- */
+.skeleton-card {
+    background-color: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    border: 1px solid #eee;
+}
+.skeleton-image {
+    width: 100%;
+    padding-top: 75%; /* 4:3 Aspect Ratio */
+    background-color: #eef0f2;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+.skeleton-content {
+    padding: 20px;
+}
+.skeleton-line {
+    height: 16px;
+    background-color: #eef0f2;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+.skeleton-line.short {
+    width: 60%;
+}
+@keyframes pulse {
+    0% { background-color: #eef0f2; }
+    50% { background-color: #e2e5e7; }
+    100% { background-color: #eef0f2; }
+}
