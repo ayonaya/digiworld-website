@@ -3,17 +3,18 @@ const { db } = require('./firebase-admin');
 exports.handler = async (event, context) => {
   try {
     const productsSnapshot = await db.collection('products').get();
-    
-    // Check if there are any products
+
     if (productsSnapshot.empty) {
-      console.log('No products found in Firestore.');
       return {
         statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify([]),
       };
     }
 
-    // Map Firestore documents to a cleaner product array
     const products = productsSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -22,8 +23,7 @@ exports.handler = async (event, context) => {
         isHot: data.isHot || false,
         name: data.name || { en: 'Unnamed Product' },
         price: data.price || { LKR: 0, USD: 0 },
-        // IMPORTANT: We map 'imageUrl' from the database to 'image' for the frontend
-        image: data.imageUrl || '', 
+        image: data.image || '',   // fixed here
         delivery: data.delivery || { en: '' },
         desc: data.desc || { en: '' },
         features: data.features || { en: [] },
@@ -34,6 +34,10 @@ exports.handler = async (event, context) => {
 
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(products),
     };
 
