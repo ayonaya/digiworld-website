@@ -3548,144 +3548,221 @@ input {
   font-size: 1rem;
 }
 
-/* Order summary styles */
-.order-summary {
-  background: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+/* --- Checkout Page Styles --- */
+.checkout-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem 0;
+  margin-bottom: 2rem;
 }
+.checkout-header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.secure-checkout-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.checkout-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.checkout-card {
+  background: #fff;
+  border-radius: var(--radius, 18px);
+  padding: 1.5rem 2rem;
+  box-shadow: var(--shadow, 0 6px 32px rgba(245, 114, 36, 0.15));
+  margin-bottom: 2rem;
+}
+.checkout-card h2 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--primary-dark, #d45703);
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.step-number {
+  background-color: var(--primary, #f57224);
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.form-group label {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.form-group input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.payment-intro {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+}
+#paypal-button-container {
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+#paypal-button-container.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
 .order-items {
   list-style: none;
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  padding: 0 0 1rem 0;
+  border-bottom: 1px solid #eee;
 }
 .order-items li {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.75rem 0;
 }
 .summary-total {
   display: flex;
   justify-content: space-between;
-  font-weight: bold;
+  font-weight: 900;
+  font-size: 1.25rem;
   margin-top: 1rem;
-  border-top: 1px solid #ddd;
   padding-top: 1rem;
 }
-.btn {
-  display: inline-block;
-  background: #007bff;
-  color: #fff;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  cursor: pointer;
+
+#result-message {
+  margin-top: 1rem;
+  font-weight: 700;
   text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
 }
-.btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+#result-message.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+#result-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
-/* Mobile bottom navigator bar */
-@media (max-width: 768px) {
-  .mobile-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #fff;
-    border-top: 1px solid #ddd;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-    z-index: 1000;
-  }
-  .mobile-nav ul {
-    display: flex;
-    margin: 0;
-    padding: 0.5rem 0;
-    list-style: none;
-    justify-content: space-around;
-  }
-  .mobile-nav a {
-    color: #000;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.75rem;
-  }
-  .mobile-nav i {
-    font-size: 1.25rem;
-  }
-  body {
-    padding-bottom: 4rem; /* Space for the bottom nav */
-  }
+.trust-footer {
+  text-align: center;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: -1rem;
 }
-/* Simplify layout for email-only checkout */
-.email-only .checkout-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-}
-@media (max-width: 768px) {
-  .email-only .checkout-content {
+
+/* Responsive styles for mobile */
+@media (max-width: 900px) {
+  .checkout-container {
     grid-template-columns: 1fr;
   }
+  .order-summary {
+    grid-row: 1; /* Move order summary to the top on mobile */
+  }
+}
+/* --- Header Account Dropdown --- */
+
+/* This sets up the container for positioning */
+.account-control {
+    position: relative; 
 }
 
-/* Footer nav styling */
-.footer-nav ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 2rem;
-  margin-bottom: 1rem;
-}
-.footer-nav a {
-  text-decoration: none;
-  color: #555;
-}
-
-/* Mobile bottom navigator bar */
-.mobile-nav {
-  display: none;
-}
-@media (max-width: 768px) {
-  .mobile-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+/* This styles the dropdown menu and hides it by default */
+.auth-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
     background: #fff;
-    border-top: 1px solid #ddd;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-    z-index: 1000;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    padding: 15px;
+    margin-top: 10px;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* This is the key rule: It makes the menu visible on hover */
+.account-control:hover .auth-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.auth-dropdown-signin-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    background: #000;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.auth-dropdown-menu .register-link {
     display: block;
-  }
-  .mobile-nav ul {
-    display: flex;
-    margin: 0;
-    padding: 0.5rem 0;
-    list-style: none;
-    justify-content: space-around;
-  }
-  .mobile-nav a {
-    color: #000;
+    text-align: center;
+    font-weight: 700;
+    color: var(--primary);
     text-decoration: none;
+}
+
+.auth-dropdown-menu hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 15px 0;
+}
+
+.auth-dropdown-menu a {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    font-size: 0.75rem;
-  }
-  .mobile-nav i {
-    font-size: 1.25rem;
-  }
-  body {
-    padding-bottom: 4rem; /* Space for the bottom nav */
-  }
+    gap: 12px;
+    padding: 10px 15px;
+    color: #333;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.auth-dropdown-menu a:hover {
+    background-color: #f0f2f5;
+}
+
+.auth-dropdown-menu .fas {
+    width: 20px;
+    text-align: center;
+    color: #888;
 }

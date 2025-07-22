@@ -3,113 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Checkout - DigiWorld</title>
-  <!-- Main stylesheet -->
+  <title>Secure Checkout - DigiWorld</title>
   <link rel="stylesheet" href="styles.css" />
-  <!-- Font Awesome icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
-  <!-- Header -->
-  <header class="site-header container">
-    <div class="header-content">
-      <a href="/" class="logo">DigiWorld</a>
-      <nav class="main-nav">
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/products.html">Products</a></li>
-          <li><a href="/contact.html">Contact</a></li>
-        </ul>
+
+  <header class="site-header">
+    <div class="header-main-pro header-desktop">
+      <a href="index.html" class="logo-pro" style="text-decoration: none;">DigiWorld</a>
+      <nav>
+        <a href="index.html" class="nav-link-pro">Home</a>
+        <a href="products.html" class="nav-link-pro">Products</a>
+        <a href="contact.html" class="nav-link-pro">Contact</a>
       </nav>
-      <div class="user-nav">
-        <a href="/account.html"><i class="fas fa-user"></i> Account</a>
-        <a href="/cart.html"><i class="fas fa-shopping-cart"></i> Cart (<span id="cart-count">0</span>)</a>
-        <div class="language-selector">LK EN / LKR</div>
+      
+      <div class="header-controls">
+          <div class="account-control" id="accountControl">
+              <i class="fas fa-user"></i>
+              <div class="account-text">
+                  <span class="welcome-text">Welcome</span>
+                  <span class="auth-action">Sign In / Register</span>
+              </div>
+              <div class="auth-dropdown-menu">
+                  <div id="authDropdownContent">
+                      </div>
+              </div>
+          </div>
+          
+          <button class="header-btn cart-btn" id="cartBtn" aria-label="Open cart">
+              <i class="fas fa-shopping-cart"></i>
+              <span>Cart</span>
+              <span class="cart-icon-badge" id="cartCount">0</span>
+          </button>
       </div>
     </div>
   </header>
-
-  <!-- Main Content -->
-  <main class="container checkout-page">
-    <div class="checkout-header">
-      <h1>Checkout</h1>
-      <nav class="breadcrumb">
-        <a href="/">Home</a> &gt;
-        <a href="/cart.html">Cart</a> &gt;
-        <span>Checkout</span>
-      </nav>
-    </div>
-
-    <div class="checkout-content email-only">
-      <!-- Email-only form for digital delivery -->
-      <form id="checkout-form" class="checkout-form">
-        <h2>Email Delivery</h2>
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input id="email" name="email" type="email" placeholder="you@example.com" required />
+  <main class="container">
+    <div class="checkout-container">
+      <div class="customer-info">
+        <div class="checkout-card">
+          <h2><span class="step-number">1</span>Contact Information</h2>
+          <div class="form-group">
+            <label for="email">Email Address for Delivery</label>
+            <input id="email" name="email" type="email" placeholder="you@example.com" required />
+          </div>
         </div>
-      </form>
 
-      <!-- Order Summary & Payment -->
+        <div class="checkout-card">
+          <h2><span class="step-number">2</span>Payment Method</h2>
+          <p class="payment-intro">All transactions are secure and encrypted.</p>
+          <div id="paypal-button-container">
+            </div>
+          <div id="result-message" role="alert"></div>
+        </div>
+      </div>
+
       <aside class="order-summary">
-        <h2>Order Summary</h2>
-        <ul id="order-summary-list" class="order-items">
-          <!-- JS injects list items -->
-        </ul>
-        <div class="summary-total">
-          <span>Total:</span>
-          <span id="total-amount">$0.00</span>
+        <div class="checkout-card">
+          <h2>Order Summary</h2>
+          <ul id="order-summary-list" class="order-items">
+            </ul>
+          <div class="summary-total">
+            <span>Total</span>
+            <span id="total-amount">$0.00</span>
+          </div>
         </div>
-        <button id="checkout-submit" class="btn btn-primary" disabled>
-          Proceed to Payment
-        </button>
-        <div id="payment-buttons" aria-live="polite"></div>
-        <div id="result-message" role="alert"></div>
+        <div class="trust-footer">
+          <i class="fas fa-shield-alt"></i>
+          <span>Shop with confidence. All sales are protected by our buyer guarantee.</span>
+        </div>
       </aside>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="site-footer container">
-    <div class="footer-content">
-      <div class="footer-col">
-        <h4>Customer Care</h4>
-        <ul>
-          <li><a href="/faq.html">FAQ</a></li>
-          <li><a href="/refund-policy.html">Refund Policy</a></li>
-          <li><a href="/terms.html">Terms & Conditions</a></li>
-        </ul>
+  <footer class="site-footer">
+      <div class="footer-grid">
+          <div class="footer-col">
+              <h3>Customer Care</h3>
+              <ul>
+                  <li><a href="faq.html">FAQ</a></li>
+                  <li><a href="refund-policy.html">Refund Policy</a></li>
+              </ul>
+          </div>
+          <div class="footer-col">
+              <h3>About DigiWorld</h3>
+              <ul>
+                  <li><a href="about.html">About Us</a></li>
+                  <li><a href="contact.html">Contact Us</a></li>
+                  <li><a href="terms.html">Terms & Conditions</a></li>
+              </ul>
+          </div>
+          <div class="footer-col">
+              <h3>We Accept</h3>
+              <div class="payment-methods-logos">
+                  <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" style="height: 30px;">
+                  <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" style="height: 30px;">
+              </div>
+          </div>
       </div>
-      <div class="footer-col">
-        <h4>About DigiWorld</h4>
-        <ul>
-          <li><a href="/about.html">About Us</a></li>
-          <li><a href="/contact.html">Contact Us</a></li>
-        </ul>
+      <div class="footer-bottom">
+          &copy; 2025 DigiWorld. All rights reserved.
       </div>
-      <div class="footer-col">
-        <h4>We Accept</h4>
-        <div class="payment-logos">
-          <img src="/images/paypal-logo.png" alt="PayPal">
-          <img src="/images/visa-logo.png" alt="Visa">
-          <img src="/images/nowpayments-logo.png" alt="NowPayments Crypto">
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">&copy; 2025 DigiWorld. All rights reserved.</div>
   </footer>
-
-  <!-- Include checkout.js for logic -->
-  <script src="checkout.js" defer></script>
-
-  <!-- Mobile bottom nav -->
-  <nav class="mobile-nav">
-    <ul>
-      <li><a href="/"><i class="fas fa-home"></i><span>Home</span></a></li>
-      <li><a href="/products.html"><i class="fas fa-th-list"></i><span>Products</span></a></li>
-      <li><a href="/cart.html"><i class="fas fa-shopping-cart"></i><span>Cart</span></a></li>
-      <li><a href="/contact.html"><i class="fas fa-envelope"></i><span>Contact</span></a></li>
-    </ul>
+  <nav class="dw-bottom-nav" id="dwBottomNav">
+      <a href="index.html" class="dw-nav-home"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="products.html" class="dw-nav-categories"><i class="fas fa-th-large"></i><span>Products</span></a>
+      <button id="dwNavCart" class="dw-nav-cart"><i class="fas fa-shopping-cart"></i><span class="cart-icon-badge" id="dwCartCount">0</span></button>
+      <a href="account.html" class="dw-nav-account"><i class="fas fa-user"></i><span>Account</span></a>
   </nav>
+  <script src="https://www.paypal.com/sdk/js?currency=USD&client-id=" id="paypal-sdk"></script>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="auth.js" type="module"></script>
+
+  <script src="checkout.js" type="module"></script>
 </body>
 </html>

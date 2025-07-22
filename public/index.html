@@ -1,309 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>DigiWorld - Instant Digital Keys for Software and Games</title>
-  <meta name="description" content="Your trusted source for genuine digital keys. Get instant delivery on Windows, Microsoft Office, antivirus software, and more. Secure payments and 24/7 support.">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="styles.css">
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DigiWorld - Instant Digital Keys</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
-  
-<header class="site-header">
-  <div class="header-main-pro header-desktop">
-    <a href="index.html" class="logo-pro" style="text-decoration: none;">DigiWorld</a>
-    <nav>
-      <a href="index.html" class="nav-link-pro active">Home</a>
-      <a href="products.html" class="nav-link-pro">Products</a>
-      <a href="contact.html" class="nav-link-pro">Contact</a>
-    </nav>
-    
-    <div class="header-controls">
-        <button class="header-btn" id="langCurrencyBtn" aria-label="Language and Currency Settings">
-            <span id="currentLangFlag">🇱🇰</span> EN / LKR <i class="fas fa-chevron-down"></i>
-        </button>
-        
-        <div class="account-control" id="accountControl">
-            <i class="fas fa-user"></i>
-            <div class="account-text">
-                <span class="welcome-text">Welcome</span>
-                <span class="auth-action">Sign In / Register</span>
-            </div>
-            <div class="auth-dropdown-menu">
-                <div id="authDropdownContent">
+    <div id="header-placeholder"></div>
+
+    <main>
+        <section class="hero-slider-wrapper">
+            <div id="hero-slider"></div>
+            <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
+            <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
+        </section>
+
+        <section class="main-section" aria-label="Featured products">
+            <div class="product-controls">
+                <div class="control-group">
+                    <label for="categoryFilter">Category:</label>
+                    <select id="categoryFilter">
+                        <option value="all">All Products</option>
+                        <option value="Office">Office</option>
+                        <option value="Windows">Windows</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="sortProducts">Sort by:</label>
+                    <select id="sortProducts">
+                        <option value="default">Default</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="price-desc">Price: High to Low</option>
+                    </select>
                 </div>
             </div>
-        </div>
-        
-        <button class="header-btn cart-btn" id="cartBtn" aria-label="Open cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Cart</span>
-            <span class="cart-icon-badge" id="cartCount">0</span>
-        </button>
-    </div>
-  </div>
+            <div class="section-title">Featured Products</div>
+            <div class="product-grid" id="productGrid"></div>
+        </section>
+    </main>
 
-  <form class="search-bar-modern" autocomplete="off" onsubmit="return false;" role="search">
-    <select class="category-dropdown" aria-label="Select category">
-      <option>All Categories</option>
-      <option>Windows</option>
-      <option>Office</option>
-      <option>Development Tools</option>
-    </select>
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search for products…"
-      aria-autocomplete="list"
-      aria-controls="searchSuggestionsDesktop"
-      aria-expanded="false"
-      aria-label="Search products"
-    />
-    <button class="search-btn-modern" type="submit">Search</button>
-    <div class="search-suggestions" id="searchSuggestionsDesktop" role="listbox"></div>
-  </form>
-</header>
-
-<main>
-    <section class="hero-slider-wrapper">
-        <div id="hero-slider"></div>
-        <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
-        <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
-    </section>
-
-    <section class="main-section" aria-label="Featured products">
-        <div class="product-controls">
-            <div class="control-group">
-                <label for="categoryFilter">Category:</label>
-                <select id="categoryFilter">
-                    <option value="all">All Products</option>
-                    <option value="Office">Office</option>
-                    <option value="Windows">Windows</option>
-                    <option value="Development">Development Tools</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label for="sortProducts">Sort by:</label>
-                <select id="sortProducts">
-                    <option value="default">Default</option>
-                    <option value="price-asc">Price: Low to High</option>
-                    <option value="price-desc">Price: High to Low</option>
-                    <option value="name-asc">Name: A to Z</option>
-                    <option value="name-desc">Name: Z to A</option>
-                </select>
-            </div>
-        </div>
-        <div class="section-title">Featured Products</div>
-        <div class="product-grid" id="productGrid">
-            </div>
-    </section>
-</main>
-
-<div class="mini-cart-overlay" id="miniCartOverlay" role="dialog" aria-modal="true" aria-labelledby="miniCartTitle"></div>
-<div
-  class="mini-cart-drawer"
-  id="miniCartDrawer"
-  aria-labelledby="miniCartTitle"
-  tabindex="-1"
->
-  <div class="mini-cart-header">
-    <span id="miniCartTitle">Your Cart</span>
-    <button class="mini-cart-close" id="miniCartClose" aria-label="Close cart">&times;</button>
-  </div>
-  <div class="mini-cart-items" id="miniCartItems"></div>
-  <div class="mini-cart-footer">
-    <div class="mini-cart-total" id="miniCartTotal"></div>
-    <button class="mini-cart-checkout" onclick="window.location.href='cart.html'">Go to Cart</button>
-  </div>
-</div>
-
-<footer class="site-footer">
-    <div class="footer-grid">
-        <div class="footer-col">
-            <h3>Customer Care</h3>
-            <ul>
-                <li><a href="faq.html">FAQ</a></li>
-                <li><a href="refund-policy.html">Refund Policy</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>About DigiWorld</h3>
-            <ul>
-                <li><a href="about.html">About Us</a></li>
-                <li><a href="contact.html">Contact Us</a></li>
-                <li><a href="terms.html">Terms & Conditions</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>We Accept</h3>
-            <div class="payment-methods-logos">
-                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" style="height: 30px;">
-                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" style="height: 30px;">
-            </div>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        &copy; 2025 DigiWorld. All rights reserved.
-    </div>
-</footer>
-
-<nav class="dw-bottom-nav" id="dwBottomNav">
-    <a href="index.html" class="dw-nav-home dw-nav-active"><i class="fas fa-home"></i><span>Home</span></a>
-    <a href="products.html" class="dw-nav-categories"><i class="fas fa-th-large"></i><span>Products</span></a>
-    <button id="dwNavCart" class="dw-nav-cart"><i class="fas fa-shopping-cart"></i><span class="cart-icon-badge" id="dwCartCount">0</span></button>
-    <a href="account.html" class="dw-nav-account"><i class="fas fa-user"></i><span>Account</span></a>
-</nav>
-
-<button id="dwBackToTop" title="Back to Top" style="display:none;">↑</button>
-
-<div class="auth-modal-overlay" id="authModal">
-    <div class="auth-modal-content">
-        <button class="auth-modal-close" id="authModalClose">&times;</button>
-        <h3>Register / Sign in</h3>
-        <p>Your information is protected</p>
-        <div class="auth-providers">
-            <button class="auth-provider-btn google" id="googleSignInBtn"><i class="fab fa-google"></i> Continue with Google</button>
-            <button class="auth-provider-btn apple" id="appleSignInBtn"><i class="fab fa-apple"></i> Continue with Apple</button>
-        </div>
-        <div class="auth-separator"><span>OR</span></div>
-        <form id="emailLoginForm">
-            <label for="emailInput">Email</label>
-            <input type="email" id="emailInput" placeholder="Enter your email">
-            <button type="submit" class="auth-continue-btn">Continue with Email</button>
-        </form>
-        <div id="modal-message" style="margin-top: 15px; text-align: center; font-weight: 700;"></div>
-    </div>
-</div>
-
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script>
-  // Securely fetch Firebase config and initialize the app
-  async function initializeFirebase() {
-    try {
-      // NOTE: This assumes you have created the get-firebase-config function
-      const response = await fetch('/.netlify/functions/get-firebase-config');
-      if (!response.ok) {
-        throw new Error('Could not load Firebase configuration.');
-      }
-      const firebaseConfig = await response.json();
-      
-      firebase.initializeApp(firebaseConfig);
-      setupAuth();
-
-    } catch (error) {
-      console.error('Firebase initialization failed:', error);
-      document.body.innerHTML = '<h1>Error: Could not initialize the application. Please try again later.</h1>';
-    }
-  }
-
-  function setupAuth() {
-    const auth = firebase.auth();
-    // --- Elements ---
-    const accountControl = document.getElementById('accountControl');
-    const authModal = document.getElementById('authModal');
-    const authModalClose = document.getElementById('authModalClose');
-    const authDropdownContent = document.getElementById('authDropdownContent');
-    const modalMessage = document.getElementById('modal-message');
-
-    // --- Modal Functions ---
-    const openAuthModal = () => authModal.classList.add('show');
-    const closeAuthModal = () => authModal.classList.remove('show');
-
-    // --- Render Functions for Dropdown ---
-    function renderLoggedOutMenu() {
-        authDropdownContent.innerHTML = `
-            <button class="auth-dropdown-signin-btn" id="dropdownSignInBtn">Sign In</button>
-            <a href="#" class="register-link" id="dropdownRegisterBtn">Register</a>
-        `;
-        document.getElementById('dropdownSignInBtn').addEventListener('click', openAuthModal);
-        document.getElementById('dropdownRegisterBtn').addEventListener('click', openAuthModal);
-    }
-
-    function renderLoggedInMenu(user) {
-        authDropdownContent.innerHTML = `
-            <a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a>
-            <a href="orders.html"><i class="fas fa-box"></i> My Orders</a>
-            <a href="downloads.html"><i class="fas fa-download"></i> My Downloads</a>
-            <a href="wishlist.html"><i class="fas fa-heart"></i> Wish List</a>
-            <hr>
-            <a href="#" id="dropdownLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        `;
-        document.getElementById('dropdownLogoutBtn').addEventListener('click', () => auth.signOut());
-    }
-
-    // --- Main Auth Logic ---
-    auth.onAuthStateChanged(user => {
-      const welcomeText = accountControl.querySelector('.welcome-text');
-      const authAction = accountControl.querySelector('.auth-action');
-      if (user) {
-        welcomeText.textContent = 'Welcome';
-        authAction.textContent = user.displayName || user.email.split('@')[0];
-        renderLoggedInMenu(user);
-      } else {
-        welcomeText.textContent = 'Welcome';
-        authAction.textContent = 'Sign In / Register';
-        renderLoggedOutMenu();
-      }
-    });
-
-    // --- Modal Event Listeners ---
-    authModalClose.addEventListener('click', closeAuthModal);
-    authModal.addEventListener('click', (e) => {
-      if (e.target === authModal) closeAuthModal();
-    });
-
-    // Firebase Auth Handlers (for the modal)
-    const googleProvider = new firebase.auth.GoogleAuthProvider();
-    document.getElementById('googleSignInBtn').addEventListener('click', () => {
-      auth.signInWithPopup(googleProvider).catch(err => modalMessage.textContent = err.message);
-    });
+    <div id="footer-placeholder"></div>
     
-    const appleProvider = new firebase.auth.OAuthProvider('apple.com');
-    document.getElementById('appleSignInBtn').addEventListener('click', () => {
-      auth.signInWithPopup(appleProvider).catch(err => modalMessage.textContent = err.message);
-    });
-
-    document.getElementById('emailLoginForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('emailInput').value;
-        if (!email) {
-            modalMessage.textContent = "Please enter your email.";
-            modalMessage.style.color = 'red';
-            return;
-        }
-        const actionCodeSettings = {
-          url: window.location.href,
-          handleCodeInApp: true,
-        };
-        auth.sendSignInLinkToEmail(email, actionCodeSettings)
-          .then(() => {
-            window.localStorage.setItem('emailForSignIn', email);
-            modalMessage.textContent = `A sign-in link has been sent to ${email}. Check your inbox.`;
-            modalMessage.style.color = 'green';
-          })
-          .catch(err => {
-            modalMessage.textContent = err.message;
-            modalMessage.style.color = 'red';
-          });
-    });
-  }
-
-  // Start the initialization process when the page loads
-  document.addEventListener('DOMContentLoaded', initializeFirebase);
-</script>
-
-<script src="main.js" type="module"></script>
+    <script src="app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="auth.js" type="module"></script>
+    <script src="main.js" type="module"></script>
 </body>
 </html>

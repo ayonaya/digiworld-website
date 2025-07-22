@@ -1,91 +1,61 @@
-// public/products.js
+import { initializeCart } from './cart-manager.js';
 
-// This function will be called when the page loads.
 document.addEventListener('DOMContentLoaded', () => {
-    // Find the container on the page where products should be displayed.
-    // Make sure your index.html has an element with id="products-container".
-    const productsContainer = document.getElementById('products-container');
-    const loadingSpinner = document.getElementById('loading-spinner'); // Optional: for a loading indicator
+    let allProducts = [];
+    const productGrid = document.getElementById('productGrid');
 
-    if (!productsContainer) {
-        console.error('Error: Could not find element with id="products-container"');
-        return;
-    }
-
-    // Show loading spinner if it exists
-    if (loadingSpinner) {
-        loadingSpinner.style.display = 'block';
-    }
-
-    // Fetch the products from our Netlify serverless function
-    fetch('/.netlify/functions/get-products')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Network response was not ok, status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Hide loading spinner
-            if (loadingSpinner) {
-                loadingSpinner.style.display = 'none';
-            }
-
-            if (data.success && data.products) {
-                // Clear any existing content
-                productsContainer.innerHTML = ''; 
-                // Call the function to display the products
-                displayProducts(data.products, productsContainer);
+    async function fetchProducts() {
+        if (!productGrid) return;
+        productGrid.innerHTML = '<p>Loading products...</p>';
+        try {
+            const response = await fetch('/.netlify/functions/get-products');
+            const data = await response.json();
+            if (data.success) {
+                allProducts = data.products;
+                renderProducts(allProducts);
+                initializeCart(allProducts);
             } else {
-                throw new Error(data.message || 'Failed to load products from the server.');
+                throw new Error('Could not fetch products.');
             }
-        })
-        .catch(error => {
-            console.error('Failed to fetch products:', error);
-            // Hide loading spinner
-            if (loadingSpinner) {
-                loadingSpinner.style.display = 'none';
-            }
-            // Display an error message to the user
-            productsContainer.innerHTML = `<p class="text-center text-red-500">Error loading products. Please try again later.</p>`;
-        });
-});
-
-// This function takes the list of products and creates the HTML to display them
-function displayProducts(products, container) {
-    if (products.length === 0) {
-        container.innerHTML = '<p class="text-center">No products found.</p>';
-        return;
+        } catch (error) {
+            productGrid.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+        }
     }
 
-    products.forEach(product => {
-        // This creates the HTML for a single product card.
-        // You may need to adjust the HTML structure and classes to match your site's design.
-        const productCard = `
-            <div class="product-card bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition-transform duration-300">
-                <a href="/product-details.html?id=${product.id}">
-                    <img src="${product.image}" alt="${product.name.en}" class="w-full h-48 object-cover">
-                </a>
-                <div class="p-4">
-                    <h3 class="text-lg font-semibold mb-2">
-                        <a href="/product-details.html?id=${product.id}" class="hover:text-blue-600">${product.name.en}</a>
-                    </h3>
-                    <p class="text-gray-600 text-sm mb-4">${product.shortDesc || ''}</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-xl font-bold text-gray-900">$${product.price.USD}</span>
-                        <a href="/product-details.html?id=${product.id}" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">View Details</a>
+    function renderProducts(products) {
+        if (!productGrid) return;
+        if (products.length === 0) {
+            productGrid.innerHTML = '<p>No products match your search.</p>';
+            return;
+        }
+        productGrid.innerHTML = products.map(prod => `
+            <div class="product-card" data-product-id="${prod.id}">
+                <div class="card-image-container"><a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${prod.name.en}" loading="lazy"/></a></div>
+                <div class="card-content-wrapper">
+                    <h3 class="product-name">${prod.name.en}</h3>
+                    <p class="product-price">$${prod.price.USD.toFixed(2)}</p>
+                    <div class="card-buttons">
+                        <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
+                        <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
                     </div>
                 </div>
-            </div>
-        `;
-        // Add the new product card to the container
-        container.innerHTML += productCard;
-    });
-}
+            </div>`).join('');
+    }
+    
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    if (headerPlaceholder) {
+        const observer = new MutationObserver(() => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    const query = searchInput.value.toLowerCase().trim();
+                    const filtered = allProducts.filter(p => p.name.en.toLowerCase().includes(query));
+                    renderProducts(filtered);
+                });
+            }
+        });
+        observer.observe(headerPlaceholder, { childList: true, subtree: true });
+    }
 
-// IMPORTANT: You must have a container in your index.html like this:
-// <div id="products-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-//     <!-- Products will be loaded here by JavaScript -->
-// </div>
-// And optionally, a loading spinner:
-// <div id="loading-spinner" style="display: none;">Loading...</div>
+    fetchProducts();
+});
