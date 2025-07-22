@@ -3626,3 +3626,62 @@ input {
     padding-bottom: 4rem; /* Space for the bottom nav */
   }
 }
+/* Simplify layout for email-only checkout */
+.email-only .checkout-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+@media (max-width: 768px) {
+  .email-only .checkout-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Footer nav styling */
+.footer-nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+.footer-nav a {
+  text-decoration: none;
+  color: #555;
+}
+
+/* Mobile bottom navigator bar */
+@media (max-width: 768px) {
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+  .mobile-nav ul {
+    display: flex;
+    margin: 0;
+    padding: 0.5rem 0;
+    list-style: none;
+    justify-content: space-around;
+  }
+  .mobile-nav a {
+    color: #000;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.75rem;
+  }
+  .mobile-nav i {
+    font-size: 1.25rem;
+  }
+  body {
+    padding-bottom: 4rem; /* Space for the bottom nav */
+  }
+}

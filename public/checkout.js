@@ -1,6 +1,3 @@
-<!----------------------------------------------------------------------------- 
-File: checkout.js (unchanged)
------------------------------------------------------------------------------->
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('checkout-form');
   const submitBtn = document.getElementById('checkout-submit');

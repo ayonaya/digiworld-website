@@ -1,18 +1,16 @@
-<!----------------------------------------------------------------------------- 
-File: checkout.html
-Overview: Professional, responsive checkout page for DigiWorld with mobile bottom nav
------------------------------------------------------------------------------->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Checkout - DigiWorld</title>
-  <!-- Link main stylesheet -->
+  <!-- Main stylesheet -->
   <link rel="stylesheet" href="styles.css" />
+  <!-- Font Awesome icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-Mnhq9E0j94+V6xM3aIu7qTXegNYyAmRuZfZw1BEGq0G1XVHQ7Q0PvCl86axUNjyzPb0xC2arYymoM+gY1qb60w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-  <!-- Header with logo and navigation -->
+  <!-- Header -->
   <header class="site-header container">
     <a href="/" class="logo">DigiWorld</a>
     <nav class="site-nav">
@@ -25,9 +23,8 @@ Overview: Professional, responsive checkout page for DigiWorld with mobile botto
     </nav>
   </header>
 
-  <!-- Main content area with checkout form and summary -->
+  <!-- Main Content -->
   <main class="container checkout-page">
-    <!-- Page header and breadcrumb -->
     <div class="checkout-header">
       <h1>Checkout</h1>
       <nav class="breadcrumb">
@@ -37,31 +34,13 @@ Overview: Professional, responsive checkout page for DigiWorld with mobile botto
       </nav>
     </div>
 
-    <div class="checkout-content">
-      <!-- Billing Information Form -->
+    <div class="checkout-content email-only">
+      <!-- Email-only form for digital delivery -->
       <form id="checkout-form" class="checkout-form">
-        <h2>Billing Information</h2>
-        <div class="form-group">
-          <label for="fullName">Full Name</label>
-          <input id="fullName" name="fullName" type="text" placeholder="John Doe" required />
-        </div>
+        <h2>Email Delivery</h2>
         <div class="form-group">
           <label for="email">Email Address</label>
           <input id="email" name="email" type="email" placeholder="you@example.com" required />
-        </div>
-        <div class="form-group">
-          <label for="address">Address</label>
-          <input id="address" name="address" type="text" placeholder="123 Main St" required />
-        </div>
-        <div class="form-row">
-          <div class="form-group half">
-            <label for="city">City</label>
-            <input id="city" name="city" type="text" placeholder="City" required />
-          </div>
-          <div class="form-group half">
-            <label for="postalCode">Postal Code</label>
-            <input id="postalCode" name="postalCode" type="text" placeholder="Postal Code" required />
-          </div>
         </div>
       </form>
 
@@ -86,13 +65,20 @@ Overview: Professional, responsive checkout page for DigiWorld with mobile botto
 
   <!-- Footer -->
   <footer class="site-footer container">
+    <nav class="footer-nav">
+      <ul>
+        <li><a href="/faq.html">FAQ</a></li>
+        <li><a href="/refund-policy.html">Refund Policy</a></li>
+        <li><a href="/terms.html">Terms & Conditions</a></li>
+      </ul>
+    </nav>
     <p>&copy; 2025 DigiWorld. All rights reserved.</p>
   </footer>
 
   <!-- Include checkout.js for logic -->
   <script src="checkout.js" defer></script>
 
-  <!-- Mobile bottom navigator bar -->
+  <!-- Mobile bottom nav -->
   <nav class="mobile-nav">
     <ul>
       <li><a href="/"><i class="fas fa-home"></i><span>Home</span></a></li>
