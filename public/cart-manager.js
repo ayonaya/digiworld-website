@@ -1,8 +1,6 @@
-// /cart-manager.js
-
 // --- STATE & CONFIGURATION ---
 let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
-let allProducts = []; // This will be populated by the scripts that use this manager
+let allProducts = [];
 const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
 let currentCurr = localStorage.getItem('userCurrency') || 'USD';
 
@@ -23,6 +21,12 @@ export function addToCart(productId) {
     cart[productId] = (cart[productId] || 0) + 1;
     saveCart();
     updateCartBadge();
+    // Optional: Animate the cart badge for visual feedback
+    const cartCountDesktop = document.getElementById('cartCount');
+    if (cartCountDesktop) {
+        cartCountDesktop.classList.add('animated');
+        setTimeout(() => cartCountDesktop.classList.remove('animated'), 400);
+    }
 }
 
 /**
@@ -99,47 +103,53 @@ export function renderMiniCart() {
     miniCartTotal.textContent = `${currencySymbol}${total.toFixed(2)}`;
 }
 
-// --- INITIALIZATION & HELPERS ---
+// --- INITIALIZATION ---
 
 /**
- * Initializes the cart manager with product data and sets up UI listeners.
- * @param {Array} productsData - The array of all products from the server.
+ * Initializes the cart manager with product data.
+ * THIS FUNCTION ONLY SETS UP THE DATA.
+ * @param {Array} productsData - The array of all products.
  */
 export function initializeCart(productsData) {
     allProducts = productsData;
-    currentCurr = localStorage.getItem('userCurrency') || 'USD';
-    
-    // Attach listeners for mini-cart functionality
-    const miniCartDrawer = document.getElementById('miniCartDrawer');
-    const miniCartOverlay = document.getElementById('miniCartOverlay');
-    const miniCartClose = document.getElementById('miniCartClose');
-    const cartBtn = document.getElementById('cartBtn');
-    const dwNavCartBtn = document.getElementById('dwNavCart');
+    updateCartBadge(); // Initial badge update
+}
 
+/**
+ * THIS IS THE NEW FUNCTION THAT SETS UP ALL CLICKABLE UI ELEMENTS FOR THE CART.
+ * It ensures the elements exist before adding listeners.
+ */
+export function initializeCartUI() {
     const openMiniCart = () => {
+        const miniCartDrawer = document.getElementById('miniCartDrawer');
+        const miniCartOverlay = document.getElementById('miniCartOverlay');
         renderMiniCart();
         if (miniCartDrawer) miniCartDrawer.classList.add('active');
         if (miniCartOverlay) miniCartOverlay.classList.add('active');
     };
 
     const closeMiniCart = () => {
+        const miniCartDrawer = document.getElementById('miniCartDrawer');
+        const miniCartOverlay = document.getElementById('miniCartOverlay');
         if (miniCartDrawer) miniCartDrawer.classList.remove('active');
         if (miniCartOverlay) miniCartOverlay.classList.remove('active');
     };
 
-    if (cartBtn) cartBtn.onclick = openMiniCart;
-    if (dwNavCartBtn) dwNavCartBtn.onclick = openMiniCart;
-    if (miniCartClose) miniCartClose.onclick = closeMiniCart;
-    if (miniCartOverlay) miniCartOverlay.onclick = (e) => { if(e.target === miniCartOverlay) closeMiniCart(); };
-    
-    // Listener for removing items from the mini-cart
+    // Robustly add event listeners to the body for dynamic elements
     document.body.addEventListener('click', (e) => {
+        // Desktop and Mobile Cart Buttons
+        if (e.target.closest('#cartBtn') || e.target.closest('#dwNavCart')) {
+            openMiniCart();
+        }
+        // Mini Cart Close Buttons
+        if (e.target.closest('#miniCartClose') || e.target.id === 'miniCartOverlay') {
+            closeMiniCart();
+        }
+        // Remove item from mini cart
         if (e.target.classList.contains('mini-cart-item-remove')) {
             const id = e.target.dataset.removeId;
             removeFromCart(id);
             renderMiniCart(); // Re-render after removal
         }
     });
-
-    updateCartBadge();
 }

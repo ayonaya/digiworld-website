@@ -3909,3 +3909,14 @@ body {
     50% { background-color: #e2e5e7; }
     100% { background-color: #eef0f2; }
 }
+/* --- RESTORED: Delivery Tag Badge Style --- */
+.tag-delivery {
+    display: inline-block;
+    background-color: #e9f7ec; /* A light green background */
+    color: #28a745; /* A darker green text color */
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
