@@ -1,28 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Contact Us - DigiWorld</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <meta charset="UTF-8" />
+  <title>Contact DigiWorld</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f6f6fa;
+      --card-bg: #ffffff;
+      --primary: #f57224;
+      --primary-dark: #d45703;
+      --text: #333333;
+      --muted: #666666;
+      --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      font-family: 'Nunito Sans', sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: var(--card-bg);
+      padding: 40px;
+      text-align: center;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    h1 {
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 20px;
+    }
+    p {
+      margin-bottom: 1.5em;
+      font-size: 1.1rem;
+    }
+    .contact-button {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: background-color 0.3s;
+    }
+    .contact-button:hover {
+      background-color: var(--primary-dark);
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 40px;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-    <div id="header-placeholder"></div>
-    <main class="container">
-         <div class="checkout-card" style="text-align: center;">
-            <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Store</a>
-            <h1>Contact Us</h1>
-            <p>Have a question about your order or a product? We're here to help! The best way to reach us is by email. We typically respond within 24 hours.</p>
-            <a href="mailto:AYONSS2001@GMAIL.COM" class="action-button add-to-cart" style="max-width: 300px; margin: 0 auto; text-decoration: none;">
-                <i class="fas fa-envelope"></i> Email Our Support Team
-            </a>
-        </div>
-    </main>
-    <div id="footer-placeholder"></div>
-    <script src="app.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="auth.js" type="module"></script>
+
+  <div class="container">
+    <a href="index.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Store</a>
+    <h1>Contact Us</h1>
+    <p>
+      Have a question about your order or a product? We're here to help! The best way to reach us is by email. We typically respond within 24 hours.
+    </p>
+    <!-- This mailto link will open the user's default email client -->
+    <a href="mailto:AYONSS2001@GMAIL.COM" class="contact-button">
+      <i class="fas fa-envelope"></i> Email Our Support Team
+    </a>
+  </div>
+
 </body>
 </html>

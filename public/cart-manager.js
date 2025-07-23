@@ -1,111 +1,145 @@
-// --- CART LOGIC (Based on your original files) ---
+// /cart-manager.js
 
-// Retrieves the cart from localStorage.
-function getCartItems() {
-    return JSON.parse(localStorage.getItem('cart') || '[]');
+// --- STATE & CONFIGURATION ---
+let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+let allProducts = []; // This will be populated by the scripts that use this manager
+const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
+let currentCurr = localStorage.getItem('userCurrency') || 'USD';
+
+// --- CORE CART FUNCTIONS ---
+
+/**
+ * Saves the current cart state to localStorage.
+ */
+function saveCart() {
+    localStorage.setItem('digiworldCart', JSON.stringify(cart));
 }
 
-// Saves the cart to localStorage.
-function saveCartItems(cart) {
-    localStorage.setItem('cart', JSON.stringify(cart));
+/**
+ * Adds a product to the cart or increments its quantity.
+ * @param {string} productId - The ID of the product to add.
+ */
+export function addToCart(productId) {
+    cart[productId] = (cart[productId] || 0) + 1;
+    saveCart();
+    updateCartBadge();
 }
 
-// Adds a product to the cart or increments its quantity.
-function addToCart(productId) {
-    let cart = getCartItems();
-    
-    const existingProductIndex = cart.findIndex(item => item.id === productId);
+/**
+ * Removes a product completely from the cart.
+ * @param {string} productId - The ID of the product to remove.
+ */
+export function removeFromCart(productId) {
+    delete cart[productId];
+    saveCart();
+    updateCartBadge();
+}
 
-    if (existingProductIndex > -1) {
-        cart[existingProductIndex].quantity++;
+/**
+ * Updates the quantity of a specific product in the cart.
+ * @param {string} productId - The ID of the product to update.
+ * @param {number} quantity - The new quantity.
+ */
+export function updateQuantity(productId, quantity) {
+    if (quantity > 0) {
+        cart[productId] = quantity;
     } else {
-        // You might want to fetch product details here to add more info to the cart
-        cart.push({ id: productId, quantity: 1 });
+        delete cart[productId];
     }
+    saveCart();
+    updateCartBadge();
+}
+
+// --- UI UPDATE FUNCTIONS ---
+
+/**
+ * Updates the cart count badge in the header.
+ */
+export function updateCartBadge() {
+    const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
+    const cartCountDesktop = document.getElementById('cartCount');
+    const cartCountMobile = document.getElementById('dwCartCount');
+    if (cartCountDesktop) cartCountDesktop.textContent = count;
+    if (cartCountMobile) cartCountMobile.textContent = count;
+}
+
+/**
+ * Renders the contents of the mini-cart drawer.
+ */
+export function renderMiniCart() {
+    const miniCartItems = document.getElementById('miniCartItems');
+    const miniCartTotal = document.getElementById('miniCartTotal');
+    if (!miniCartItems || !miniCartTotal) return;
+
+    let total = 0;
+    const currencySymbol = currencySymbols[currentCurr] || '$';
+
+    if (Object.keys(cart).length === 0 || allProducts.length === 0) {
+        miniCartItems.innerHTML = `<div style="text-align:center; padding: 20px;">Your cart is empty.</div>`;
+        miniCartTotal.textContent = `${currencySymbol}0.00`;
+        return;
+    }
+
+    miniCartItems.innerHTML = Object.entries(cart).map(([id, qty]) => {
+        const prod = allProducts.find(p => p.id === id);
+        if (!prod) return '';
+        const price = (prod.price[currentCurr] || prod.price.USD);
+        total += price * qty;
+        return `
+            <div class="mini-cart-item">
+                <img src="${prod.image}" class="mini-cart-item-img" alt="${prod.name.en}">
+                <div class="mini-cart-item-details">
+                    <div class="mini-cart-item-title">${prod.name.en}</div>
+                    <div class="mini-cart-item-price">${qty} x ${currencySymbol}${price.toFixed(2)}</div>
+                </div>
+                <span class="mini-cart-item-remove" data-remove-id="${id}" role="button">&times;</span>
+            </div>`;
+    }).join('');
+
+    miniCartTotal.textContent = `${currencySymbol}${total.toFixed(2)}`;
+}
+
+// --- INITIALIZATION & HELPERS ---
+
+/**
+ * Initializes the cart manager with product data and sets up UI listeners.
+ * @param {Array} productsData - The array of all products from the server.
+ */
+export function initializeCart(productsData) {
+    allProducts = productsData;
+    currentCurr = localStorage.getItem('userCurrency') || 'USD';
     
-    saveCartItems(cart);
-    updateCartCount();
-    // A more subtle notification could be used here instead of an alert
-    console.log(`Product ${productId} added to cart.`);
-}
+    // Attach listeners for mini-cart functionality
+    const miniCartDrawer = document.getElementById('miniCartDrawer');
+    const miniCartOverlay = document.getElementById('miniCartOverlay');
+    const miniCartClose = document.getElementById('miniCartClose');
+    const cartBtn = document.getElementById('cartBtn');
+    const dwNavCartBtn = document.getElementById('dwNavCart');
 
-// Updates the cart item count displayed in the header.
-function updateCartCount() {
-    const cartCountElement = document.getElementById('cart-count');
-    if (cartCountElement) {
-        // Calculates total quantity of all items in the cart
-        const itemCount = getCartItems().reduce((total, item) => total + item.quantity, 0);
-        cartCountElement.textContent = itemCount;
-        cartCountElement.style.display = itemCount > 0 ? 'block' : 'none';
-    }
-}
+    const openMiniCart = () => {
+        renderMiniCart();
+        if (miniCartDrawer) miniCartDrawer.classList.add('active');
+        if (miniCartOverlay) miniCartOverlay.classList.add('active');
+    };
 
-// --- FLY TO CART ANIMATION ---
+    const closeMiniCart = () => {
+        if (miniCartDrawer) miniCartDrawer.classList.remove('active');
+        if (miniCartOverlay) miniCartOverlay.classList.remove('active');
+    };
 
-// Creates and manages the "fly to cart" visual effect.
-function flyToCart(startElement, endElement) {
-    if (!startElement || !endElement) return;
-
-    const flyingImage = startElement.cloneNode(true);
-    const startRect = startElement.getBoundingClientRect();
-    const endRect = endElement.getBoundingClientRect();
-
-    flyingImage.classList.add('fly-to-cart-image');
-    document.body.appendChild(flyingImage);
-
-    // Set initial position and size of the flying image.
-    flyingImage.style.top = `${startRect.top}px`;
-    flyingImage.style.left = `${startRect.left}px`;
-    flyingImage.style.width = `${startRect.width}px`;
-    flyingImage.style.height = `${startRect.height}px`;
-
-    // Animate the image towards the cart icon.
-    requestAnimationFrame(() => {
-        flyingImage.style.top = `${endRect.top + endElement.clientHeight / 2 - 10}px`;
-        flyingImage.style.left = `${endRect.left + endElement.clientWidth / 2 - 10}px`;
-        flyingImage.style.width = '20px';
-        flyingImage.style.height = '20px';
-        flyingImage.style.opacity = '0';
-    });
-
-    // Remove the flying image from the page after the animation completes.
-    setTimeout(() => {
-        flyingImage.remove();
-    }, 1000); // This duration must match the transition time in your CSS.
-}
-
-// --- EVENT LISTENERS ---
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Use event delegation on the body to handle clicks on dynamically added product buttons.
-    document.body.addEventListener('click', function(e) {
-        if (!e.target) return;
-
-        const productId = e.target.dataset.productId;
-        if (!productId) return;
-
-        // Handle "Add to Cart" button click
-        if (e.target.classList.contains('add-to-cart-btn')) {
-            const productCard = e.target.closest('.product-card');
-            const productImage = productCard.querySelector('.product-image');
-            const cartIcon = document.querySelector('#cart-icon');
-
-            flyToCart(productImage, cartIcon);
-            
-            // Add item to cart after a short delay to allow animation to start
-            setTimeout(() => {
-                addToCart(productId);
-            }, 100);
-        }
-
-        // Handle "Buy Now" button click
-        if (e.target.classList.contains('btn-buy-now')) {
-            // Add the product to the cart and immediately redirect to the checkout page.
-            addToCart(productId);
-            window.location.href = 'checkout.html';
+    if (cartBtn) cartBtn.onclick = openMiniCart;
+    if (dwNavCartBtn) dwNavCartBtn.onclick = openMiniCart;
+    if (miniCartClose) miniCartClose.onclick = closeMiniCart;
+    if (miniCartOverlay) miniCartOverlay.onclick = (e) => { if(e.target === miniCartOverlay) closeMiniCart(); };
+    
+    // Listener for removing items from the mini-cart
+    document.body.addEventListener('click', (e) => {
+        if (e.target.classList.contains('mini-cart-item-remove')) {
+            const id = e.target.dataset.removeId;
+            removeFromCart(id);
+            renderMiniCart(); // Re-render after removal
         }
     });
 
-    // Update the cart count when the page first loads.
-    updateCartCount();
-});
+    updateCartBadge();
+}

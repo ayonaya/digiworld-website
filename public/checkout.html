@@ -2,122 +2,211 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Secure Checkout - DigiWorld</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <title>DigiWorld – Secure Checkout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Minor adjustments for multi-item summary */
+    .order-summary-item {
+        display: grid;
+        grid-template-columns: 60px 1fr auto;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .order-summary-info .product-quantity {
+        font-size: 0.9rem;
+        color: var(--muted, #666);
+    }
+  </style>
 </head>
 <body>
 
-  <header class="site-header">
-    <div class="header-main-pro header-desktop">
-      <a href="index.html" class="logo-pro" style="text-decoration: none;">DigiWorld</a>
-      <nav>
-        <a href="index.html" class="nav-link-pro">Home</a>
-        <a href="products.html" class="nav-link-pro">Products</a>
-        <a href="contact.html" class="nav-link-pro">Contact</a>
-      </nav>
+  <a href="cart.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Cart</a>
+
+  <div class="container" id="checkout-container">
+    <div class="checkout-form">
+      <h2>Billing Information</h2>
+      <form id="billing-form" onsubmit="return false;">
+        <div class="form-group">
+          <label for="email">Email Address (for product delivery)</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+      </form>
       
-      <div class="header-controls">
-          <div class="account-control" id="accountControl">
-              <i class="fas fa-user"></i>
-              <div class="account-text">
-                  <span class="welcome-text">Welcome</span>
-                  <span class="auth-action">Sign In / Register</span>
-              </div>
-              <div class="auth-dropdown-menu">
-                  <div id="authDropdownContent">
-                      </div>
-              </div>
-          </div>
-          
-          <button class="header-btn cart-btn" id="cartBtn" aria-label="Open cart">
-              <i class="fas fa-shopping-cart"></i>
-              <span>Cart</span>
-              <span class="cart-icon-badge" id="cartCount">0</span>
-          </button>
+      <div id="paypal-button-container">
+          <p style="text-align:center; font-weight: 700;">Loading Payment Options...</p>
+      </div>
+      
+      <div class="payment-separator">OR</div>
+
+      <div id="nowpayments-button-container">
+        <button id="nowpayments-button" disabled>
+            <i class="fab fa-bitcoin"></i> Pay with Crypto
+        </button>
+      </div>
+
+      <div id="result-message"></div>
+    </div>
+    
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      <div id="summary-item-container">
+        <p>Loading your cart...</p>
+      </div>
+      <div class="order-total">
+        <span>Total</span>
+        <span id="total-price">$0.00</span>
       </div>
     </div>
-  </header>
-  <main class="container">
-    <div class="checkout-container">
-      <div class="customer-info">
-        <div class="checkout-card">
-          <h2><span class="step-number">1</span>Contact Information</h2>
-          <div class="form-group">
-            <label for="email">Email Address for Delivery</label>
-            <input id="email" name="email" type="email" placeholder="you@example.com" required />
-          </div>
-        </div>
+  </div>
 
-        <div class="checkout-card">
-          <h2><span class="step-number">2</span>Payment Method</h2>
-          <p class="payment-intro">All transactions are secure and encrypted.</p>
-          <div id="paypal-button-container">
-            </div>
-          <div id="result-message" role="alert"></div>
-        </div>
-      </div>
+  <script type="module">
+    document.addEventListener('DOMContentLoaded', async () => {
+        // --- DOM ELEMENTS & STATE ---
+        const summaryContainer = document.getElementById('summary-item-container');
+        const totalPriceEl = document.getElementById('total-price');
+        const resultMessageEl = document.getElementById('result-message');
+        const emailInput = document.getElementById('email');
+        const nowpaymentsButton = document.getElementById('nowpayments-button');
+        const paypalButtonContainer = document.getElementById('paypal-button-container');
 
-      <aside class="order-summary">
-        <div class="checkout-card">
-          <h2>Order Summary</h2>
-          <ul id="order-summary-list" class="order-items">
-            </ul>
-          <div class="summary-total">
-            <span>Total</span>
-            <span id="total-amount">$0.00</span>
-          </div>
-        </div>
-        <div class="trust-footer">
-          <i class="fas fa-shield-alt"></i>
-          <span>Shop with confidence. All sales are protected by our buyer guarantee.</span>
-        </div>
-      </aside>
-    </div>
-  </main>
+        let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+        let allProducts = [];
+        let cartDetails = []; // Will be an array of objects: { id, name, quantity, price }
+        let totalAmount = 0;
+        const currentCurr = localStorage.getItem('userCurrency') || 'USD';
+        const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
 
-  <footer class="site-footer">
-      <div class="footer-grid">
-          <div class="footer-col">
-              <h3>Customer Care</h3>
-              <ul>
-                  <li><a href="faq.html">FAQ</a></li>
-                  <li><a href="refund-policy.html">Refund Policy</a></li>
-              </ul>
-          </div>
-          <div class="footer-col">
-              <h3>About DigiWorld</h3>
-              <ul>
-                  <li><a href="about.html">About Us</a></li>
-                  <li><a href="contact.html">Contact Us</a></li>
-                  <li><a href="terms.html">Terms & Conditions</a></li>
-              </ul>
-          </div>
-          <div class="footer-col">
-              <h3>We Accept</h3>
-              <div class="payment-methods-logos">
-                  <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" style="height: 30px;">
-                  <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" style="height: 30px;">
-              </div>
-          </div>
-      </div>
-      <div class="footer-bottom">
-          &copy; 2025 DigiWorld. All rights reserved.
-      </div>
-  </footer>
-  <nav class="dw-bottom-nav" id="dwBottomNav">
-      <a href="index.html" class="dw-nav-home"><i class="fas fa-home"></i><span>Home</span></a>
-      <a href="products.html" class="dw-nav-categories"><i class="fas fa-th-large"></i><span>Products</span></a>
-      <button id="dwNavCart" class="dw-nav-cart"><i class="fas fa-shopping-cart"></i><span class="cart-icon-badge" id="dwCartCount">0</span></button>
-      <a href="account.html" class="dw-nav-account"><i class="fas fa-user"></i><span>Account</span></a>
-  </nav>
-  <script src="https://www.paypal.com/sdk/js?currency=USD&client-id=" id="paypal-sdk"></script>
-  
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="auth.js" type="module"></script>
+        // --- FUNCTIONS ---
 
-  <script src="checkout.js" type="module"></script>
+        async function initializeCheckout() {
+            if (Object.keys(cart).length === 0) {
+                summaryContainer.innerHTML = '<p>Your cart is empty. Please add items before checking out.</p>';
+                paypalButtonContainer.style.display = 'none';
+                nowpaymentsButton.style.display = 'none';
+                document.querySelector('.payment-separator').style.display = 'none';
+                return;
+            }
+
+            try {
+                const [productsData, keysData] = await Promise.all([
+                    fetch('/.netlify/functions/get-products').then(res => res.json()),
+                    fetch('/.netlify/functions/get-public-keys').then(res => res.json())
+                ]);
+
+                if (!productsData.success) throw new Error('Could not load products.');
+                allProducts = productsData.products;
+
+                if (!keysData.success) throw new Error('Could not load payment provider keys.');
+                
+                renderOrderSummary();
+                renderPayPalButton(keysData.keys.paypalClientId);
+                nowpaymentsButton.disabled = false;
+
+            } catch (error) {
+                console.error('Error initializing checkout:', error);
+                summaryContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            }
+        }
+
+        function renderOrderSummary() {
+            totalAmount = 0;
+            cartDetails = [];
+            summaryContainer.innerHTML = ''; // Clear loading message
+
+            for (const productId in cart) {
+                const quantity = cart[productId];
+                const product = allProducts.find(p => p.id === productId);
+                if (!product) continue;
+
+                const price = product.price[currentCurr] || product.price.USD;
+                totalAmount += price * quantity;
+                // Store detailed info for sending to the backend
+                cartDetails.push({ 
+                    id: product.id, 
+                    name: product.name.en, 
+                    quantity: quantity,
+                    price: price 
+                });
+
+                summaryContainer.innerHTML += `
+                    <div class="order-summary-item">
+                        <img src="${product.image}" alt="${product.name.en}">
+                        <div class="order-summary-info">
+                            <div class="product-name">${product.name.en}</div>
+                            <div class="product-quantity">Quantity: ${quantity}</div>
+                        </div>
+                        <div class="product-price">${currencySymbols[currentCurr]}${(price * quantity).toFixed(2)}</div>
+                    </div>`;
+            }
+            totalPriceEl.textContent = `${currencySymbols[currentCurr]}${totalAmount.toFixed(2)}`;
+        }
+
+        function renderPayPalButton(paypalClientId) {
+            paypalButtonContainer.innerHTML = '';
+            const script = document.createElement('script');
+            script.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&currency=USD`;
+            script.onload = () => setupPayPal();
+            document.head.appendChild(script);
+        }
+
+        function setupPayPal() {
+             paypal.Buttons({
+                style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
+                createOrder: (data, actions) => {
+                    if (!emailInput.value || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
+                        resultMessageEl.textContent = 'Please enter a valid email address.'; resultMessageEl.style.color = 'red';
+                        return Promise.reject(new Error('Invalid email'));
+                    }
+                    resultMessageEl.textContent = '';
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: { value: totalAmount.toFixed(2) }
+                        }]
+                    });
+                },
+                onApprove: (data, actions) => {
+                    resultMessageEl.style.color = 'blue';
+                    resultMessageEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Verifying payment...`;
+                    
+                    // =================================================================
+                    // CRITICAL FIX: Sending the full cart details to the backend
+                    // =================================================================
+                    return fetch('/.netlify/functions/verify-paypal-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            orderID: data.orderID,
+                            email: emailInput.value,
+                            cart: cartDetails, // Send the full cart array
+                            amount: totalAmount,
+                            currency: 'USD'
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success) {
+                            localStorage.removeItem('digiworldCart'); // Clear cart on success
+                            resultMessageEl.style.color = 'green';
+                            resultMessageEl.innerHTML = `<i class="fas fa-check-circle"></i> Payment successful! Your key(s) have been sent to <strong>${emailInput.value}</strong>.`;
+                        } else {
+                            throw new Error(result.message || 'Verification failed.');
+                        }
+                    })
+                    .catch(error => {
+                        resultMessageEl.style.color = 'red';
+                        resultMessageEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Payment failed. ${error.message}`;
+                    });
+                }
+            }).render('#paypal-button-container');
+        }
+
+        // --- INITIALIZATION ---
+        initializeCheckout();
+    });
+  </script>
 </body>
 </html>
