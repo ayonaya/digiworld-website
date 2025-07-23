@@ -1,57 +1,77 @@
-// cart-manager.js
-(function(){
-  let cart     = JSON.parse(localStorage.getItem('digiworldCart')     || '{}');
-  let products = JSON.parse(localStorage.getItem('digiworldProducts') || '[]');
+document.addEventListener('DOMContentLoaded', () => {
+  const cartList = document.getElementById('cart-items-list');
+  const cartSummary = document.getElementById('cart-summary-details');
+
+  let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
+  let products = JSON.parse(localStorage.getItem('digiworldProducts')) || [];
 
   function saveCart() {
     localStorage.setItem('digiworldCart', JSON.stringify(cart));
   }
-  function updateBadge() {
-    const total = Object.values(cart).reduce((a,b)=>a+b,0);
-    document.getElementById('cartCount')?.textContent    = total;
-    document.getElementById('dwCartCount')?.textContent = total;
-  }
 
   function renderCart() {
-    const listEl    = document.getElementById('cart-items-list');
-    const summaryEl = document.getElementById('cart-summary-details');
-    if (!listEl || !summaryEl) return;
+    if (!cartList || !cartSummary) return;
 
-    if (Object.keys(cart).length === 0) {
-      listEl.innerHTML    = '<p>Your cart is empty.</p>';
-      summaryEl.innerHTML = '';
+    const cartEntries = Object.entries(cart);
+    if (cartEntries.length === 0) {
+      cartList.innerHTML = '<p>Your cart is empty.</p>';
+      cartSummary.innerHTML = '';
       return;
     }
 
-    let total = 0, html = '';
-    for (const [id, qty] of Object.entries(cart)) {
-      const p = products.find(x => x.id === id);
-      if (!p) continue;
-      const line = p.price.USD * qty;
-      total += line;
-      html += `
-        <div class="cart-row">
-          <div class="cart-item-name">${p.name.en}</div>
-          <div class="cart-item-qty">Qty: ${qty}</div>
-          <div class="cart-item-lineprice">$${line.toFixed(2)}</div>
-          <button class="cart-remove-btn" data-remove="${p.id}">&times;</button>
-        </div>`;
+    let totalPrice = 0;
+    cartList.innerHTML = '';
+    for (const [productId, qty] of cartEntries) {
+      const product = products.find(p => p.id === productId);
+      if (!product) continue;
+
+      const price = product.price?.USD || 0;
+      totalPrice += price * qty;
+
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'cart-item';
+
+      itemDiv.innerHTML = `
+        <div class="cart-item-name">${product.name?.en || ''}</div>
+        <div class="cart-item-qty">
+          <button class="qty-btn decrement" data-id="${productId}">-</button>
+          <span>${qty}</span>
+          <button class="qty-btn increment" data-id="${productId}">+</button>
+        </div>
+        <div class="cart-item-price">$${(price * qty).toFixed(2)}</div>
+        <button class="remove-btn" data-id="${productId}" aria-label="Remove from cart">&times;</button>
+      `;
+      cartList.appendChild(itemDiv);
     }
-    listEl.innerHTML    = html;
-    summaryEl.innerHTML = `<p class="cart-total">Total: $${total.toFixed(2)}</p>`;
+
+    cartSummary.innerHTML = `<strong>Total: $${totalPrice.toFixed(2)}</strong>`;
   }
 
-  document.body.addEventListener('click', e => {
-    const btn = e.target.closest('[data-remove]');
-    if (!btn) return;
-    delete cart[btn.dataset.remove];
-    saveCart();
-    updateBadge();
-    renderCart();
+  // Handle quantity change buttons and remove
+  cartList.addEventListener('click', e => {
+    const id = e.target.getAttribute('data-id');
+    if (!id) return;
+
+    if (e.target.classList.contains('increment')) {
+      cart[id] = (cart[id] || 0) + 1;
+      saveCart();
+      renderCart();
+    }
+    if (e.target.classList.contains('decrement')) {
+      if (cart[id] > 1) {
+        cart[id]--;
+      } else {
+        delete cart[id];
+      }
+      saveCart();
+      renderCart();
+    }
+    if (e.target.classList.contains('remove-btn')) {
+      delete cart[id];
+      saveCart();
+      renderCart();
+    }
   });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    updateBadge();
-    renderCart();
-  });
-})();
+  renderCart();
+});

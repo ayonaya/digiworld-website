@@ -1,30 +1,35 @@
-// downloads-manager.js
-(function(){
-  let downloads = JSON.parse(localStorage.getItem('digiworldDownloads') || '[]');
-  let products  = JSON.parse(localStorage.getItem('digiworldProducts')  || '[]');
+document.addEventListener('DOMContentLoaded', () => {
+  const downloadsList = document.getElementById('downloads-list');
+  const downloadsSummary = document.getElementById('downloads-summary');
+
+  const downloads = JSON.parse(localStorage.getItem('digiworldDownloads')) || [];
+  const products = JSON.parse(localStorage.getItem('digiworldProducts')) || [];
 
   function renderDownloads() {
-    const listEl = document.getElementById('downloads-list');
-    const sumEl  = document.getElementById('downloads-summary');
-    if (!listEl || !sumEl) return;
+    if (!downloadsList || !downloadsSummary) return;
 
-    if (!downloads.length) {
-      listEl.innerHTML = '<p>No downloads available.</p>';
-      sumEl.innerHTML  = '';
+    if (downloads.length === 0) {
+      downloadsList.innerHTML = '<p>No downloads found.</p>';
+      downloadsSummary.innerHTML = '';
       return;
     }
 
-    let html = downloads.map(d => {
-      const p = products.find(p=>p.id===d.productId) || {name:{en:'Unknown'}};
-      return `
-        <div class="download-row">
-          <div>${p.name.en}</div>
-          <a href="${d.downloadUrl}" target="_blank">Download</a>
-        </div>`;
-    }).join('');
-    listEl.innerHTML = html;
-    sumEl.innerHTML  = `<p>Total Files: ${downloads.length}</p>`;
+    downloadsList.innerHTML = '';
+    downloads.forEach(d => {
+      const product = products.find(p => p.id === d.productId);
+      if (!product) return;
+
+      const row = document.createElement('div');
+      row.className = 'download-row';
+      row.innerHTML = `
+        <div class="download-name">${product.name?.en || 'Unknown Product'}</div>
+        <a href="${d.fileUrl}" class="download-link" target="_blank" rel="noopener">Download</a>
+      `;
+      downloadsList.appendChild(row);
+    });
+
+    downloadsSummary.innerHTML = `<strong>Total Downloads: ${downloads.length}</strong>`;
   }
 
-  document.addEventListener('DOMContentLoaded', renderDownloads);
-})();
+  renderDownloads();
+});

@@ -1,32 +1,37 @@
-// orders-manager.js
-(function(){
-  let orders   = JSON.parse(localStorage.getItem('digiworldOrders')    || '[]');
-  let products = JSON.parse(localStorage.getItem('digiworldProducts')  || '[]');
+document.addEventListener('DOMContentLoaded', () => {
+  const ordersList = document.getElementById('orders-list');
+  const ordersSummary = document.getElementById('orders-summary');
+
+  const orders = JSON.parse(localStorage.getItem('digiworldOrders')) || [];
+  const products = JSON.parse(localStorage.getItem('digiworldProducts')) || [];
 
   function renderOrders() {
-    const listEl = document.getElementById('orders-list');
-    const sumEl  = document.getElementById('orders-summary');
-    if (!listEl || !sumEl) return;
+    if (!ordersList || !ordersSummary) return;
 
-    if (!orders.length) {
-      listEl.innerHTML = '<p>No past orders.</p>';
-      sumEl.innerHTML  = '';
+    if (orders.length === 0) {
+      ordersList.innerHTML = '<p>No orders found.</p>';
+      ordersSummary.innerHTML = '';
       return;
     }
 
-    let count = 0, html = orders.map(o => {
-      const p = products.find(p=>p.id===o.productId) || {name:{en:'Unknown'}};
-      count += o.quantity;
-      return `
-        <div class="order-row">
-          <div>${new Date(o.date).toLocaleDateString()}</div>
-          <div>${p.name.en}</div>
-          <div>Qty: ${o.quantity}</div>
-        </div>`;
-    }).join('');
-    listEl.innerHTML = html;
-    sumEl.innerHTML  = `<p>Total Items: ${count}</p>`;
+    ordersList.innerHTML = '';
+    orders.forEach(o => {
+      const product = products.find(p => p.id === o.productId);
+      if (!product) return;
+
+      const row = document.createElement('div');
+      row.className = 'order-row';
+      row.innerHTML = `
+        <div>${new Date(o.orderDate).toLocaleDateString()}</div>
+        <div>${product.name?.en || 'Unknown Product'}</div>
+        <div>Qty: ${o.quantity || 1}</div>
+      `;
+      ordersList.appendChild(row);
+    });
+
+    const totalOrders = orders.length;
+    ordersSummary.innerHTML = `<strong>Total Orders: ${totalOrders}</strong>`;
   }
 
-  document.addEventListener('DOMContentLoaded', renderOrders);
-})();
+  renderOrders();
+});
