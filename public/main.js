@@ -14,11 +14,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   function saveCart() {
     localStorage.setItem('digiworldCart', JSON.stringify(cart));
   }
-  function updateCartBadge() {
-    const total = Object.values(cart).reduce((a,b)=>a+b,0);
-    document.getElementById('cartCount')?.textContent = total;
-    document.getElementById('dwCartCount')?.textContent = total;
-  }
+function updateCartBadge() {
+  const total = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+
+  const desktopEl = document.getElementById('cartCount');
+  if (desktopEl) desktopEl.textContent = total;
+
+  const mobileEl = document.getElementById('dwCartCount');
+  if (mobileEl) mobileEl.textContent = total;
+}
   function addToCart(id) {
     cart[id] = (cart[id]||0) + 1;
     saveCart(); updateCartBadge();
