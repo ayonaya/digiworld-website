@@ -1,45 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DigiWorld - Instant Digital Keys</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DigiWorld - Instant Digital Keys</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
-    <div id="header-placeholder"></div>
+  <div id="header-placeholder"></div>
 
-    <main>
-        <section class="hero-slider-wrapper">
-            <div id="hero-slider"></div>
-            <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
-            <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
-        </section>
+  <main>
+    <section class="hero-slider-wrapper">
+      <div id="hero-slider"></div>
+      <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
+      <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
+    </section>
 
-        <section class="main-section" aria-label="Featured products">
-            <div class="product-controls">
-                <div class="control-group">
-                    <label for="categoryFilter">Category:</label>
-                    <select id="categoryFilter"><option value="all">All Products</option></select>
-                </div>
-                <div class="control-group">
-                    <label for="sortProducts">Sort by:</label>
-                    <select id="sortProducts"><option value="default">Default</option></select>
-                </div>
-            </div>
-            <div class="section-title">Featured Products</div>
-            <div class="product-grid" id="productGrid"></div>
-        </section>
-    </main>
+    <section class="main-section" aria-label="Featured products">
+      <div class="product-controls">
+        <div class="control-group">
+          <label for="categoryFilter">Category:</label>
+          <select id="categoryFilter"><option value="all">All Products</option></select>
+        </div>
+        <div class="control-group">
+          <label for="sortProducts">Sort by:</label>
+          <select id="sortProducts"><option value="default">Default</option></select>
+        </div>
+      </div>
+      <div class="section-title">Featured Products</div>
+      <div class="product-grid" id="productGrid"></div>
+    </section>
+  </main>
 
-    <div id="footer-placeholder"></div>
-    
-    <!-- remove type="module" and ensure order -->
-    <script src="app.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="auth.js"></script>
-    <script src="main.js"></script>
+  <div id="footer-placeholder"></div>
+
+  <script src="app.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script src="main.js" defer></script>
 </body>
 </html>

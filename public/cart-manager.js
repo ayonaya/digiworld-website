@@ -47,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cartSummary.innerHTML = `<strong>Total: $${totalPrice.toFixed(2)}</strong>`;
   }
 
-  // Handle quantity change buttons and remove
   cartList.addEventListener('click', e => {
     const id = e.target.getAttribute('data-id');
     if (!id) return;

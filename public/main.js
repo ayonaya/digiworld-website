@@ -5,12 +5,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   let allProducts = JSON.parse(localStorage.getItem('digiworldProducts') || '[]');
   let cart = JSON.parse(localStorage.getItem('digiworldCart') || '{}');
 
-  // Save cart to localStorage
   function saveCart() {
     localStorage.setItem('digiworldCart', JSON.stringify(cart));
   }
 
-  // Update cart count badge
   function updateCartBadge() {
     const total = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
     const desktopEl = document.getElementById('cartCount');
@@ -19,7 +17,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (mobileEl) mobileEl.textContent = total;
   }
 
-  // Animate Add to Cart button
   function animateButton(id) {
     const btn = document.querySelector(`.add-to-cart[data-id="${id}"]`);
     if (!btn) return;
@@ -34,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 1200);
   }
 
-  // Fly product image to cart icon
   function animateFlyToCart(id) {
     const card = document.querySelector(`.product-card[data-product-id="${id}"]`);
     const img = card?.querySelector('img.card-image');
@@ -70,7 +66,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => clone.remove(), 900);
   }
 
-  // Load banner HTML snippets and initialize slider
   async function loadBanners() {
     if (!sliderContainer) return;
     sliderContainer.innerHTML = '';
@@ -89,7 +84,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initSlider();
   }
 
-  // Simple slider rotation
   function initSlider() {
     const slides = sliderContainer.querySelectorAll('.slider-slide');
     if (!slides.length) return;
@@ -102,7 +96,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 7000);
   }
 
-  // Fetch products from API or localStorage and render
   async function fetchProducts() {
     try {
       const res = await fetch('/.netlify/functions/get-products');
@@ -110,9 +103,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (success) allProducts = products;
     } catch {}
     renderProducts(allProducts);
+    // Save products for cart/orders pages
+    localStorage.setItem('digiworldProducts', JSON.stringify(allProducts));
   }
 
-  // Render product cards in grid
   function renderProducts(list) {
     if (!productGrid) return;
     if (!list.length) {
@@ -140,7 +134,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     `).join('');
   }
 
-  // Handle clicks on Add to Cart and Buy Now buttons
   document.body.addEventListener('click', e => {
     if (e.target.closest('.add-to-cart')) {
       addToCart(e.target.closest('.add-to-cart').dataset.id);
@@ -153,7 +146,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Setup live search + suggestions
   function setupSearch() {
     const input = document.getElementById('searchInput');
     const box = document.getElementById('searchSuggestionsDesktop');
