@@ -10,7 +10,7 @@ function saveCart() {
     localStorage.setItem('digiworldCart', JSON.stringify(cart));
 }
 
-export function addToCart(productId) {
+ function addToCart(productId) {
     cart[productId] = (cart[productId] || 0) + 1;
     saveCart();
     updateCartBadge();
@@ -21,13 +21,13 @@ export function addToCart(productId) {
     }
 }
 
-export function removeFromCart(productId) {
+function removeFromCart(productId) {
     delete cart[productId];
     saveCart();
     updateCartBadge();
 }
 
-export function updateQuantity(productId, quantity) {
+ function updateQuantity(productId, quantity) {
     if (quantity > 0) {
         cart[productId] = quantity;
     } else {
@@ -39,7 +39,7 @@ export function updateQuantity(productId, quantity) {
 
 // --- UI UPDATE FUNCTIONS ---
 
-export function updateCartBadge() {
+ function updateCartBadge() {
     const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
     const cartCountDesktop = document.getElementById('cartCount');
     const cartCountMobile = document.getElementById('dwCartCount');
@@ -47,7 +47,7 @@ export function updateCartBadge() {
     if (cartCountMobile) cartCountMobile.textContent = count;
 }
 
-export function renderMiniCart() {
+ function renderMiniCart() {
     const miniCartItems = document.getElementById('miniCartItems');
     const miniCartTotal = document.getElementById('miniCartTotal');
     if (!miniCartItems || !miniCartTotal) return;
@@ -82,12 +82,12 @@ export function renderMiniCart() {
 
 // --- INITIALIZATION ---
 
-export function initializeCart(productsData) {
+ function initializeCart(productsData) {
     allProducts = productsData;
     updateCartBadge();
 }
 
-export function initializeCartUI() {
+ function initializeCartUI() {
     const openMiniCart = () => {
         const miniCartDrawer = document.getElementById('miniCartDrawer');
         const miniCartOverlay = document.getElementById('miniCartOverlay');
