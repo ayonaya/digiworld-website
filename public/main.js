@@ -137,15 +137,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ===============================
     // EVENT LISTENERS (PRODUCT BUTTONS)
     // ===============================
-    document.body.addEventListener('click', (e) => {
-        if (e.target.closest('.add-to-cart')) {
-            addToCart(e.target.closest('.add-to-cart').dataset.id);
-        }
-        if (e.target.closest('.buy-now')) {
-            addToCart(e.target.closest('.buy-now').dataset.id);
-            window.location.href = 'checkout.html';
-        }
-        // Cart drawer logic, if present
+document.body.addEventListener('click', (e) => {
+    if (e.target.closest('.add-to-cart')) {
+        console.log('Add to Cart clicked!', e.target.closest('.add-to-cart'));
+        addToCart(e.target.closest('.add-to-cart').dataset.id);
+    }
+    if (e.target.closest('.buy-now')) {
+        addToCart(e.target.closest('.buy-now').dataset.id);
+        window.location.href = 'checkout.html';
+    }
+            // Cart drawer logic, if present
         if (e.target.closest('#cartBtn') || e.target.closest('#dwNavCart')) {
             const miniCartDrawer = document.getElementById('miniCartDrawer');
             const miniCartOverlay = document.getElementById('miniCartOverlay');
@@ -157,23 +158,64 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ===============================
     // SEARCH BAR FUNCTIONALITY
     // ===============================
-    function setupSearchListener() {
-        searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            console.log('Search input found! Adding listener.');
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.toLowerCase().trim();
-                // Robust filter (avoids crashes if field missing)
-                const filtered = allProducts.filter(
-                    p => p.name && p.name.en && p.name.en.toLowerCase().includes(query)
-                );
-                console.log('Filtering for:', query, 'Results:', filtered);
-                renderProducts(filtered);
+function setupSearchListener() {
+    searchInput = document.getElementById('searchInput');
+    const suggestionsBox = document.getElementById('searchSuggestionsDesktop');
+    if (searchInput) {
+        console.log('Search input found! Adding listener.');
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase().trim();
+
+            // Filter products for both suggestions and main grid
+            const filtered = allProducts.filter(
+                p => p.name && p.name.en && p.name.en.toLowerCase().includes(query)
+            );
+            console.log('Filtering for:', query, 'Results:', filtered);
+            renderProducts(filtered);
+
+            // Show suggestions only if query is not empty
+            if (suggestionsBox) {
+                if (query && filtered.length) {
+                    suggestionsBox.innerHTML = filtered.slice(0, 5).map(prod => `
+                        <div class="suggestion-item" tabindex="0" data-id="${prod.id}">
+                            <span>${prod.name.en}</span>
+                        </div>
+                    `).join('');
+                    suggestionsBox.classList.add('visible');
+                } else {
+                    suggestionsBox.innerHTML = '';
+                    suggestionsBox.classList.remove('visible');
+                }
+            }
+        });
+
+        // Handle clicking or keyboard selection of a suggestion
+        if (suggestionsBox) {
+            suggestionsBox.addEventListener('click', (e) => {
+                const item = e.target.closest('.suggestion-item');
+                if (item) {
+                    const id = item.getAttribute('data-id');
+                    window.location.href = `product-details.html?id=${id}`;
+                }
             });
-        } else {
-            console.log('Search input NOT found!');
+            // Optional: Keyboard navigation for accessibility
+            suggestionsBox.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.target.classList.contains('suggestion-item')) {
+                    const id = e.target.getAttribute('data-id');
+                    window.location.href = `product-details.html?id=${id}`;
+                }
+            });
         }
+
+        // Hide suggestions when clicking outside or blurring
+        document.addEventListener('click', (e) => {
+            if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
+                suggestionsBox.innerHTML = '';
+                suggestionsBox.classList.remove('visible');
+            }
+        });
     }
+}
 
     // Wait for header to load, then set up search listener and update cart badge
     const headerPlaceholder = document.getElementById('header-placeholder');
