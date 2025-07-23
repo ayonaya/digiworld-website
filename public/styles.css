@@ -4031,3 +4031,125 @@ body {
     border-style: solid;
     border-color: transparent transparent #fff transparent;
 }
+.search-suggestions {
+  position: absolute; top:100%; left:0; width:100%;
+  background:#fff; border-radius:0 0 12px 12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.1);
+  max-height:250px; overflow-y:auto;
+  opacity:0; pointer-events:none;
+  transform:translateY(-10px);
+  transition:opacity .2s ease, transform .2s ease;
+  z-index:99;
+}
+.search-suggestions.visible {
+  opacity:1; pointer-events:auto; transform:translateY(0);
+}
+.suggestion-item {
+  padding:10px 16px; cursor:pointer;
+  border-bottom:1px solid #f0f0f0;
+  transition:background .15s;
+}
+.suggestion-item:last-child { border-bottom:none; }
+.suggestion-item:hover,
+.suggestion-item:focus {
+  background:#f5f5f5; outline:none;
+}
+/* ─── ORDERS PAGE ───────────────────────────────────────── */
+
+/* Container spacing */
+#orders-list,
+#orders-summary {
+  margin: 24px auto;
+  max-width: 800px;
+  padding: 0 16px;
+}
+
+/* Each order row */
+.order-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s;
+}
+.order-row:hover {
+  background: #f9f9f9;
+}
+
+/* Date column */
+.order-row > div:nth-child(1) {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Product name column */
+.order-row > div:nth-child(2) {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Quantity column */
+.order-row > div:nth-child(3) {
+  text-align: right;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Summary at bottom */
+#orders-summary {
+  text-align: right;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #16a085;
+  margin-top: 16px;
+}
+
+/* ─── DOWNLOADS PAGE ─────────────────────────────────────── */
+
+/* Container spacing */
+#downloads-list,
+#downloads-summary {
+  margin: 24px auto;
+  max-width: 800px;
+  padding: 0 16px;
+}
+
+/* Each download row */
+.download-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s;
+}
+.download-row:hover {
+  background: #f9f9f9;
+}
+
+/* Product name */
+.download-row .download-name {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Download link */
+.download-row .download-link {
+  text-decoration: none;
+  font-weight: 600;
+  color: #16a085;
+  transition: color 0.2s;
+}
+.download-row .download-link:hover {
+  color: #13856e;
+}
+
+/* Summary at bottom */
+#downloads-summary {
+  text-align: right;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #16a085;
+  margin-top: 16px;
+}

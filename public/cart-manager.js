@@ -1,46 +1,57 @@
 // cart-manager.js
 (function(){
-  let cart = JSON.parse(localStorage.getItem('digiworldCart')||'{}');
-  const products = JSON.parse(localStorage.getItem('digiworldProducts')||'[]');
-  function save(){ localStorage.setItem('digiworldCart', JSON.stringify(cart)); }
-  function getSymbol(){ return '$'; }
+  let cart     = JSON.parse(localStorage.getItem('digiworldCart')     || '{}');
+  let products = JSON.parse(localStorage.getItem('digiworldProducts') || '[]');
 
-  function updateBadge(){
-    const n = Object.values(cart).reduce((a,b)=>a+b,0);
-    document.getElementById('cartCount')?.textContent = n;
-    document.getElementById('dwCartCount')?.textContent = n;
+  function saveCart() {
+    localStorage.setItem('digiworldCart', JSON.stringify(cart));
+  }
+  function updateBadge() {
+    const total = Object.values(cart).reduce((a,b)=>a+b,0);
+    document.getElementById('cartCount')?.textContent    = total;
+    document.getElementById('dwCartCount')?.textContent = total;
   }
 
-  function renderCart(){
-    const container = document.getElementById('cartItems');
-    const summary   = document.getElementById('orderSummary');
-    if(!container||!summary) return;
-    container.innerHTML = '';
-    let total=0;
-    Object.entries(cart).forEach(([id,qty])=>{
-      const p = products.find(x=>x.id===id);
-      if(!p) return;
-      const price = p.price.USD * qty;
-      total += price;
-      container.insertAdjacentHTML('beforeend', `
+  function renderCart() {
+    const listEl    = document.getElementById('cart-items-list');
+    const summaryEl = document.getElementById('cart-summary-details');
+    if (!listEl || !summaryEl) return;
+
+    if (Object.keys(cart).length === 0) {
+      listEl.innerHTML    = '<p>Your cart is empty.</p>';
+      summaryEl.innerHTML = '';
+      return;
+    }
+
+    let total = 0, html = '';
+    for (const [id, qty] of Object.entries(cart)) {
+      const p = products.find(x => x.id === id);
+      if (!p) continue;
+      const line = p.price.USD * qty;
+      total += line;
+      html += `
         <div class="cart-row">
-          <span>${p.name.en}</span>
-          <span>${qty}× $${p.price.USD.toFixed(2)}</span>
-          <button data-remove="${id}">Remove</button>
-        </div>
-      `);
-    });
-    summary.innerHTML = `<p>Total: $${total.toFixed(2)}</p>`;
+          <div class="cart-item-name">${p.name.en}</div>
+          <div class="cart-item-qty">Qty: ${qty}</div>
+          <div class="cart-item-lineprice">$${line.toFixed(2)}</div>
+          <button class="cart-remove-btn" data-remove="${p.id}">&times;</button>
+        </div>`;
+    }
+    listEl.innerHTML    = html;
+    summaryEl.innerHTML = `<p class="cart-total">Total: $${total.toFixed(2)}</p>`;
   }
 
-  document.addEventListener('DOMContentLoaded', ()=>{
+  document.body.addEventListener('click', e => {
+    const btn = e.target.closest('[data-remove]');
+    if (!btn) return;
+    delete cart[btn.dataset.remove];
+    saveCart();
     updateBadge();
     renderCart();
-    document.body.addEventListener('click', e=>{
-      if(e.target.dataset.remove){
-        delete cart[e.target.dataset.remove];
-        save(); updateBadge(); renderCart();
-      }
-    });
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateBadge();
+    renderCart();
   });
 })();

@@ -150,51 +150,60 @@ function updateCartBadge() {
     }
   });
 
-  // —————————————————————————————————————
   // 6) SEARCH + SUGGESTIONS
-  // —————————————————————————————————————
   function setupSearch() {
     const input = document.getElementById('searchInput');
     const box   = document.getElementById('searchSuggestionsDesktop');
-    if (!input) return;
-    input.addEventListener('input', ()=> {
+    if (!input || !box) return;
+
+    input.addEventListener('input', () => {
       const q = input.value.toLowerCase().trim();
-      const filtered = allProducts.filter(p=>p.name.en.toLowerCase().includes(q));
-      renderProducts(filtered);
-      if (box) {
-        if (q && filtered.length) {
-          box.innerHTML = filtered.slice(0,5).map(p=>`
-            <div class="suggestion-item" data-id="${p.id}" tabindex="0">${p.name.en}</div>
-          `).join('');
-          box.classList.add('visible');
-        } else {
-          box.innerHTML=''; box.classList.remove('visible');
-        }
+      const matches = allProducts.filter(p =>
+        p.name.en.toLowerCase().includes(q)
+      );
+      renderProducts(matches);
+
+      if (q && matches.length) {
+        box.innerHTML = matches.slice(0,5).map(p => `
+          <div class="suggestion-item" data-id="${p.id}" tabindex="0">
+            ${p.name.en}
+          </div>
+        `).join('');
+        box.classList.add('visible');
+      } else {
+        box.innerHTML = '';
+        box.classList.remove('visible');
       }
     });
-    box?.addEventListener('click', e=>{
-      const it = e.target.closest('.suggestion-item');
-      if (it) window.location.href = `product-details.html?id=${it.dataset.id}`;
+
+    box.addEventListener('click', e => {
+      const sel = e.target.closest('.suggestion-item');
+      if (sel) window.location.href = `product-details.html?id=${sel.dataset.id}`;
     });
-    document.addEventListener('click', e=>{
-      if (!e.target.closest('#searchSuggestionsDesktop') && e.target.id!=='searchInput') {
-        box?.classList.remove('visible');
+
+    document.addEventListener('click', e => {
+      if (!input.contains(e.target) && !box.contains(e.target)) {
+        box.classList.remove('visible');
         box.innerHTML = '';
       }
     });
   }
 
-  // —————————————————————————————————————
   // 7) INIT
-  // —————————————————————————————————————
   updateCartBadge();
   await loadBanners();
   await fetchProducts();
-  // wait for header injection, then attach search
+
+  // Wait for header injection, then attach search
   new MutationObserver((m, o) => {
     if (document.getElementById('searchInput')) {
       setupSearch();
       o.disconnect();
     }
-  }).observe(document.getElementById('header-placeholder'), {childList:true, subtree:true});
+  }).observe(
+    document.getElementById('header-placeholder'),
+    { childList: true, subtree: true }
+  );
+
+// ← **Don’t forget these two characters to close out the listener**  
 });

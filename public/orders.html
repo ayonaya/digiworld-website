@@ -1,225 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders - DigiWorld</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css">
-    <style>
-        :root {
-            --primary: #f57224;
-            --primary-dark: #d45703;
-            --accent: #fe724c;
-            --card-bg: #fff;
-            --bg: #f6f6fa;
-            --radius: 18px;
-            --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
-        }
-        body {
-            background-color: var(--bg);
-        }
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--primary-dark);
-            margin-bottom: 30px;
-            border-bottom: 4px solid var(--primary);
-            padding-bottom: 10px;
-        }
-        #orders-container {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-        .order-card {
-            background-color: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            border-left: 5px solid var(--accent);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .order-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 40px rgba(245, 114, 36, 0.2);
-        }
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        .order-id {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #333;
-        }
-        .order-date {
-            font-size: 0.9em;
-            color: #777;
-            font-weight: 600;
-        }
-        .order-body {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            gap: 20px;
-        }
-        .order-product-name {
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-        .order-amount {
-            font-weight: 900;
-            font-size: 1.5rem;
-            color: var(--primary);
-            text-align: right;
-        }
-        #loading-message, #auth-message {
-            text-align: center;
-            padding: 50px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--primary-dark);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DigiWorld – My Orders</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
+  <div id="header-placeholder"></div>
 
-    <header class="site-header">
-      <div class="header-main-pro">
-        <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
-        <nav>
-          <a href="index.html" class="nav-link-pro">Home</a>
-          <a href="account.html" class="nav-link-pro active">My Account</a>
-          <a href="contact.html" class="nav-link-pro">Contact</a>
-        </nav>
-        <div class="header-controls">
-          <button class="cart-btn" id="cartBtn" aria-label="Open cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Cart</span>
-            <span class="cart-icon-badge" id="cartCount">0</span>
-          </button>
-        </div>
-      </div>
-    </header>
+  <main>
+    <h1>My Orders</h1>
+    <div id="orders-list">Loading orders…</div>
+    <div id="orders-summary"></div>
+  </main>
 
-    <main class="container">
-        <h1 class="page-title">My Orders</h1>
-        <div id="orders-container">
-            <p id="loading-message">Loading your orders...</p>
-            <p id="auth-message" style="display: none;">Please <a href="login.html">log in</a> to view your orders.</p>
-        </div>
-    </main>
+  <div id="footer-placeholder"></div>
 
-    <footer class="site-footer">
-      <div class="footer-grid">
-          </div>
-      <div class="footer-bottom">
-          &copy; 2025 DigiWorld. All rights reserved.
-      </div>
-    </footer>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  <!-- Your other scripts -->
+  <script src="app.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-  authDomain: "digiworld-46a1e.firebaseapp.com",
-  projectId: "digiworld-46a1e",
-  storageBucket: "digiworld-46a1e.firebasestorage.app",
-  messagingSenderId: "242235397710",
-  appId: "1:242235397710:web:a80c15cc285188610cd51f",
-  measurementId: "G-R8C4BWHXBL"
-};
+  <!-- Firebase initialization as an ES module -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    // TODO: replace with your actual Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID",
+      measurementId: "YOUR_MEASUREMENT_ID"
+    };
 
-        const auth = firebase.auth();
-        const ordersContainer = document.getElementById('orders-container');
-        const loadingMessage = document.getElementById('loading-message');
-        const authMessage = document.getElementById('auth-message');
+    const app = initializeApp(firebaseConfig);
+    getAnalytics(app);
+  </script>
 
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                loadingMessage.style.display = 'block';
-                authMessage.style.display = 'none';
-                
-                try {
-                    const idToken = await user.getIdToken();
-
-                    const response = await fetch('/.netlify/functions/get-user-orders', {
-                        headers: {
-                            'Authorization': `Bearer ${idToken}`
-                        }
-                    });
-
-                    if (!response.ok) {
-                         const errorResult = await response.json();
-                         throw new Error(errorResult.message || 'Failed to fetch orders.');
-                    }
-
-                    const result = await response.json();
-
-                    if (result.success && result.orders.length > 0) {
-                        renderOrders(result.orders);
-                    } else {
-                        ordersContainer.innerHTML = '<p>You have no past orders.</p>';
-                    }
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    ordersContainer.innerHTML = `<p style="color:red;">Error loading orders: ${error.message}</p>`;
-                } finally {
-                    loadingMessage.style.display = 'none';
-                }
-            } else {
-                loadingMessage.style.display = 'none';
-                authMessage.style.display = 'block';
-            }
-        });
-
-        function renderOrders(orders) {
-            ordersContainer.innerHTML = orders.map(order => {
-                const orderDate = new Date(order.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric', month: 'long', day: 'numeric'
-                });
-
-                return `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <div class="order-id">Order ID: ${order.id}</div>
-                            <div class="order-date">${orderDate}</div>
-                        </div>
-                        <div class="order-body">
-                            <span class="order-product-name">${order.productId}</span>
-                            <span class="order-amount">${order.amount.toFixed(2)} ${order.currency}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-    </script>
+  <!-- Orders manager -->
+  <script src="orders-manager.js"></script>
 </body>
 </html>
