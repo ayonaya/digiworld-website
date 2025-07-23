@@ -1,76 +1,73 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const cartList = document.getElementById('cart-items-list');
-  const cartSummary = document.getElementById('cart-summary-details');
+// This function can be called from anywhere to update the cart count display
+function updateCartCount() {
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) {
+        // Replace this with your logic to get the actual number of items in the cart
+        // For example: const itemCount = JSON.parse(localStorage.getItem('cart') || '[]').length;
+        const itemCount = 0; // Placeholder
+        
+        cartCountElement.textContent = itemCount;
+        cartCountElement.style.display = itemCount > 0 ? 'block' : 'none';
+    }
+}
 
-  let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
-  let products = JSON.parse(localStorage.getItem('digiworldProducts')) || [];
+function flyToCart(startElement, endElement) {
+    const flyingImage = startElement.cloneNode(true);
+    const startRect = startElement.getBoundingClientRect();
+    const endRect = endElement.getBoundingClientRect();
 
-  function saveCart() {
-    localStorage.setItem('digiworldCart', JSON.stringify(cart));
-  }
+    flyingImage.classList.add('fly-to-cart-image');
+    document.body.appendChild(flyingImage);
 
-  function renderCart() {
-    if (!cartList || !cartSummary) return;
+    // Set initial position and size
+    flyingImage.style.top = `${startRect.top}px`;
+    flyingImage.style.left = `${startRect.left}px`;
+    flyingImage.style.width = `${startRect.width}px`;
+    flyingImage.style.height = `${startRect.height}px`;
 
-    const cartEntries = Object.entries(cart);
-    if (cartEntries.length === 0) {
-      cartList.innerHTML = '<p>Your cart is empty.</p>';
-      cartSummary.innerHTML = '';
-      return;
+    // Trigger the animation to the cart
+    requestAnimationFrame(() => {
+        flyingImage.style.top = `${endRect.top + endElement.clientHeight / 2 - 10}px`;
+        flyingImage.style.left = `${endRect.left + endElement.clientWidth / 2 - 10}px`;
+        flyingImage.style.width = '20px';
+        flyingImage.style.height = '20px';
+        flyingImage.style.opacity = '0';
+    });
+
+    // Remove the flying image element from the DOM after the animation is complete
+    setTimeout(() => {
+        flyingImage.remove();
+    }, 1000); // This duration should match the transition time in styles.css
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const productGrid = document.getElementById('product-grid');
+
+    if (productGrid) {
+        productGrid.addEventListener('click', function(e) {
+            // Check if an "Add to Cart" button was clicked
+            if (e.target.classList.contains('add-to-cart-btn')) {
+                const productCard = e.target.closest('.product-card');
+                const productImage = productCard.querySelector('.product-image');
+                const cartIcon = document.querySelector('#cart-icon'); // The main cart icon in your header
+
+                if (productImage && cartIcon) {
+                    flyToCart(productImage, cartIcon);
+                }
+                
+                // --- Your existing "add to cart" logic should go here ---
+                const productId = e.target.dataset.productId;
+                console.log(`Adding product ${productId} to cart.`);
+                // Example: addToCart(productId);
+                
+                // Update the visual count after a short delay to let the animation start
+                setTimeout(() => {
+                    updateCartCount();
+                }, 200);
+            }
+        });
     }
 
-    let totalPrice = 0;
-    cartList.innerHTML = '';
-    for (const [productId, qty] of cartEntries) {
-      const product = products.find(p => p.id === productId);
-      if (!product) continue;
-
-      const price = product.price?.USD || 0;
-      totalPrice += price * qty;
-
-      const itemDiv = document.createElement('div');
-      itemDiv.className = 'cart-item';
-
-      itemDiv.innerHTML = `
-        <div class="cart-item-name">${product.name?.en || ''}</div>
-        <div class="cart-item-qty">
-          <button class="qty-btn decrement" data-id="${productId}">-</button>
-          <span>${qty}</span>
-          <button class="qty-btn increment" data-id="${productId}">+</button>
-        </div>
-        <div class="cart-item-price">$${(price * qty).toFixed(2)}</div>
-        <button class="remove-btn" data-id="${productId}" aria-label="Remove from cart">&times;</button>
-      `;
-      cartList.appendChild(itemDiv);
-    }
-
-    cartSummary.innerHTML = `<strong>Total: $${totalPrice.toFixed(2)}</strong>`;
-  }
-
-  cartList.addEventListener('click', e => {
-    const id = e.target.getAttribute('data-id');
-    if (!id) return;
-
-    if (e.target.classList.contains('increment')) {
-      cart[id] = (cart[id] || 0) + 1;
-      saveCart();
-      renderCart();
-    }
-    if (e.target.classList.contains('decrement')) {
-      if (cart[id] > 1) {
-        cart[id]--;
-      } else {
-        delete cart[id];
-      }
-      saveCart();
-      renderCart();
-    }
-    if (e.target.classList.contains('remove-btn')) {
-      delete cart[id];
-      saveCart();
-      renderCart();
-    }
-  });
-
-  renderCart();
+    // Initial update of the cart count when the page loads
+    updateCartCount();
 });

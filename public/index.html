@@ -1,44 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>DigiWorld - Instant Digital Keys</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiWorld - Your Digital Marketplace</title>
+    <!-- Your existing stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div id="header-placeholder"></div>
 
-  <main>
-    <section class="hero-slider-wrapper">
-      <div id="hero-slider"></div>
-      <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
-      <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
-    </section>
+    <!-- Header will be loaded here by main.js -->
+    <div id="header-placeholder"></div>
 
-    <section class="main-section" aria-label="Featured products">
-      <div class="product-controls">
-        <div class="control-group">
-          <label for="categoryFilter">Category:</label>
-          <select id="categoryFilter"><option value="all">All Products</option></select>
+    <main>
+        <!-- Banner Slider Structure -->
+        <div id="banner-slider">
+            <div class="slides-container">
+                <!-- Banners will be loaded here by main.js -->
+            </div>
+            <button class="slider-arrow prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-arrow next"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <div class="control-group">
-          <label for="sortProducts">Sort by:</label>
-          <select id="sortProducts"><option value="default">Default</option></select>
-        </div>
-      </div>
-      <div class="section-title">Featured Products</div>
-      <div class="product-grid" id="productGrid"></div>
-    </section>
-  </main>
 
-  <div id="footer-placeholder"></div>
+        <!-- Products Section -->
+        <section class="featured-products">
+            <h2>Our Products</h2>
+            <div id="product-grid" class="product-grid">
+                <!-- Skeletons and products will be loaded here by products.js -->
+            </div>
+        </section>
+    </main>
 
-  <script src="app.js" defer></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Footer will be loaded here by main.js -->
+    <div id="footer-placeholder"></div>
 
-  <script src="main.js" defer></script>
+    <!-- Load the updated JavaScript files -->
+    <script src="main.js"></script>
+    <script src="products.js"></script>
+    <script src="cart-manager.js"></script>
+    <!-- You can also include your other original scripts like auth.js if needed -->
+    <script src="auth.js"></script>
+
 </body>
 </html>

@@ -1,61 +1,63 @@
-import { initializeCart } from './cart-manager.js';
+document.addEventListener('DOMContentLoaded', function() {
+    const productGrid = document.getElementById('product-grid');
 
-document.addEventListener('DOMContentLoaded', () => {
-    let allProducts = [];
-    const productGrid = document.getElementById('productGrid');
-
-    async function fetchProducts() {
+    const showSkeletonLoader = () => {
         if (!productGrid) return;
-        productGrid.innerHTML = '<p>Loading products...</p>';
+        productGrid.innerHTML = ''; // Clear previous content
+        // Show 6 skeleton cards while loading
+        for (let i = 0; i < 6; i++) {
+            const skeleton = document.createElement('div');
+            skeleton.classList.add('skeleton-card');
+            skeleton.innerHTML = `
+                <div class="skeleton-image"></div>
+                <div class="skeleton-text"></div>
+                <div class="skeleton-text short"></div>
+            `;
+            productGrid.appendChild(skeleton);
+        }
+    };
+
+    const loadProducts = async () => {
+        if (!productGrid) return;
+        showSkeletonLoader();
+
         try {
-            const response = await fetch('/.netlify/functions/get-products');
-            const data = await response.json();
-            if (data.success) {
-                allProducts = data.products;
-                renderProducts(allProducts);
-                initializeCart(allProducts);
-            } else {
-                throw new Error('Could not fetch products.');
-            }
-        } catch (error) {
-            productGrid.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
-        }
-    }
+            // --- IMPORTANT ---
+            // Replace this setTimeout with your actual product fetching logic.
+            // For example: const response = await fetch('/.netlify/functions/get-products');
+            // const products = await response.json();
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulates a 2-second network delay
 
-    function renderProducts(products) {
-        if (!productGrid) return;
-        if (products.length === 0) {
-            productGrid.innerHTML = '<p>No products match your search.</p>';
-            return;
-        }
-        productGrid.innerHTML = products.map(prod => `
-            <div class="product-card" data-product-id="${prod.id}">
-                <div class="card-image-container"><a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${prod.name.en}" loading="lazy"/></a></div>
-                <div class="card-content-wrapper">
-                    <h3 class="product-name">${prod.name.en}</h3>
-                    <p class="product-price">$${prod.price.USD.toFixed(2)}</p>
-                    <div class="card-buttons">
-                        <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                        <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
+            // This is your mock product data. Replace with the actual fetched data.
+            const products = [
+                { id: 1, name: 'Digital Art Pack', image: 'https://placehold.co/300x200/3498db/FFFFFF?text=Product+1', price: 25.00 },
+                { id: 2, name: 'E-book Template', image: 'https://placehold.co/300x200/2ecc71/FFFFFF?text=Product+2', price: 15.00 },
+                { id: 3, name: 'Software License', image: 'https://placehold.co/300x200/e74c3c/FFFFFF?text=Product+3', price: 99.00 },
+                { id: 4, name: 'Music Loops Pack', image: 'https://placehold.co/300x200/9b59b6/FFFFFF?text=Product+4', price: 30.00 },
+                { id: 5, name: 'Video Course', image: 'https://placehold.co/300x200/f1c40f/FFFFFF?text=Product+5', price: 49.99 },
+                { id: 6, name: 'Font Bundle', image: 'https://placehold.co/300x200/1abc9c/FFFFFF?text=Product+6', price: 19.50 },
+            ];
+
+            productGrid.innerHTML = ''; // Clear skeletons
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                // Use the same class names as your original product cards
+                productCard.className = 'product-card'; 
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <div class="product-card-content">
+                        <h3>${product.name}</h3>
+                        <p class="price">$${product.price.toFixed(2)}</p>
+                        <button class="btn add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
                     </div>
-                </div>
-            </div>`).join('');
-    }
-    
-    const headerPlaceholder = document.getElementById('header-placeholder');
-    if (headerPlaceholder) {
-        const observer = new MutationObserver(() => {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', () => {
-                    const query = searchInput.value.toLowerCase().trim();
-                    const filtered = allProducts.filter(p => p.name.en.toLowerCase().includes(query));
-                    renderProducts(filtered);
-                });
-            }
-        });
-        observer.observe(headerPlaceholder, { childList: true, subtree: true });
-    }
+                `;
+                productGrid.appendChild(productCard);
+            });
+        } catch (error) {
+            console.error("Failed to load products:", error);
+            productGrid.innerHTML = '<p>Could not load products at this time. Please try again later.</p>';
+        }
+    };
 
-    fetchProducts();
+    loadProducts();
 });

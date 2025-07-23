@@ -1,208 +1,135 @@
-document.addEventListener('DOMContentLoaded', async () => {
-  // DOM Elements
-  const productGrid = document.getElementById('productGrid');
-  const sliderContainer = document.getElementById('hero-slider');
-  let allProducts = JSON.parse(localStorage.getItem('digiworldProducts') || '[]');
-  let cart = JSON.parse(localStorage.getItem('digiworldCart') || '{}');
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- 1. LOAD HEADER AND FOOTER ---
+    const loadHTML = (selector, url) => {
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to load ${url}: ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    element.innerHTML = data;
+                    // After loading, initialize components specific to that HTML
+                    if (selector === '#header-placeholder') {
+                        initializeHeader();
+                    }
+                }
+            })
+            .catch(error => console.error(error));
+    };
 
-  // CART UTILITIES
-  function saveCart() {
-    localStorage.setItem('digiworldCart', JSON.stringify(cart));
-  }
-  function updateCartBadge() {
-    const total = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-    const desktopEl = document.getElementById('cartCount');
-    if (desktopEl) desktopEl.textContent = total;
-    const mobileEl = document.getElementById('dwCartCount');
-    if (mobileEl) mobileEl.textContent = total;
-  }
-  function addToCart(id) {
-    cart[id] = (cart[id] || 0) + 1;
-    saveCart();
-    updateCartBadge();
-    animateButton(id);
-    animateFlyToCart(id);
-  }
-  function animateButton(id) {
-    const btn = document.querySelector(`.add-to-cart[data-id="${id}"]`);
-    if (!btn) return;
-    btn.disabled = true;
-    const txt = btn.textContent;
-    btn.textContent = 'Added!';
-    btn.classList.add('added');
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = txt;
-      btn.classList.remove('added');
-    }, 1200);
-  }
-  function animateFlyToCart(id) {
-    const card = document.querySelector(`.product-card[data-product-id="${id}"]`);
-    const img = card?.querySelector('img.card-image');
-    const cartIcon = document.getElementById('cartBtn');
-    if (!img || !cartIcon) return;
-    const iR = img.getBoundingClientRect(),
-          cR = cartIcon.getBoundingClientRect();
-    const clone = img.cloneNode();
-    Object.assign(clone.style, {
-      position: 'fixed', left: iR.left + 'px', top: iR.top + 'px',
-      width: iR.width + 'px', height: iR.height + 'px', zIndex: 9999,
-      transition: 'all 0.8s ease-in-out', opacity: '1', pointerEvents: 'none'
-    });
-    document.body.appendChild(clone);
-    requestAnimationFrame(() => {
-      clone.style.left = (cR.left + cR.width / 2 - iR.width / 4) + 'px';
-      clone.style.top = (cR.top + cR.height / 2 - iR.height / 4) + 'px';
-      clone.style.width = iR.width / 2 + 'px';
-      clone.style.height = iR.height / 2 + 'px';
-      clone.style.opacity = '0.3';
-    });
-    setTimeout(() => clone.remove(), 900);
-  }
+    loadHTML('#header-placeholder', 'header.html');
+    loadHTML('#footer-placeholder', 'footer.html');
 
-  // BANNER SLIDER
-  async function loadBanners() {
-    if (!sliderContainer) return;
-    sliderContainer.innerHTML = '';
-    const files = ['banner_1_powerful.html', 'banner_2_final.html', 'banner_3_unique.html', 'banner_4_flashsale.html'];
-    for (const f of files) {
-      try {
-        const r = await fetch(f);
-        if (!r.ok) continue;
-        const html = await r.text();
-        const div = document.createElement('div');
-        div.className = 'slider-slide';
-        div.innerHTML = html;
-        sliderContainer.append(div);
-      } catch {}
+    // --- 2. BANNER SLIDER LOGIC ---
+    const bannerFiles = [
+        'banner_1_powerful.html',
+        'banner_2_final.html',
+        'banner_3_unique.html',
+        'banner_4_flashsale.html'
+    ];
+    const slidesContainer = document.querySelector('#banner-slider .slides-container');
+    let currentSlide = 0;
+    let slideInterval;
+
+    const loadBanners = async () => {
+        if (!slidesContainer) return;
+
+        for (const file of bannerFiles) {
+            try {
+                const response = await fetch(file);
+                if (!response.ok) continue;
+                const html = await response.text();
+                const slide = document.createElement('div');
+                slide.classList.add('slide');
+                slide.innerHTML = html;
+                slidesContainer.appendChild(slide);
+            } catch (error) {
+                console.error(`Failed to load banner: ${file}`, error);
+            }
+        }
+        
+        if (slidesContainer.children.length > 0) {
+            setupSlider();
+        }
+    };
+    
+    const setupSlider = () => {
+        const nextBtn = document.querySelector('.slider-arrow.next');
+        const prevBtn = document.querySelector('.slider-arrow.prev');
+
+        const showSlide = (index) => {
+            const totalSlides = slidesContainer.children.length;
+            if (index >= totalSlides) {
+                currentSlide = 0;
+            } else if (index < 0) {
+                currentSlide = totalSlides - 1;
+            } else {
+                currentSlide = index;
+            }
+            const offset = -currentSlide * 100;
+            slidesContainer.style.transform = `translateX(${offset}%)`;
+        };
+
+        const startSlider = () => {
+            slideInterval = setInterval(() => {
+                showSlide(currentSlide + 1);
+            }, 5000); // Auto-slide every 5 seconds
+        };
+
+        const resetSliderInterval = () => {
+            clearInterval(slideInterval);
+            startSlider();
+        };
+
+        nextBtn.addEventListener('click', () => {
+            showSlide(currentSlide + 1);
+            resetSliderInterval();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            showSlide(currentSlide - 1);
+            resetSliderInterval();
+        });
+
+        startSlider();
+    };
+
+    loadBanners();
+    
+    // --- 3. INITIALIZE HEADER ELEMENTS ---
+    // This function is called after header.html is loaded
+    function initializeHeader() {
+        const userContainer = document.querySelector('.user-info'); 
+        if (userContainer) {
+            // This assumes a simple check. Replace with your actual authentication logic from auth.js
+            const isLoggedIn = false; // Example: check from localStorage or auth state
+            
+            if (isLoggedIn) {
+                // Logic for logged-in user (e.g., show username)
+            } else {
+                // Create the dropdown menu for guests
+                userContainer.innerHTML = `
+                    <div class="user-menu">
+                        <a href="#">Welcome / Sign In <i class="fas fa-chevron-down"></i></a>
+                        <div class="user-menu-content">
+                            <a href="login.html">Sign In</a>
+                            <a href="signup.html">Register</a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        const cartIcon = document.getElementById('cart-icon');
+        if (cartIcon) {
+            cartIcon.addEventListener('click', () => {
+                window.location.href = 'cart.html';
+            });
+        }
     }
-    initSlider();
-  }
-  function initSlider() {
-    const slides = sliderContainer.querySelectorAll('.slider-slide');
-    let idx = 0;
-    if (!slides.length) return;
-    slides[idx].classList.add('active');
-    setInterval(() => {
-      slides[idx].classList.remove('active');
-      idx = (idx + 1) % slides.length;
-      slides[idx].classList.add('active');
-    }, 7000);
-  }
-
-  // SKELETON LOADER
-  function showSkeletonLoaders() {
-    if (!productGrid) return;
-    productGrid.innerHTML = Array(8).fill('').map(() => `
-      <div class="skeleton-card">
-        <div class="skeleton-image"></div>
-        <div class="skeleton-content">
-          <div class="skeleton-line"></div>
-          <div class="skeleton-line short"></div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // FETCH & RENDER PRODUCTS
-  async function fetchProducts() {
-    if (!productGrid) return;
-    showSkeletonLoaders();
-    try {
-      const res = await fetch('/.netlify/functions/get-products');
-      const { success, products } = await res.json();
-      if (success) allProducts = products;
-    } catch {}
-    renderProducts(allProducts);
-  }
-  function renderProducts(list) {
-    if (!productGrid) return;
-    if (!list.length) {
-      productGrid.innerHTML = '<p style="text-align:center">No products found.</p>';
-      return;
-    }
-    productGrid.innerHTML = list.map(p => `
-      <div class="product-card" data-product-id="${p.id}">
-        ${p.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : ''}
-        <div class="card-image-container">
-          <a href="product-details.html?id=${p.id}">
-            <img class="card-image" src="${p.image}" alt="${p.name.en}" loading="lazy"/>
-          </a>
-        </div>
-        <div class="card-content-wrapper">
-          <h3 class="product-name">${p.name.en}</h3>
-          ${p.delivery?.en ? `<div class="tag-delivery">${p.delivery.en}</div>` : ''}
-          <p class="product-price">$${p.price.USD.toFixed(2)}</p>
-          <div class="card-buttons">
-            <button class="card-btn add-to-cart" data-id="${p.id}">Add to Cart</button>
-            <button class="card-btn buy-now" data-id="${p.id}">Buy Now</button>
-          </div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // EVENT DELEGATION FOR BUTTONS
-  document.body.addEventListener('click', e => {
-    if (e.target.closest('.add-to-cart')) {
-      addToCart(e.target.closest('.add-to-cart').dataset.id);
-      return;
-    }
-    if (e.target.closest('.buy-now')) {
-      addToCart(e.target.closest('.buy-now').dataset.id);
-      window.location.href = 'checkout.html';
-      return;
-    }
-  });
-
-  // SEARCH + SUGGESTIONS
-  function setupSearch() {
-    const input = document.getElementById('searchInput');
-    const box = document.getElementById('searchSuggestionsDesktop');
-    if (!input || !box) return;
-
-    input.addEventListener('input', () => {
-      const q = input.value.toLowerCase().trim();
-      const matches = allProducts.filter(p =>
-        p.name.en.toLowerCase().includes(q)
-      );
-      renderProducts(matches);
-
-      if (q && matches.length) {
-        box.innerHTML = matches.slice(0, 5).map(p => `
-          <div class="suggestion-item" data-id="${p.id}" tabindex="0">
-            ${p.name.en}
-          </div>
-        `).join('');
-        box.classList.add('visible');
-      } else {
-        box.innerHTML = '';
-        box.classList.remove('visible');
-      }
-    });
-
-    box.addEventListener('click', e => {
-      const sel = e.target.closest('.suggestion-item');
-      if (sel) window.location.href = `product-details.html?id=${sel.dataset.id}`;
-    });
-
-    document.addEventListener('click', e => {
-      if (!input.contains(e.target) && !box.contains(e.target)) {
-        box.classList.remove('visible');
-        box.innerHTML = '';
-      }
-    });
-  }
-
-  // INIT
-  updateCartBadge();
-  await loadBanners();
-  await fetchProducts();
-
-  new MutationObserver((m, o) => {
-    if (document.getElementById('searchInput')) {
-      setupSearch();
-      o.disconnect();
-    }
-  }).observe(document.getElementById('header-placeholder'), { childList: true, subtree: true });
 });
