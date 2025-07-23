@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- DOM Elements ---
     const productGrid = document.getElementById('productGrid');
     const sliderContainer = document.getElementById('hero-slider');
-    const headerPlaceholder = document.getElementById('header-placeholder');
     let searchInput; // Will be assigned after header loads
 
     // --- App State ---
@@ -34,24 +33,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             cartBtn.classList.add('animated');
             setTimeout(() => cartBtn.classList.remove('animated'), 400);
         }
+        // Optional: show toast or feedback here
     }
     
-    async function loadBanners() {
-        if (!sliderContainer) return;
-        const bannerFiles = ['banner_1_powerful.html', 'banner_2_final.html'];
-        for (const file of bannerFiles) {
-            try {
-                const response = await fetch(file);
-                if (!response.ok) continue;
-                const bannerHTML = await response.text();
-                const slide = document.createElement('div');
-                slide.className = 'slider-slide';
-                slide.innerHTML = bannerHTML;
-                sliderContainer.appendChild(slide);
-            } catch (error) { console.error('Error loading banner:', error); }
+async function loadBanners() {
+    if (!sliderContainer) return;
+    // List all your banner HTML files here
+    const bannerFiles = [
+        'banner_1_powerful.html',
+        'banner_2_final.html',
+        'banner_3_unique.html',
+        'banner_4_flashsale.html'
+    ];
+    sliderContainer.innerHTML = ""; // Clear existing slides if any
+    for (const file of bannerFiles) {
+        try {
+            const response = await fetch(file);
+            if (!response.ok) continue;
+            const bannerHTML = await response.text();
+            const slide = document.createElement('div');
+            slide.className = 'slider-slide';
+            slide.innerHTML = bannerHTML;
+            sliderContainer.appendChild(slide);
+        } catch (error) {
+            console.error('Error loading banner:', error);
         }
-        initializeSlider();
     }
+    initializeSlider();
+}
 
     function initializeSlider() {
         const slides = document.querySelectorAll('.slider-slide');
@@ -122,55 +131,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =================================================================
     // SECTION 2: EVENT LISTENERS (GUARANTEED TO WORK)
     // =================================================================
-    
-    function setupEventListeners() {
-        // Live search filtering
-        searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.toLowerCase().trim();
-                const filtered = allProducts.filter(p => p.name.en.toLowerCase().includes(query));
-                renderProducts(filtered);
-            });
+
+    // Set up delegated event listeners for all product card buttons (and cart button)
+    document.body.addEventListener('click', (e) => {
+        // Add to Cart button
+        if (e.target.closest('.add-to-cart')) {
+            addToCart(e.target.closest('.add-to-cart').dataset.id);
         }
-        
-        // Delegated event listener for all buttons
-        document.body.addEventListener('click', (e) => {
-            if (e.target.closest('.add-to-cart')) {
-                addToCart(e.target.closest('.add-to-cart').dataset.id);
-            }
-            if (e.target.closest('.buy-now')) {
-                addToCart(e.target.closest('.buy-now').dataset.id);
-                window.location.href = 'checkout.html';
-            }
-            if (e.target.closest('#cartBtn') || e.target.closest('#dwNavCart')) {
-                // This logic is simple enough to live here for reliability
-                const miniCartDrawer = document.getElementById('miniCartDrawer');
-                const miniCartOverlay = document.getElementById('miniCartOverlay');
-                if (miniCartDrawer) miniCartDrawer.classList.add('active');
-                if (miniCartOverlay) miniCartOverlay.classList.add('active');
+        // Buy Now button
+        if (e.target.closest('.buy-now')) {
+            addToCart(e.target.closest('.buy-now').dataset.id);
+            window.location.href = 'checkout.html';
+        }
+        // Cart button (drawer logic, if present)
+        if (e.target.closest('#cartBtn') || e.target.closest('#dwNavCart')) {
+            const miniCartDrawer = document.getElementById('miniCartDrawer');
+            const miniCartOverlay = document.getElementById('miniCartOverlay');
+            if (miniCartDrawer) miniCartDrawer.classList.add('active');
+            if (miniCartOverlay) miniCartOverlay.classList.add('active');
+        }
+    });
+
+    // Set up search input live filtering (after header is loaded)
+function setupSearchListener() {
+    searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        console.log('Search input found! Adding listener.');
+        searchInput.addEventListener('input', () => {
+            console.log('Searching:', searchInput.value);
+            const query = searchInput.value.toLowerCase().trim();
+            const filtered = allProducts.filter(p => p.name.en.toLowerCase().includes(query));
+            renderProducts(filtered);
+        });
+    } else {
+        console.log('Search input NOT found!');
+    }
+}
+
+    // Wait for header to load, then set up search listener and update cart badge
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    if (headerPlaceholder) {
+        const observer = new MutationObserver((mutations, obs) => {
+            if (document.getElementById('searchInput')) {
+                setupSearchListener();
+                updateCartBadge();
+                obs.disconnect(); // Stop observing once done
             }
         });
+        observer.observe(headerPlaceholder, { childList: true, subtree: true });
+    } else {
+        // If header not loaded, still update cart badge
+        updateCartBadge();
     }
 
     // =================================================================
     // SECTION 3: INITIALIZATION
     // =================================================================
-    
-    // Use a MutationObserver to reliably set up listeners AFTER the header is loaded
-    const observer = new MutationObserver((mutations, obs) => {
-        if (document.getElementById('searchInput')) {
-            setupEventListeners();
-            updateCartBadge();
-            obs.disconnect(); // Stop observing once done
-        }
-    });
-    
-    if (headerPlaceholder) {
-        observer.observe(headerPlaceholder, { childList: true, subtree: true });
-    }
-    
-    // Start loading page content
+
     await loadBanners();
     await fetchAndRenderProducts();
 });

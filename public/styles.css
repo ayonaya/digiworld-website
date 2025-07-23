@@ -3920,3 +3920,24 @@ body {
     border-radius: 20px;
     margin-bottom: 12px;
 }
+.account-control {
+    position: relative;
+    cursor: pointer;
+}
+
+.auth-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 180px;
+    background: #fff;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    z-index: 99;
+}
+
+.account-control:hover .auth-dropdown-menu,
+.account-control:focus-within .auth-dropdown-menu {
+    display: block;
+}
