@@ -4168,3 +4168,244 @@ body {
   color: #ff6600;
   text-align: right;
 }
+/* Cart styles */
+#cart-items-list {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.cart-item-name {
+  flex: 2;
+  font-weight: 600;
+  color: #333;
+}
+.cart-item-qty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.qty-btn {
+  padding: 4px 10px;
+  background: #ff6600;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.2s;
+}
+.qty-btn:hover {
+  background: #e65500;
+}
+.cart-item-price {
+  flex: 1;
+  text-align: right;
+  font-weight: 700;
+  color: #ff6600;
+}
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 22px;
+  cursor: pointer;
+  padding-left: 12px;
+  transition: color 0.2s;
+}
+.remove-btn:hover {
+  color: #ff3300;
+}
+#cart-summary-details {
+  max-width: 900px;
+  margin: 20px auto 40px;
+  padding: 0 16px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: right;
+  color: #ff6600;
+}
+
+/* Orders styles */
+#orders-list,
+#orders-summary {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.order-row {
+  display: grid;
+  grid-template-columns: 1.5fr 3fr 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  color: #444;
+  font-weight: 600;
+  align-items: center;
+}
+.order-row:nth-child(even) {
+  background-color: #fafafa;
+}
+#orders-summary {
+  margin-top: 24px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ff6600;
+  text-align: right;
+}
+
+/* Downloads styles */
+#downloads-list,
+#downloads-summary {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.download-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  color: #333;
+  font-weight: 600;
+}
+.download-name {
+  flex: 1;
+}
+.download-link {
+  flex-shrink: 0;
+  text-decoration: none;
+  background-color: #ff6600;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.download-link:hover,
+.download-link:focus {
+  background-color: #e65500;
+  outline: none;
+}
+#downloads-summary {
+  margin-top: 24px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ff6600;
+  text-align: right;
+}
+/* Skeleton Loader */
+.skeleton-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 6px #eee;
+  padding: 16px;
+  width: 220px;
+  margin: 12px;
+}
+.skeleton-image {
+  height: 140px;
+  background: #eee;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  animation: pulse 1.5s infinite;
+}
+.skeleton-content {
+  margin-top: 6px;
+}
+.skeleton-line {
+  height: 15px;
+  background: #eee;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  animation: pulse 1.5s infinite;
+}
+.skeleton-line.short {
+  width: 60%;
+}
+@keyframes pulse {
+  0% { background-color: #eee; }
+  50% { background-color: #ddd; }
+  100% { background-color: #eee; }
+}
+
+/* User account dropdown */
+.account-control {
+  position: relative;
+  cursor: pointer;
+}
+.auth-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  min-width: 180px;
+}
+.account-control:hover .auth-dropdown-menu,
+.account-control:focus-within .auth-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Cart checkout button */
+#checkout-btn {
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 5px;
+  margin-top: 20px;
+}
+#checkout-btn:hover {
+  background-color: #e65500;
+}
+
+/* Search suggestions */
+.search-suggestions {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  width: 300px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  padding: 8px 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  z-index: 999;
+}
+.search-suggestions.visible {
+  opacity: 1;
+  visibility: visible;
+}
+.suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+  outline: none;
+}
+.suggestion-item:hover,
+.suggestion-item:focus {
+  background-color: #ff6600;
+  color: white;
+}
