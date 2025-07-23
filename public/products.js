@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     const productGrid = document.getElementById('product-grid');
 
+    // Shows a modern skeleton loading animation while products are being fetched.
     const showSkeletonLoader = () => {
         if (!productGrid) return;
         productGrid.innerHTML = ''; // Clear previous content
-        // Show 6 skeleton cards while loading
-        for (let i = 0; i < 6; i++) {
+        // Display 8 skeleton cards as a placeholder
+        for (let i = 0; i < 8; i++) {
             const skeleton = document.createElement('div');
-            skeleton.classList.add('skeleton-card');
+            skeleton.classList.add('skeleton-card'); // Using your styling for this
             skeleton.innerHTML = `
                 <div class="skeleton-image"></div>
                 <div class="skeleton-text"></div>
@@ -17,45 +18,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // Fetches and displays the products, restoring your original card design.
     const loadProducts = async () => {
         if (!productGrid) return;
         showSkeletonLoader();
 
         try {
-            // --- IMPORTANT ---
-            // Replace this setTimeout with your actual product fetching logic.
-            // For example: const response = await fetch('/.netlify/functions/get-products');
-            // const products = await response.json();
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Simulates a 2-second network delay
+            // STEP 1: Fetching products from your actual Netlify function.
+            const response = await fetch('/.netlify/functions/get-products');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const products = await response.json();
 
-            // This is your mock product data. Replace with the actual fetched data.
-            const products = [
-                { id: 1, name: 'Digital Art Pack', image: 'https://placehold.co/300x200/3498db/FFFFFF?text=Product+1', price: 25.00 },
-                { id: 2, name: 'E-book Template', image: 'https://placehold.co/300x200/2ecc71/FFFFFF?text=Product+2', price: 15.00 },
-                { id: 3, name: 'Software License', image: 'https://placehold.co/300x200/e74c3c/FFFFFF?text=Product+3', price: 99.00 },
-                { id: 4, name: 'Music Loops Pack', image: 'https://placehold.co/300x200/9b59b6/FFFFFF?text=Product+4', price: 30.00 },
-                { id: 5, name: 'Video Course', image: 'https://placehold.co/300x200/f1c40f/FFFFFF?text=Product+5', price: 49.99 },
-                { id: 6, name: 'Font Bundle', image: 'https://placehold.co/300x200/1abc9c/FFFFFF?text=Product+6', price: 19.50 },
-            ];
+            productGrid.innerHTML = ''; // Clear the skeleton loaders
 
-            productGrid.innerHTML = ''; // Clear skeletons
+            // STEP 2: Creating a product card for each product with YOUR original structure.
             products.forEach(product => {
                 const productCard = document.createElement('div');
-                // Use the same class names as your original product cards
+                // Using your original class names for styling.
                 productCard.className = 'product-card'; 
+                
+                // This HTML structure is designed to match your CSS for badges and buttons.
                 productCard.innerHTML = `
-                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <div class="product-image-container">
+                        <a href="product-details.html?id=${product.id}">
+                            <img src="${product.image}" alt="${product.name}" class="product-image">
+                        </a>
+                        <div class="badges">
+                            ${product.hot ? '<span class="badge badge-hot">HOT</span>' : ''}
+                            ${product.instant ? '<span class="badge badge-instant">INSTANT</span>' : ''}
+                        </div>
+                    </div>
                     <div class="product-card-content">
                         <h3>${product.name}</h3>
                         <p class="price">$${product.price.toFixed(2)}</p>
-                        <button class="btn add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
+                        <div class="product-buttons">
+                            <button class="btn btn-buy-now" data-product-id="${product.id}">Buy Now</button>
+                            <button class="btn add-to-cart-btn" data-product-id="${product.id}">Add to Cart</button>
+                        </div>
                     </div>
                 `;
                 productGrid.appendChild(productCard);
             });
         } catch (error) {
             console.error("Failed to load products:", error);
-            productGrid.innerHTML = '<p>Could not load products at this time. Please try again later.</p>';
+            productGrid.innerHTML = '<p style="color: red; text-align: center; width: 100%;">Could not load products. Please check the console for errors.</p>';
         }
     };
 

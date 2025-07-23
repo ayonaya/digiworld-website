@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // --- 1. LOAD HEADER AND FOOTER ---
+    // This function fetches the content of header.html and footer.html and injects it into your index.html.
     const loadHTML = (selector, url) => {
         fetch(url)
             .then(response => {
@@ -13,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const element = document.querySelector(selector);
                 if (element) {
                     element.innerHTML = data;
-                    // After loading, initialize components specific to that HTML
+                    // IMPORTANT: After the header has been loaded, we must initialize its interactive parts.
                     if (selector === '#header-placeholder') {
                         initializeHeader();
                     }
@@ -36,13 +37,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSlide = 0;
     let slideInterval;
 
+    // Loads the content of your banner HTML files into the slider.
     const loadBanners = async () => {
         if (!slidesContainer) return;
 
         for (const file of bannerFiles) {
             try {
                 const response = await fetch(file);
-                if (!response.ok) continue;
+                if (!response.ok) continue; // Skip if a banner file is not found
                 const html = await response.text();
                 const slide = document.createElement('div');
                 slide.classList.add('slide');
@@ -53,78 +55,66 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        // Only start the slider if banners were successfully loaded.
         if (slidesContainer.children.length > 0) {
             setupSlider();
         }
     };
     
+    // Sets up the controls and automatic sliding for the banner.
     const setupSlider = () => {
         const nextBtn = document.querySelector('.slider-arrow.next');
         const prevBtn = document.querySelector('.slider-arrow.prev');
 
         const showSlide = (index) => {
             const totalSlides = slidesContainer.children.length;
-            if (index >= totalSlides) {
-                currentSlide = 0;
-            } else if (index < 0) {
-                currentSlide = totalSlides - 1;
-            } else {
-                currentSlide = index;
-            }
+            // This ensures the slider loops correctly (e.g., from last slide to first)
+            currentSlide = (index + totalSlides) % totalSlides;
             const offset = -currentSlide * 100;
             slidesContainer.style.transform = `translateX(${offset}%)`;
         };
 
         const startSlider = () => {
+            clearInterval(slideInterval); // Clear any existing timer
             slideInterval = setInterval(() => {
                 showSlide(currentSlide + 1);
-            }, 5000); // Auto-slide every 5 seconds
+            }, 5000); // Auto-slides every 5 seconds
         };
 
-        const resetSliderInterval = () => {
-            clearInterval(slideInterval);
-            startSlider();
-        };
-
+        // Event listeners for the arrow buttons
         nextBtn.addEventListener('click', () => {
             showSlide(currentSlide + 1);
-            resetSliderInterval();
+            startSlider(); // Reset the auto-slide timer on manual click
         });
 
         prevBtn.addEventListener('click', () => {
             showSlide(currentSlide - 1);
-            resetSliderInterval();
+            startSlider(); // Reset the auto-slide timer on manual click
         });
 
-        startSlider();
+        startSlider(); // Start the slider for the first time
     };
 
     loadBanners();
     
     // --- 3. INITIALIZE HEADER ELEMENTS ---
-    // This function is called after header.html is loaded
+    // This function is called ONLY after header.html has been successfully loaded.
     function initializeHeader() {
         const userContainer = document.querySelector('.user-info'); 
         if (userContainer) {
-            // This assumes a simple check. Replace with your actual authentication logic from auth.js
-            const isLoggedIn = false; // Example: check from localStorage or auth state
-            
-            if (isLoggedIn) {
-                // Logic for logged-in user (e.g., show username)
-            } else {
-                // Create the dropdown menu for guests
-                userContainer.innerHTML = `
-                    <div class="user-menu">
-                        <a href="#">Welcome / Sign In <i class="fas fa-chevron-down"></i></a>
-                        <div class="user-menu-content">
-                            <a href="login.html">Sign In</a>
-                            <a href="signup.html">Register</a>
-                        </div>
+            // Your auth.js script will handle the logic for logged-in users.
+            // This code sets up the default dropdown for guests.
+            userContainer.innerHTML = `
+                <div class="user-menu">
+                    <a href="#">Welcome / Sign In <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: 5px;"></i></a>
+                    <div class="user-menu-content">
+                        <a href="login.html">Sign In</a>
+                        <a href="signup.html">Register</a>
                     </div>
-                `;
-            }
+                </div>
+            `;
         }
-
+        
         const cartIcon = document.getElementById('cart-icon');
         if (cartIcon) {
             cartIcon.addEventListener('click', () => {
