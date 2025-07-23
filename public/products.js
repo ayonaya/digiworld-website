@@ -29,7 +29,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const products = await response.json();
+            const data = await response.json();
+
+            // --- CRITICAL FIX for "forEach is not a function" error ---
+            // This checks if the returned data is an array directly, or an object containing an array.
+            const products = Array.isArray(data) ? data : data.products;
+
+            // Ensure we have a valid array before proceeding
+            if (!Array.isArray(products)) {
+                throw new Error("Product data is not in a valid array format.");
+            }
 
             productGrid.innerHTML = ''; // Clear the skeleton loaders
 
