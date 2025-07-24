@@ -13,7 +13,7 @@
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .admin-header h1 { font-weight: 900; color: var(--primary-dark); margin: 0; }
         .login-container { max-width: 400px; margin: 100px auto; padding: 40px; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.2s; }
         .dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
         .dashboard-card { background-color: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); }
         .dashboard-card h3 { margin-top: 0; font-weight: 700; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
@@ -73,7 +73,7 @@
                     <div class="form-group"><label for="editProductPriceUSD">Price (USD)</label><input type="number" id="editProductPriceUSD" step="0.01" required></div>
                     <div class="form-group"><label for="editProductCategory">Category</label><input type="text" id="editProductCategory" required></div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+                <button type="submit" class="btn" style="width: 100%; background-color: var(--primary);">Save Changes</button>
                 <div id="editProductMessage" class="message"></div>
             </form>
         </div>
@@ -91,7 +91,7 @@
                 </div>
                 <div class="form-group"><label for="createProductImage">Image URL</label><input type="url" id="createProductImage" required></div>
                 <div class="form-group"><label for="createProductDescEn">Description (EN)</label><textarea id="createProductDescEn" required></textarea></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Product</button>
+                <button type="submit" class="btn" style="width: 100%; background-color: var(--primary);">Create Product</button>
                 <div id="createProductMessage" class="message"></div>
             </form>
         </div>
@@ -109,7 +109,7 @@
                     <label for="addKeysTextarea">Enter Keys (one per line)</label>
                     <textarea id="addKeysTextarea" rows="10" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Add Keys to Inventory</button>
+                <button type="submit" class="btn" style="width: 100%; background-color: var(--primary);">Add Keys to Inventory</button>
                 <div id="addKeysMessage" class="message"></div>
             </form>
         </div>
@@ -119,22 +119,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
     <script>
-    // --- NEW: Asynchronous function to initialize and run the app ---
     async function initializeAdminApp() {
         try {
-            // Fetch the configuration from our secure backend function
             const response = await fetch('/.netlify/functions/get-firebase-config');
-            if (!response.ok) {
-                throw new Error('Could not fetch Firebase configuration.');
-            }
+            if (!response.ok) throw new Error('Could not fetch Firebase configuration.');
             const firebaseConfig = await response.json();
-
-            // Initialize Firebase with the fetched config
             firebase.initializeApp(firebaseConfig);
-            
-            // Now that Firebase is initialized, run the rest of the admin panel logic
             runAdminPanel();
-
         } catch (error) {
             console.error("Critical Error: Firebase Initialization Failed.", error);
             const loginContainer = document.getElementById('loginContainer');
@@ -164,7 +155,6 @@
             addKeys: document.getElementById('addKeysForm')
         };
 
-        // This function is now fully secure and relies on the user's token
         async function apiCall(endpoint, body = {}) {
             const user = auth.currentUser;
             if (!user) throw new Error('You are not logged in.');
@@ -236,8 +226,8 @@
                     <div class="dashboard-card">
                         <h3><i class="fas fa-cogs"></i> Admin Actions</h3>
                         <div style="display: flex; flex-direction: column; gap: 15px;">
-                            <button class="btn btn-primary" id="openCreateProductModalBtn" style="background-color: var(--success);"><i class="fas fa-plus-circle"></i> Create New Product</button>
-                            <button class="btn btn-primary" id="openAddKeysModalBtn" style="background-color: var(--info);"><i class="fas fa-key"></i> Add Digital Keys</button>
+                            <button class="btn" id="openCreateProductModalBtn" style="background-color: var(--primary);"><i class="fas fa-plus-circle"></i> Create New Product</button>
+                            <button class="btn" id="openAddKeysModalBtn" style="background-color: var(--primary);"><i class="fas fa-key"></i> Add Digital Keys</button>
                         </div>
                     </div>
                     <div class="dashboard-card">
@@ -405,7 +395,6 @@
         }));
     }
 
-    // Start the application
     initializeAdminApp();
     </script>
 </body>

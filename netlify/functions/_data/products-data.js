@@ -1,14 +1,13 @@
 // /netlify/functions/_data/products-data.js
+// FINAL VERSION: Prices are now only defined in USD. The backend will handle all conversions.
 
-// This is the single, authoritative source for all product data on the server.
-// All prices and details are managed from this one file.
 const products = [
   {
     id: "office365lifetime",
     category: "Office",
     isHot: false,
     name: { en: "Office 365 Account - 1 Year Subscription (5 Devices)" },
-    price: { LKR: 7700, USD: 23, EUR: 21, GBP: 18, INR: 1900 },
+    priceUSD: 23.00,
     image: "https://static-01.daraz.lk/p/ae3f76f0c47cf3b1c4099c857784b1de.jpg",
     delivery: { en: "Instant Delivery" },
     desc: { en: "1 Year subscription for up to 5 devices. Full Microsoft Office 365 suite including Word, Excel, PowerPoint and more. Instant delivery to your email after payment." },
@@ -21,7 +20,7 @@ const products = [
     category: "Windows",
     isHot: false,
     name: { en: "Windows 10 Pro Key" },
-    price: { LKR: 3000, USD: 9, EUR: 8, GBP: 7, INR: 700 },
+    priceUSD: 9.00,
     image: "https://img.drz.lazcdn.com/static/lk/p/6089ff29fc089609833e9df6008ed942.png_400x400q75.avif",
     delivery: { en: "Instant Delivery" },
     desc: { en: "Genuine Windows 10 Pro lifetime license key. For 1 PC. Instant email delivery. Activate and use worldwide." },
@@ -34,7 +33,7 @@ const products = [
     category: "Windows",
     isHot: true,
     name: { en: "Windows 11 Pro Key" },
-    price: { LKR: 3700, USD: 11, EUR: 10, GBP: 8, INR: 860 },
+    priceUSD: 11.00,
     image: "https://img.drz.lazcdn.com/static/lk/p/4ac77c5340b852dcfe5d0f0ba66fb1ed.png_400x400q75.avif",
     delivery: { en: "Instant Delivery" },
     desc: { en: "Genuine Windows 11 Pro lifetime license key. For 1 PC. Instant email delivery. Use worldwide." },
@@ -47,7 +46,7 @@ const products = [
     category: "Office",
     isHot: false,
     name: { en: "Office 2021 Pro Plus Key" },
-    price: { LKR: 4500, USD: 13, EUR: 12, GBP: 10, INR: 1100 },
+    priceUSD: 13.00,
     image: "https://img.drz.lazcdn.com/g/kf/Sb9bc8d1802a04d8394d16f951736c65a2.jpg_400x400q75.avif",
     delivery: { en: "Instant Delivery" },
     desc: { en: "Office 2021 Pro Plus lifetime key for 1 PC. Instant delivery. Supports all Office apps. One-time payment." },
@@ -60,7 +59,7 @@ const products = [
     category: "Office",
     isHot: true,
     name: { en: "Office 2024 Pro Plus Key" },
-    price: { LKR: 5600, USD: 15, EUR: 14, GBP: 12, INR: 1200 },
+    priceUSD: 15.00,
     image: "https://img.drz.lazcdn.com/g/kf/S5d7015c8fb0f4693ac06c2df71e1dadbA.jpg_400x400q75.avif",
     delivery: { en: "Instant Delivery" },
     desc: { en: "Office 2024 Pro Plus key, lifetime for 1 PC. Full Office suite. Instant digital delivery." },
@@ -73,7 +72,7 @@ const products = [
     category: "Development",
     isHot: false,
     name: { en: "Microsoft Project Pro 2021 Key" },
-    price: { LKR: 5200, USD: 15, EUR: 14, GBP: 13, INR: 1200 },
+    priceUSD: 15.00,
     image: "https://img.drz.lazcdn.com/g/kf/S418dd45f61604ef8a7be51cd7190ffec3.jpg_400x400q75.avif",
     delivery: { en: "Instant Delivery" },
     desc: { en: "Microsoft Project Pro 2021 genuine key. Lifetime activation for 1 PC. Instant digital delivery." },
@@ -86,7 +85,7 @@ const products = [
     category: "Development",
     isHot: false,
     name: { en: "Microsoft Visio 2021 Key" },
-    price: { LKR: 30, USD: 0.10, EUR: 0.10, GBP: 0.10, INR: 8 },
+    priceUSD: 0.10,
     image: "https://img.drz.lazcdn.com/static/lk/p/e6fa1180deb98607be4cc772a1af56ca.png_400x400q75.avif",
     delivery: { en: "Instant Delivery" },
     desc: { en: "Microsoft Visio 2021 key, for 1 PC. Lifetime license. Instant email delivery." },
@@ -96,5 +95,4 @@ const products = [
   }
 ];
 
-// Export the data so other functions can use it
 module.exports = { products };
