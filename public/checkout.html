@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Custom styles for the final Checkout Layout */
         body { background-color: var(--bg, #f6f6fa); }
         .checkout-container { max-width: 1100px; margin: 2rem auto; padding: 20px; }
         .page-header { text-align: center; margin-bottom: 30px; }
@@ -32,11 +31,14 @@
         #nowpayments-button { width: 100%; padding: 15px; font-size: 1.1rem; font-weight: 700; background-color: #333; color: white; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background-color 0.2s; }
         #nowpayments-button:hover:not(:disabled) { background-color: #1a1a1a; }
         #nowpayments-button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .secure-payment-badges { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #888; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .secure-payment-badges .payment-icons { margin-top: 10px; font-size: 2rem; display: flex; justify-content: center; gap: 15px; color: #aaa; }
+        .secure-payment-badges { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; }
+        .secure-payment-badges .secure-text { color: #555; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .secure-payment-badges .fa-lock { color: var(--success); }
+        .secure-payment-badges .payment-icons { margin-top: 15px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+        .secure-payment-badges .payment-icons img { height: 25px; opacity: 0.8; transition: opacity 0.2s; }
+        .secure-payment-badges .payment-icons img:hover { opacity: 1; }
         @media (max-width: 900px) { .checkout-grid { grid-template-columns: 1fr; } .order-summary-card { grid-row: 1; } }
     </style>
-    
 </head>
 <body>
 
@@ -74,7 +76,6 @@
           <option>All Categories</option>
           <option>Windows</option>
           <option>Office</option>
-          <option>Development Tools</option>
         </select>
         <input type="text" id="searchInput" placeholder="Search for products…" aria-label="Search products"/>
         <button class="search-btn-modern" type="submit">Search</button>
@@ -82,7 +83,7 @@
       </form>
     </header>
 
-<main class="checkout-container">
+    <main class="checkout-container">
         <div class="page-header"><h1>Secure Checkout</h1></div>
         <div class="checkout-grid">
             <div class="checkout-details">
@@ -98,24 +99,22 @@
                     <div id="paypal-button-container"><p style="text-align:center;">Loading Payment Options...</p></div>
                     <div class="payment-separator"><span>OR</span></div>
                     <div id="nowpayments-button-container">
-                        <button id="nowpayments-button" disabled>
-                            <i class="fab fa-bitcoin"></i> Pay with Crypto
-                        </button>
+                        <button id="nowpayments-button" disabled><i class="fab fa-bitcoin"></i> Pay with Crypto</button>
                     </div>
                     <div id="result-message" style="margin-top: 15px; font-weight: 700; text-align: center;"></div>
                     <div class="secure-payment-badges">
-                        <i class="fas fa-lock"></i> SSL Secure Payment
+                        <div class="secure-text"><i class="fas fa-lock"></i> SSL Secure Payment</div>
                         <div class="payment-icons">
-                            <i class="fab fa-cc-visa"></i>
-                            <i class="fab fa-cc-mastercard"></i>
-                            <i class="fab fa-cc-amex"></i>
-                            <i class="fab fa-paypal"></i>
+                            <img src="https://i.ibb.co/L0FR2Sj/visa.png" alt="Visa">
+                            <img src="https://i.ibb.co/b2c2D1S/mastercard.png" alt="Mastercard">
+                            <img src="https://i.ibb.co/W2C3W2V/amex.png" alt="American Express">
+                            <img src="https://i.ibb.co/bQ4T1D4/paypal.png" alt="PayPal">
                         </div>
                     </div>
                 </div>
             </div>
             <div class="order-summary-card checkout-card">
-                <h2>Order Summary</h2>
+                 <h2>Order Summary</h2>
                 <div id="summary-item-container"><p>Loading your cart...</p></div>
                 <div class="summary-total">
                     <div class="total-row">
@@ -126,124 +125,62 @@
             </div>
         </div>
     </main>
-        <div class="mini-cart-overlay" id="miniCartOverlay" role="dialog" aria-modal="true" aria-labelledby="miniCartTitle"></div>
-    <div class="mini-cart-drawer" id="miniCartDrawer" aria-labelledby="miniCartTitle" tabindex="-1">
-      <div class="mini-cart-header">
-        <span id="miniCartTitle">Your Cart</span>
-        <button class="mini-cart-close" id="miniCartClose" aria-label="Close cart">&times;</button>
-      </div>
+
+    <div class="mini-cart-overlay" id="miniCartOverlay"></div>
+    <div class="mini-cart-drawer" id="miniCartDrawer">
+      <div class="mini-cart-header"><span>Your Cart</span><button class="mini-cart-close" id="miniCartClose">&times;</button></div>
       <div class="mini-cart-items" id="miniCartItems"></div>
       <div class="mini-cart-footer">
         <div class="mini-cart-total" id="miniCartTotal"></div>
         <button class="mini-cart-checkout" onclick="window.location.href='cart.html'">Go to Cart</button>
       </div>
     </div>
-
     <div class="auth-modal-overlay" id="authModal">
         <div class="auth-modal-content">
             <button class="auth-modal-close" id="authModalClose">&times;</button>
-            <h3>Register / Sign in</h3>
-            <p>Your information is protected</p>
-            <div class="auth-providers">
-                <button class="auth-provider-btn google" id="googleSignInBtn"><i class="fab fa-google"></i> Continue with Google</button>
-            </div>
+            <h3>Register / Sign in</h3><p>Your information is protected</p>
+            <div class="auth-providers"><button class="auth-provider-btn google" id="googleSignInBtn"><i class="fab fa-google"></i> Continue with Google</button></div>
             <div class="auth-separator"><span>OR</span></div>
             <form id="emailLoginForm">
-                <label for="emailInput">Email</label>
-                <input type="email" id="emailInput" placeholder="Enter your email">
-                <button type="submit" class="auth-continue-btn">Continue with Email</button>
+                <label for="emailInput">Email</label><input type="email" id="emailInput" placeholder="Enter your email"><button type="submit" class="auth-continue-btn">Continue with Email</button>
             </form>
             <div id="modal-message" style="margin-top: 15px; text-align: center; font-weight: 700;"></div>
         </div>
     </div>
-
+    
     <footer class="site-footer">
         <div class="footer-grid">
-            <div class="footer-col">
-                <h3>Customer Care</h3>
-                <ul>
-                    <li><a href="faq.html">FAQ</a></li>
-                    <li><a href="refund-policy.html">Refund Policy</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3>About DigiWorld</h3>
-                <ul>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="contact.html">Contact Us</a></li>
-                    <li><a href="terms.html">Terms & Conditions</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h3>We Accept</h3>
-                <div class="payment-methods-logos">
-                    <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" style="height: 30px;">
-                    <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" style="height: 30px;">
-                </div>
-            </div>
+            <div class="footer-col"><h3>Customer Care</h3><ul><li><a href="faq.html">FAQ</a></li><li><a href="refund-policy.html">Refund Policy</a></li></ul></div>
+            <div class="footer-col"><h3>About DigiWorld</h3><ul><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact Us</a></li><li><a href="terms.html">Terms & Conditions</a></li></ul></div>
+            <div class="footer-col"><h3>We Accept</h3><div class="payment-methods-logos"><img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards" style="height: 30px;"><img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto" style="height: 30px;"></div></div>
         </div>
-        <div class="footer-bottom">
-            &copy; 2025 DigiWorld. All rights reserved.
-        </div>
+        <div class="footer-bottom">&copy; 2025 DigiWorld. All rights reserved.</div>
     </footer>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-        authDomain: "digiworld-46a1e.firebaseapp.com",
-        projectId: "digiworld-46a1e",
-        storageBucket: "digiworld-46a1e.appspot.com",
-        messagingSenderId: "242235397710",
-        appId: "1:242235397710:web:a80c15cc285188610cd51f",
-        measurementId: "G-R8C4BWHXBL"
-      };
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const accountControl = document.getElementById('accountControl');
-      const authModal = document.getElementById('authModal');
-      const authModalClose = document.getElementById('authModalClose');
-      const authDropdownContent = document.getElementById('authDropdownContent');
-      const openAuthModal = () => authModal.classList.add('show');
-      const closeAuthModal = () => authModal.classList.remove('show');
-
-      function renderLoggedOutMenu() {
-          authDropdownContent.innerHTML = `<button class="auth-dropdown-signin-btn" id="dropdownSignInBtn">Sign In</button><a href="#" class="register-link" id="dropdownRegisterBtn">Register</a>`;
-          document.getElementById('dropdownSignInBtn').addEventListener('click', openAuthModal);
-          document.getElementById('dropdownRegisterBtn').addEventListener('click', openAuthModal);
-      }
-      function renderLoggedInMenu(user) {
-          authDropdownContent.innerHTML = `<a href="profile.html"><i class="fas fa-user-circle"></i> Profile</a><a href="orders.html"><i class="fas fa-box"></i> My Orders</a><a href="downloads.html"><i class="fas fa-download"></i> My Downloads</a><hr><a href="#" id="dropdownLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>`;
-          document.getElementById('dropdownLogoutBtn').addEventListener('click', () => auth.signOut());
-      }
-      auth.onAuthStateChanged(user => {
-        const welcomeText = accountControl.querySelector('.welcome-text');
-        const authAction = accountControl.querySelector('.auth-action');
-        if (user) {
-          welcomeText.textContent = 'Welcome';
-          authAction.textContent = user.displayName || user.email.split('@')[0];
-          renderLoggedInMenu(user);
-        } else {
-          welcomeText.textContent = 'Welcome';
-          authAction.textContent = 'Sign In / Register';
-          renderLoggedOutMenu();
-        }
-      });
-      authModalClose.addEventListener('click', closeAuthModal);
-      authModal.addEventListener('click', (e) => { if (e.target === authModal) closeAuthModal(); });
-      document.getElementById('googleSignInBtn').addEventListener('click', () => { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => console.error(err.message)); });
-      // Add other auth handlers if needed
-    </script>
-
+    <script src="main.js" type="module" defer></script>
     <script type="module">
-        document.addEventListener('DOMContentLoaded', async () => {
+        async function initializeFirebaseAndApp() {
+            try {
+                const response = await fetch('/.netlify/functions/get-firebase-config');
+                if (!response.ok) throw new Error('Could not load Firebase configuration.');
+                const firebaseConfig = await response.json();
+                firebase.initializeApp(firebaseConfig);
+                runCheckoutApp();
+            } catch (error) {
+                console.error("Initialization Failed:", error);
+                document.getElementById('summary-item-container').innerHTML = `<p style="color:red;">Error connecting to payment services.</p>`;
+            }
+        }
+
+        function runCheckoutApp() {
             const summaryContainer = document.getElementById('summary-item-container');
             const totalPriceEl = document.getElementById('total-price');
             const resultMessageEl = document.getElementById('result-message');
             const emailInput = document.getElementById('email');
             const paypalButtonContainer = document.getElementById('paypal-button-container');
+            const nowpaymentsButton = document.getElementById('nowpayments-button');
             let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
             let allProducts = [];
             let cartDetails = [];
@@ -253,7 +190,7 @@
             
             async function initializeCheckout() {
                 if (Object.keys(cart).length === 0) {
-                    document.querySelector('.checkout-grid').innerHTML = '<p style="text-align:center; font-size:1.2rem; grid-column: 1 / -1;">Your cart is empty. Please add items before checking out.</p>';
+                    document.querySelector('.checkout-grid').innerHTML = '<p style="text-align:center; font-size:1.2rem; grid-column: 1 / -1;">Your cart is empty.</p>';
                     return;
                 }
                 try {
@@ -261,12 +198,11 @@
                     if (!productsData.success) throw new Error('Could not load products.');
                     allProducts = productsData.products;
                     renderOrderSummary();
-
                     const keysData = await fetch('/.netlify/functions/get-public-keys').then(res => res.json());
                     if (!keysData.success) throw new Error('Could not load payment provider keys.');
                     renderPayPalButton(keysData.keys.paypalClientId);
+                    if(nowpaymentsButton) nowpaymentsButton.disabled = false;
                 } catch (error) {
-                    console.error('Error initializing checkout:', error);
                     summaryContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
                 }
             }
@@ -307,7 +243,6 @@
                         return actions.order.create({ purchase_units: [{ amount: { currency_code: currentCurr, value: totalAmount.toFixed(2) } }] });
                     },
                     onApprove: (data, actions) => {
-                        resultMessageEl.style.color = 'blue';
                         resultMessageEl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Verifying payment...`;
                         return fetch('/.netlify/functions/verify-paypal-payment', {
                             method: 'POST',
@@ -317,8 +252,10 @@
                             if (result.success) {
                                 localStorage.removeItem('digiworldCart');
                                 resultMessageEl.style.color = 'green';
-                                resultMessageEl.innerHTML = `<i class="fas fa-check-circle"></i> Payment successful! Your key(s) have been sent to <strong>${emailInput.value}</strong>.`;
+                                resultMessageEl.innerHTML = `<i class="fas fa-check-circle"></i> Payment successful! Keys sent to <strong>${emailInput.value}</strong>.`;
                                 document.getElementById('paypal-button-container').style.display = 'none';
+                                document.querySelector('.payment-separator').style.display = 'none';
+                                document.getElementById('nowpayments-button-container').style.display = 'none';
                             } else { throw new Error(result.message || 'Verification failed.'); }
                         }).catch(error => {
                             resultMessageEl.style.color = 'red';
@@ -327,11 +264,35 @@
                     }
                 }).render('#paypal-button-container');
             }
-            initializeCheckout();
-        });
-    </script>
-    
-    <script src="main.js" type="module" defer></script>
 
+            if(nowpaymentsButton) {
+                nowpaymentsButton.addEventListener('click', async () => {
+                    if (!emailInput.value || !/^\S+@\S+\.\S+$/.test(emailInput.value)) {
+                        resultMessageEl.textContent = 'Please enter a valid email address.';
+                        resultMessageEl.style.color = 'red';
+                        return;
+                    }
+                    resultMessageEl.textContent = 'Redirecting to crypto payment...';
+                    try {
+                        const response = await fetch('/.netlify/functions/create-nowpayment-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ cart: cartDetails, email: emailInput.value, amount: totalAmount, currency: currentCurr })
+                        });
+                        const data = await response.json();
+                        if (data.invoice_url) { window.location.href = data.invoice_url; } 
+                        else { throw new Error(data.message || 'Could not create crypto payment.'); }
+                    } catch (error) {
+                        resultMessageEl.textContent = `Error: ${error.message}`;
+                        resultMessageEl.style.color = 'red';
+                    }
+                });
+            }
+            
+            initializeCheckout();
+        }
+
+        initializeFirebaseAndApp();
+    </script>
 </body>
 </html>

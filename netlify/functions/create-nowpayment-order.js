@@ -1,6 +1,6 @@
 // netlify/functions/create-nowpayment-order.js
 const axios = require('axios');
-const { db } = require('./firebase-admin'); // Modified: Import db from firebase-admin.js
+const { db } = require('./firebase-admin');
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
@@ -8,11 +8,12 @@ exports.handler = async (event) => {
     }
 
     try {
-        const { productId, email, amount, currency } = JSON.parse(event.body);
+        // FIX: Now correctly accepts a 'cart' array
+        const { cart, email, amount, currency } = JSON.parse(event.body);
         const NOWPAYMENTS_API_KEY = process.env.NOWPAYMENTS_API_KEY;
 
-        if (!productId || !email || !amount || !currency) {
-            console.error("Validation Error: Missing required fields.", { productId, email, amount, currency });
+        // FIX: Updated validation to check for the cart
+        if (!cart || cart.length === 0 || !email || !amount || !currency) {
             return { 
                 statusCode: 400, 
                 body: JSON.stringify({ message: 'Missing one or more required fields.' }) 
@@ -20,35 +21,31 @@ exports.handler = async (event) => {
         }
 
         if (!NOWPAYMENTS_API_KEY) {
-            console.error("Configuration Error: NOWPAYMENTS_API_KEY is not set in environment variables.");
             return { 
                 statusCode: 500, 
                 body: JSON.stringify({ message: "Payment service is not configured on the server." }) 
             };
         }
 
-        // --- FIX: Create and save the order to Firestore BEFORE creating the payment ---
-        const orderId = `DIGIWORLD-${productId}-${Date.now()}`;
+        const orderId = `DIGIWORLD-NP-${Date.now()}`;
         const orderDocRef = db.collection('orders').doc(orderId);
         await orderDocRef.set({
-            productId: productId,
+            cart: cart, // Save the full cart
             customerEmail: email,
-            amount: parseFloat(amount),
+            totalAmount: parseFloat(amount),
             currency: currency,
             paymentGateway: 'nowpayments',
-            status: 'initiated', // Initial status
+            status: 'initiated',
             createdAt: new Date().toISOString()
         });
-        console.log(`NowPayments Order ${orderId} details saved to Firestore.`);
-        // --- End Firestore Save ---
+
+        const orderDescription = `DigiWorld purchase of ${cart.length} item(s) for ${email}`;
 
         const invoiceData = {
             price_amount: parseFloat(amount),
             price_currency: currency,
-            order_id: orderId, // Use the same orderId for NowPayments
-            order_description: `Purchase of ${productId} for ${email}`,
-            // IMPORTANT: Set your IPN callback URL in your NowPayments account settings
-            // ipn_callback_url: 'https://YOUR_SITE/.netlify/functions/nowpayments-ipn'
+            order_id: orderId,
+            order_description: orderDescription,
         };
 
         const headers = {
@@ -56,20 +53,13 @@ exports.handler = async (event) => {
             'Content-Type': 'application/json'
         };
 
-        console.log("Attempting to create NowPayments INVOICE with data:", invoiceData);
-
         const response = await axios.post('https://api.nowpayments.io/v1/invoice', invoiceData, { headers });
-
-        console.log("Successfully received INVOICE response from NowPayments:", response.data);
-
+        
         const invoiceUrl = response.data.invoice_url;
-
         if (!invoiceUrl) {
-            console.error("Critical Error: Could not get invoice_url from NowPayments response.", response.data);
             throw new Error("Failed to get redirection URL from NowPayments.");
         }
 
-        // Update the order with the payment ID from NowPayments
         await orderDocRef.update({ nowPaymentsId: response.data.id });
 
         return {
@@ -79,15 +69,9 @@ exports.handler = async (event) => {
 
     } catch (error) {
         console.error('Error creating NowPayments invoice:', error.response ? error.response.data : error.message);
-        const errorResponse = error.response ? error.response.data : { message: error.message };
-        console.error('Detailed Error:', errorResponse);
-        
         return {
             statusCode: 500,
-            body: JSON.stringify({
-                message: 'Failed to create NowPayments invoice.',
-                error: errorResponse
-            }),
+            body: JSON.stringify({ message: 'Failed to create NowPayments invoice.' }),
         };
     }
 };

@@ -8,218 +8,139 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
-        :root {
-            --primary: #f57224;
-            --primary-dark: #d45703;
-            --accent: #fe724c;
-            --card-bg: #fff;
-            --bg: #f6f6fa;
-            --radius: 18px;
-            --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
-        }
-        body {
-            background-color: var(--bg);
-        }
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--primary-dark);
-            margin-bottom: 30px;
-            border-bottom: 4px solid var(--primary);
-            padding-bottom: 10px;
-        }
-        #orders-container {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-        .order-card {
-            background-color: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            border-left: 5px solid var(--accent);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .order-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 40px rgba(245, 114, 36, 0.2);
-        }
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        .order-id {
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: #333;
-        }
-        .order-date {
-            font-size: 0.9em;
-            color: #777;
-            font-weight: 600;
-        }
-        .order-body {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            gap: 20px;
-        }
-        .order-product-name {
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-        .order-amount {
-            font-weight: 900;
-            font-size: 1.5rem;
-            color: var(--primary);
-            text-align: right;
-        }
-        #loading-message, #auth-message {
-            text-align: center;
-            padding: 50px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--primary-dark);
-        }
+        body { background-color: var(--bg); }
+        .orders-container { max-width: 900px; margin: 40px auto; padding: 20px; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 3px solid var(--primary); padding-bottom: 15px; }
+        .page-header h1 { font-size: 2.5rem; font-weight: 900; color: var(--primary-dark); margin: 0; }
+        .back-link { font-weight: 700; color: var(--primary); text-decoration: none; }
+        #orders-list { display: flex; flex-direction: column; gap: 30px; }
+        .order-card { background-color: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 15px 25px; border-bottom: 1px solid #eee; }
+        .order-id { font-weight: 700; font-size: 1rem; color: #555; }
+        .order-date { font-size: 0.9em; color: #777; font-weight: 600; }
+        .order-items { padding: 25px; display: flex; flex-direction: column; gap: 20px; }
+        .order-item { display: grid; grid-template-columns: 80px 1fr auto; gap: 20px; align-items: center; }
+        .item-image { width: 80px; height: 80px; object-fit: contain; border-radius: 10px; border: 1px solid #eee; }
+        .item-details .name { font-weight: 700; font-size: 1.1rem; }
+        .item-details .qty { font-size: 0.9rem; color: #777; }
+        .buy-again-btn { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background-color 0.2s; }
+        .buy-again-btn:hover { background: var(--primary-dark); }
+        .order-footer { display: flex; justify-content: flex-end; align-items: center; background-color: #f9f9f9; padding: 15px 25px; border-top: 1px solid #eee; }
+        .order-total { font-weight: 900; font-size: 1.3rem; color: var(--primary-dark); }
+        #loading-message, #auth-message { text-align: center; padding: 50px; font-weight: 700; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
     <header class="site-header">
-      <div class="header-main-pro">
-        <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
-        <nav>
-          <a href="index.html" class="nav-link-pro">Home</a>
-          <a href="account.html" class="nav-link-pro active">My Account</a>
-          <a href="contact.html" class="nav-link-pro">Contact</a>
-        </nav>
-        <div class="header-controls">
-          <button class="cart-btn" id="cartBtn" aria-label="Open cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Cart</span>
-            <span class="cart-icon-badge" id="cartCount">0</span>
-          </button>
-        </div>
-      </div>
-    </header>
+        </header>
 
-    <main class="container">
-        <h1 class="page-title">My Orders</h1>
-        <div id="orders-container">
+    <main class="orders-container">
+        <div class="page-header">
+            <h1>My Orders</h1>
+            <a href="account.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Account</a>
+        </div>
+        <div id="orders-list">
             <p id="loading-message">Loading your orders...</p>
-            <p id="auth-message" style="display: none;">Please <a href="login.html">log in</a> to view your orders.</p>
         </div>
     </main>
 
     <footer class="site-footer">
-      <div class="footer-grid">
-          </div>
-      <div class="footer-bottom">
-          &copy; 2025 DigiWorld. All rights reserved.
-      </div>
-    </footer>
+        </footer>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+    <script type="module" src="cart-manager.js"></script>
+    <script type="module">
+        import { addToCart } from './cart-manager.js';
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-  authDomain: "digiworld-46a1e.firebaseapp.com",
-  projectId: "digiworld-46a1e",
-  storageBucket: "digiworld-46a1e.firebasestorage.app",
-  messagingSenderId: "242235397710",
-  appId: "1:242235397710:web:a80c15cc285188610cd51f",
-  measurementId: "G-R8C4BWHXBL"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-        const auth = firebase.auth();
-        const ordersContainer = document.getElementById('orders-container');
-        const loadingMessage = document.getElementById('loading-message');
-        const authMessage = document.getElementById('auth-message');
-
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                loadingMessage.style.display = 'block';
-                authMessage.style.display = 'none';
-                
-                try {
-                    const idToken = await user.getIdToken();
-
-                    const response = await fetch('/.netlify/functions/get-user-orders', {
-                        headers: {
-                            'Authorization': `Bearer ${idToken}`
-                        }
-                    });
-
-                    if (!response.ok) {
-                         const errorResult = await response.json();
-                         throw new Error(errorResult.message || 'Failed to fetch orders.');
-                    }
-
-                    const result = await response.json();
-
-                    if (result.success && result.orders.length > 0) {
-                        renderOrders(result.orders);
-                    } else {
-                        ordersContainer.innerHTML = '<p>You have no past orders.</p>';
-                    }
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    ordersContainer.innerHTML = `<p style="color:red;">Error loading orders: ${error.message}</p>`;
-                } finally {
-                    loadingMessage.style.display = 'none';
-                }
-            } else {
-                loadingMessage.style.display = 'none';
-                authMessage.style.display = 'block';
+        async function initializeFirebaseAndApp() {
+            try {
+                const response = await fetch('/.netlify/functions/get-firebase-config');
+                const firebaseConfig = await response.json();
+                firebase.initializeApp(firebaseConfig);
+                runOrdersApp();
+            } catch (error) {
+                document.getElementById('orders-list').innerHTML = `<p style="color:red;">Error connecting to services.</p>`;
             }
-        });
-
-        function renderOrders(orders) {
-            ordersContainer.innerHTML = orders.map(order => {
-                const orderDate = new Date(order.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric', month: 'long', day: 'numeric'
-                });
-
-                return `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <div class="order-id">Order ID: ${order.id}</div>
-                            <div class="order-date">${orderDate}</div>
-                        </div>
-                        <div class="order-body">
-                            <span class="order-product-name">${order.productId}</span>
-                            <span class="order-amount">${order.amount.toFixed(2)} ${order.currency}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
+
+        function runOrdersApp() {
+            const auth = firebase.auth();
+            const ordersList = document.getElementById('orders-list');
+
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        const idToken = await user.getIdToken();
+                        const response = await fetch('/.netlify/functions/get-user-orders', {
+                            headers: { 'Authorization': `Bearer ${idToken}` }
+                        });
+                        if (!response.ok) throw new Error('Failed to fetch orders.');
+                        const result = await response.json();
+                        if (result.success) {
+                            renderOrders(result.orders);
+                        } else {
+                            throw new Error(result.message);
+                        }
+                    } catch (error) {
+                        ordersList.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+                    }
+                } else {
+                    ordersList.innerHTML = `<p id="auth-message">Please <a href="login.html">log in</a> to view your orders.</p>`;
+                }
+            });
+
+            function renderOrders(orders) {
+                if (orders.length === 0) {
+                    ordersList.innerHTML = '<p>You have no past orders.</p>';
+                    return;
+                }
+                const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
+
+                ordersList.innerHTML = orders.map(order => {
+                    const orderDate = new Date(order.createdAt).toLocaleDateString();
+                    const currencySymbol = currencySymbols[order.currency] || '$';
+                    const itemsHTML = order.cart.map(item => `
+                        <div class="order-item">
+                            <img src="${item.image}" alt="${item.name}" class="item-image">
+                            <div class="item-details">
+                                <div class="name">${item.name}</div>
+                                <div class="qty">Quantity: ${item.quantity}</div>
+                            </div>
+                            <button class="buy-again-btn" data-product-id="${item.id}">Buy Again</button>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div class="order-id">ORDER #${order.id}</div>
+                                <div class="order-date">Placed on ${orderDate}</div>
+                            </div>
+                            <div class="order-items">${itemsHTML}</div>
+                            <div class="order-footer">
+                                <div class="order-total">Total: ${currencySymbol}${order.totalAmount.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            ordersList.addEventListener('click', function(event) {
+                if (event.target.classList.contains('buy-again-btn')) {
+                    const productId = event.target.dataset.productId;
+                    addToCart(productId);
+                    // Optionally, show a confirmation or redirect to the cart
+                    alert('Item added back to your cart!');
+                    window.location.href = 'cart.html';
+                }
+            });
+        }
+
+        initializeFirebaseAndApp();
     </script>
 </body>
 </html>

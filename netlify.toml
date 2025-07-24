@@ -11,7 +11,14 @@
 [functions]
   included_files = ["netlify/functions/digiworld-46a1e-firebase-adminsdk-fbsvc-0bde804ae9.json"]
 
+# Redirect for your existing API
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
+  status = 200
+
+# NEW: Redirect for your dynamic sitemap
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/generate-sitemap"
   status = 200

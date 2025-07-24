@@ -10,6 +10,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js" defer></script>
+  
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -63,6 +67,29 @@
             </div>
         <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
         <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
+    </section>
+
+    <section class="flash-sale-section" aria-label="Daily Flash Sale">
+        <div class="flash-sale-header">
+            <div class="flash-sale-title">
+                <i class="fas fa-bolt"></i>
+                <h2>Daily Flash Sale</h2>
+            </div>
+            <div class="flash-sale-countdown" id="flashSaleCountdown">
+                <span>Ends in:</span>
+                <div class="time-box" id="flash-hours">00</div><em>:</em>
+                <div class="time-box" id="flash-minutes">00</div><em>:</em>
+                <div class="time-box" id="flash-seconds">00</div>
+            </div>
+        </div>
+        <div class="flash-sale-carousel-wrapper">
+            <div class="swiper" id="flashSaleCarousel">
+                <div class="swiper-wrapper" id="flashSaleCarouselContainer">
+                    </div>
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
     </section>
 
     <section class="main-section" aria-label="Featured products">

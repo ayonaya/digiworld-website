@@ -4,54 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DigiWorld - Admin Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root {
-            --primary: #f57224; --primary-dark: #d45703; --accent: #fe724c;
-            --card-bg: #fff; --bg: #f0f2f5; --radius: 12px;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --success: #28a745; --danger: #e74c3c; --info: #3498db;
-        }
+        :root { --primary: #f57224; --primary-dark: #d45703; --accent: #fe724c; --card-bg: #fff; --bg: #f0f2f5; --radius: 12px; --shadow: 0 4px 12px rgba(0, 0, 0, 0.08); --success: #28a745; --danger: #e74c3c; --info: #3498db; }
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg); margin: 0; color: #333; }
         .admin-container { max-width: 1400px; margin: 30px auto; padding: 20px; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .admin-header h1 { font-weight: 900; color: var(--primary-dark); margin: 0; }
         .login-container { max-width: 400px; margin: 100px auto; padding: 40px; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; }
-        .login-container input { width: 100%; padding: 12px; margin: 10px 0 20px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-danger { background-color: var(--danger); color: white; }
-        .btn-success { background-color: var(--success); color: white; }
-        .dashboard { display: none; grid-template-columns: 2fr 1fr; gap: 30px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .dashboard { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
         .dashboard-card { background-color: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); }
-        .dashboard-card h3 { margin-top: 0; font-weight: 700; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .dashboard-card h3 { margin-top: 0; font-weight: 700; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: #fff; padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); border-left: 5px solid var(--primary); }
         .stat-card .stat-title { font-size: 0.9rem; font-weight: 600; color: #888; margin: 0 0 10px 0; }
         .stat-card .stat-value { font-size: 2rem; font-weight: 900; color: #333; margin: 0; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; vertical-align: middle;}
-        th { font-weight: 700; font-size: 0.85rem; color: #888; text-transform: uppercase; }
-        .action-btn { color: white; border: none; padding: 6px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; cursor: pointer; margin-right: 5px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        .action-btn { color: white; border: none; padding: 6px 10px; font-size: 0.85rem; border-radius: 6px; cursor: pointer; margin-right: 5px; }
         .edit-btn { background-color: var(--info); }
         .delete-btn { background-color: var(--danger); }
         .hidden { display: none !important; }
-        .review-card { padding: 15px 0; border-bottom: 1px solid #eee; }
-        .review-actions { margin-top: 10px; display: flex; gap: 10px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
         .modal-overlay.show { display: flex; }
         .modal-content { background: white; padding: 30px; border-radius: var(--radius); width: 90%; max-width: 600px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { margin: 0; font-weight: 700; }
+        .modal-header h2 { margin: 0; }
         .modal-close { font-size: 1.5rem; cursor: pointer; background: none; border: none; }
         .admin-form .form-group { margin-bottom: 15px; }
         .admin-form label { display: block; margin-bottom: 5px; font-weight: 600; }
         .admin-form input, .admin-form select, .admin-form textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; font-family: 'Poppins', sans-serif; font-size: 1rem; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .message { text-align: center; margin-top: 15px; font-weight: 600; padding: 10px; border-radius: 8px; }
+        .message { margin-top: 15px; font-weight: 600; }
         @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -60,8 +46,9 @@
     <div class="login-container" id="loginContainer">
         <h2>Admin Login</h2>
         <form id="loginForm">
-            <input type="password" id="adminPassword" placeholder="Enter Admin Password" required>
-            <button type="submit" class="btn btn-primary">Login</button>
+            <input type="email" id="adminEmail" placeholder="Admin Email" required style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem;">
+            <input type="password" id="adminPassword" placeholder="Password" required style="width: 100%; padding: 12px; margin: 10px 0 20px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem;">
+            <button type="submit" class="btn" style="background-color: var(--primary); color: white;">Login</button>
         </form>
         <div id="loginMessage" class="message"></div>
     </div>
@@ -69,20 +56,10 @@
     <div class="admin-container hidden" id="dashboardContainer">
         <div class="admin-header">
             <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
-            <button id="logoutBtn" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button id="logoutBtn" class="btn" style="background-color: var(--danger); color: white;"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
         
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card">
-                <h4 class="stat-title">TOTAL REVENUE (USD)</h4>
-                <p class="stat-value" id="totalRevenue">$0.00</p>
-            </div>
-            <div class="stat-card">
-                <h4 class="stat-title">COMPLETED ORDERS</h4>
-                <p class="stat-value" id="totalOrders">0</p>
-            </div>
-        </div>
-
+        <div class="stats-grid" id="statsGrid"></div>
         <div class="dashboard" id="dashboardGrid"></div>
     </div>
 
@@ -138,10 +115,38 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // --- NEW: Asynchronous function to initialize and run the app ---
+    async function initializeAdminApp() {
+        try {
+            // Fetch the configuration from our secure backend function
+            const response = await fetch('/.netlify/functions/get-firebase-config');
+            if (!response.ok) {
+                throw new Error('Could not fetch Firebase configuration.');
+            }
+            const firebaseConfig = await response.json();
+
+            // Initialize Firebase with the fetched config
+            firebase.initializeApp(firebaseConfig);
+            
+            // Now that Firebase is initialized, run the rest of the admin panel logic
+            runAdminPanel();
+
+        } catch (error) {
+            console.error("Critical Error: Firebase Initialization Failed.", error);
+            const loginContainer = document.getElementById('loginContainer');
+            loginContainer.innerHTML = `<h2 style="color: var(--danger);">Error</h2><p>Could not load application configuration. Please contact support.</p>`;
+        }
+    }
+
+    function runAdminPanel() {
+        const auth = firebase.auth();
         const loginContainer = document.getElementById('loginContainer');
         const dashboardContainer = document.getElementById('dashboardContainer');
+        const statsGrid = document.getElementById('statsGrid');
         const dashboardGrid = document.getElementById('dashboardGrid');
         const loginForm = document.getElementById('loginForm');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -159,63 +164,71 @@
             addKeys: document.getElementById('addKeysForm')
         };
 
-        async function apiCall(endpoint, body) {
-            const password = sessionStorage.getItem('adminPassword');
-            if (!password) throw new Error('Session expired.');
+        // This function is now fully secure and relies on the user's token
+        async function apiCall(endpoint, body = {}) {
+            const user = auth.currentUser;
+            if (!user) throw new Error('You are not logged in.');
+            const token = await user.getIdToken();
+            
             const response = await fetch(`/.netlify/functions/${endpoint}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ adminPassword: password, ...body })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(body)
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.message || 'API Error');
             return result;
         }
 
-        function showLogin(message = '', isError = false) {
-            sessionStorage.removeItem('adminPassword');
+        function showLogin(message = '') {
             dashboardContainer.classList.add('hidden');
             loginContainer.classList.remove('hidden');
-            const loginMessage = document.getElementById('loginMessage');
-            loginMessage.textContent = message;
-            loginMessage.style.color = isError ? 'var(--danger)' : 'inherit';
+            document.getElementById('loginMessage').textContent = message;
         }
 
         async function showDashboard() {
-            const password = sessionStorage.getItem('adminPassword');
-            if (!password) { showLogin(); return; }
+            loginContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('hidden');
             try {
-                const result = await apiCall('get-admin-data', {});
+                const result = await apiCall('get-admin-data');
                 allProductsData = result.data.products || [];
                 renderDashboard(result.data);
-                loginContainer.classList.add('hidden');
-                dashboardContainer.classList.remove('hidden');
             } catch (error) {
-                showLogin(error.message, true);
+                console.error("Dashboard Error:", error);
+                auth.signOut();
             }
         }
 
         function renderDashboard(data) {
-            // Populate new stats cards
-            if (data.stats) {
-                document.getElementById('totalRevenue').textContent = `$${data.stats.totalRevenue}`;
-                document.getElementById('totalOrders').textContent = data.stats.totalOrders;
-            }
-            // Populate the main dashboard grid
+            statsGrid.innerHTML = `
+                <div class="stat-card"><h4 class="stat-title">TOTAL REVENUE (USD)</h4><p class="stat-value">$${data.stats.totalRevenue}</p></div>
+                <div class="stat-card"><h4 class="stat-title">COMPLETED ORDERS</h4><p class="stat-value">${data.stats.totalOrders}</p></div>
+                <div class="stat-card"><h4 class="stat-title">TOTAL USERS</h4><p class="stat-value">${data.stats.totalUsers}</p></div>
+            `;
             dashboardGrid.innerHTML = `
                 <div style="display: flex; flex-direction: column; gap: 30px;">
                     <div class="dashboard-card">
                         <h3><i class="fas fa-box-open"></i> Product Management</h3>
                         <table id="productsTable">
-                            <thead><tr><th>Product Name</th><th>Price (USD)</th><th>Category</th><th>Actions</th></tr></thead>
-                            <tbody>${renderTableRows(data.products, p => `<tr><td>${p.name.en}</td><td>$${p.price.USD.toFixed(2)}</td><td>${p.category}</td><td><button class="action-btn edit-btn" data-id="${p.id}"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${p.id}"><i class="fas fa-trash"></i></button></td></tr>`, '<tr><td colspan="4">No products found.</td></tr>')}</tbody>
+                            <thead><tr><th>Product Name</th><th>Price (USD)</th><th>Actions</th></tr></thead>
+                            <tbody>${renderTableRows(data.products, p => `<tr><td>${p.name.en}</td><td>$${p.price.USD.toFixed(2)}</td><td><button class="action-btn edit-btn" data-id="${p.id}">Edit</button><button class="action-btn delete-btn" data-id="${p.id}">Delete</button></td></tr>`, 'No products found.')}</tbody>
+                        </table>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-chart-line"></i> Top Selling Products</h3>
+                        <table id="topSellersTable">
+                           <thead><tr><th>Product</th><th>Sales</th></tr></thead>
+                           <tbody>${renderTableRows(data.topSellers, p => `<tr><td>${p.name}</td><td>${p.sales}</td></tr>`, 'No sales data available.')}</tbody>
                         </table>
                     </div>
                     <div class="dashboard-card">
                         <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
                         <table id="ordersTable">
-                            <thead><tr><th>Order ID</th><th>Email</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-                            <tbody>${renderTableRows(data.orders, o => `<tr><td>${o.id.slice(0,15)}...</td><td>${o.customerEmail}</td><td>${(o.totalAmount || o.amount).toFixed(2)} ${o.currency}</td><td>${o.status}</td><td>${new Date(o.createdAt).toLocaleDateString()}</td></tr>`, '<tr><td colspan="5">No recent orders.</td></tr>')}</tbody>
+                            <thead><tr><th>Order ID</th><th>Email</th><th>Amount</th><th>Date</th></tr></thead>
+                            <tbody>${renderTableRows(data.orders, o => `<tr><td>${o.id.slice(0,15)}...</td><td>${o.customerEmail}</td><td>$${(o.totalAmount || o.amount).toFixed(2)}</td><td>${new Date(o.createdAt).toLocaleDateString()}</td></tr>`, 'No recent orders.')}</tbody>
                         </table>
                     </div>
                 </div>
@@ -223,23 +236,31 @@
                     <div class="dashboard-card">
                         <h3><i class="fas fa-cogs"></i> Admin Actions</h3>
                         <div style="display: flex; flex-direction: column; gap: 15px;">
-                            <button class="btn btn-primary" id="openCreateProductModalBtn"><i class="fas fa-plus-circle"></i> Create New Product</button>
-                            <button class="btn btn-primary" id="openAddKeysModalBtn"><i class="fas fa-key"></i> Add Digital Keys</button>
+                            <button class="btn btn-primary" id="openCreateProductModalBtn" style="background-color: var(--success);"><i class="fas fa-plus-circle"></i> Create New Product</button>
+                            <button class="btn btn-primary" id="openAddKeysModalBtn" style="background-color: var(--info);"><i class="fas fa-key"></i> Add Digital Keys</button>
                         </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-users"></i> User Management</h3>
+                        <table id="usersTable">
+                            <thead><tr><th>Email</th><th>Registered On</th></tr></thead>
+                            <tbody>${renderTableRows(data.users, u => `<tr><td>${u.email}</td><td>${new Date(u.creationTime).toLocaleDateString()}</td></tr>`, 'No registered users.')}</tbody>
+                        </table>
                     </div>
                     <div class="dashboard-card">
                         <h3><i class="fas fa-key"></i> Key Inventory</h3>
                         <table id="inventoryTable">
                             <thead><tr><th>Product ID</th><th>Available Keys</th></tr></thead>
-                            <tbody>${renderTableRows(Object.entries(data.inventory || {}), ([id, count]) => `<tr><td>${id}</td><td>${count}</td></tr>`, '<tr><td colspan="2">No keys in inventory.</td></tr>')}</tbody>
+                            <tbody>${renderTableRows(Object.entries(data.inventory || {}), ([id, count]) => `<tr><td>${id}</td><td>${count}</td></tr>`, 'Inventory is empty.')}</tbody>
                         </table>
                     </div>
                     <div class="dashboard-card">
                         <h3><i class="fas fa-star"></i> Pending Reviews</h3>
-                        <div id="pendingReviewsList">${(data.pendingReviews && data.pendingReviews.length > 0) ? data.pendingReviews.map(r => `<div class="review-card" id="review-${r.id}"><div><strong>${r.authorName}</strong> on <em>${r.productId}</em> (${'★'.repeat(r.rating)})</div><p>${r.reviewText}</p><div class="review-actions"><button class="btn btn-success" data-id="${r.id}" data-action="approve">Approve</button><button class="btn btn-danger" data-id="${r.id}" data-action="delete">Delete</button></div></div>`).join('') : '<p>No pending reviews.</p>'}</div>
+                        <div id="pendingReviewsList" style="max-height: 400px; overflow-y: auto;">
+                            ${(data.pendingReviews && data.pendingReviews.length > 0) ? data.pendingReviews.map(r => `<div class="review-card" style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;"><strong>${r.authorName}</strong> (${r.rating}★) on <em>${r.productId}</em><p style="margin: 5px 0;">${r.reviewText}</p><button class="btn action-btn" data-id="${r.id}" data-action="approve" style="background:var(--success);">Approve</button> <button class="btn action-btn" data-id="${r.id}" data-action="delete" style="background:var(--danger);">Delete</button></div>`).join('') : '<p>No pending reviews.</p>'}
+                        </div>
                     </div>
-                </div>
-            `;
+                </div>`;
             dashboardGrid.style.display = 'grid';
             bindDashboardEvents();
         }
@@ -277,50 +298,115 @@
                 openModal(modals.editProduct);
             }
             if (button.classList.contains('delete-btn')) {
-                if (confirm(`Are you sure you want to delete this product?`)) {
-                    try { await apiCall('delete-product', { productId }); showDashboard(); } catch (error) { alert(`Error: ${error.message}`); }
+                if (confirm(`Are you sure you want to delete product "${productId}"? This cannot be undone.`)) {
+                    try { 
+                        await apiCall('delete-product', { productId }); 
+                        showDashboard(); 
+                    } catch (error) { 
+                        alert(`Error: ${error.message}`); 
+                    }
                 }
             }
         }
 
         async function handleReviewActions(e) {
-            const button = e.target.closest('button.btn');
+            const button = e.target.closest('button.action-btn');
             if (!button) return;
-            try { await apiCall('moderate-review', { reviewId: button.dataset.id, action: button.dataset.action }); showDashboard(); } catch (error) { alert(`Error: ${error.message}`); }
+            try { 
+                await apiCall('moderate-review', { reviewId: button.dataset.id, action: button.dataset.action }); 
+                showDashboard(); 
+            } catch (error) { 
+                alert(`Error: ${error.message}`); 
+            }
         }
         
-        function setupFormListener(form, endpoint, messageEl, getBody) {
+        function setupFormListener(form, endpoint, messageElId, getBody) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                messageEl.textContent = 'Processing...';
+                const msgElement = document.getElementById(messageElId);
+                msgElement.textContent = 'Processing...';
                 try {
                     const result = await apiCall(endpoint, getBody());
-                    messageEl.textContent = result.message || 'Success!';
-                    setTimeout(() => { closeModal(form.closest('.modal-overlay')); messageEl.textContent = ''; showDashboard(); }, 1500);
-                } catch (error) { messageEl.textContent = `Error: ${error.message}`; }
+                    msgElement.textContent = result.message || 'Success!';
+                    msgElement.style.color = 'green';
+                    setTimeout(() => { 
+                        closeModal(form.closest('.modal-overlay')); 
+                        msgElement.textContent = ''; 
+                        showDashboard(); 
+                    }, 1500);
+                } catch (error) { 
+                    msgElement.textContent = `Error: ${error.message}`;
+                    msgElement.style.color = 'red';
+                }
             });
         }
+        
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                user.getIdTokenResult().then(idTokenResult => {
+                    if (idTokenResult.claims.isAdmin) {
+                        showDashboard();
+                    } else {
+                        auth.signOut();
+                        showLogin('Error: You are not authorized to access this panel.');
+                    }
+                });
+            } else {
+                showLogin();
+            }
+        });
 
-        setupFormListener(forms.editProduct, 'update-product', document.getElementById('editProductMessage'), () => ({
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = loginForm.adminEmail.value;
+            const password = loginForm.adminPassword.value;
+            const loginMessage = document.getElementById('loginMessage');
+            loginMessage.textContent = 'Logging in...';
+
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    loginMessage.textContent = `Login failed: ${error.message}`;
+                });
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+        
+        Object.values(modals).forEach(modal => {
+            modal.addEventListener('click', (e) => { 
+                if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) { 
+                    closeModal(modal); 
+                } 
+            });
+        });
+
+        setupFormListener(forms.editProduct, 'update-product', 'editProductMessage', () => ({
             productId: forms.editProduct.editProductId.value,
-            productData: { 'name.en': forms.editProduct.editProductNameEn.value, 'price.USD': Number(forms.editProduct.editProductPriceUSD.value), 'category': forms.editProduct.editProductCategory.value }
+            productData: { 
+                'name.en': forms.editProduct.editProductNameEn.value, 
+                'price.USD': Number(forms.editProduct.editProductPriceUSD.value), 
+                'category': forms.editProduct.editProductCategory.value 
+            }
         }));
-        setupFormListener(forms.createProduct, 'create-product', document.getElementById('createProductMessage'), () => ({
-            productData: { id: forms.createProduct.createProductId.value, name: { en: forms.createProduct.createProductNameEn.value }, price: { USD: Number(forms.createProduct.createProductPriceUSD.value) }, category: forms.createProduct.createProductCategory.value, image: forms.createProduct.createProductImage.value, desc: { en: forms.createProduct.createProductDescEn.value } }
+        setupFormListener(forms.createProduct, 'create-product', 'createProductMessage', () => ({
+            productData: { 
+                id: forms.createProduct.createProductId.value, 
+                name: { en: forms.createProduct.createProductNameEn.value }, 
+                price: { USD: Number(forms.createProduct.createProductPriceUSD.value) }, 
+                category: forms.createProduct.createProductCategory.value, 
+                image: forms.createProduct.createProductImage.value, 
+                desc: { en: forms.createProduct.createProductDescEn.value } 
+            }
         }));
-        setupFormListener(forms.addKeys, 'add-keys', document.getElementById('addKeysMessage'), () => ({
+        setupFormListener(forms.addKeys, 'add-keys', 'addKeysMessage', () => ({
             productId: forms.addKeys.addKeysProductId.value,
             keys: forms.addKeys.addKeysTextarea.value
         }));
-        
-        Object.values(modals).forEach(modal => {
-            modal.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal-close')) { closeModal(modal); } });
-        });
+    }
 
-        if (sessionStorage.getItem('adminPassword')) { showDashboard(); }
-        loginForm.addEventListener('submit', (e) => { e.preventDefault(); sessionStorage.setItem('adminPassword', document.getElementById('adminPassword').value); showDashboard(); });
-        logoutBtn.addEventListener('click', () => showLogin());
-    });
+    // Start the application
+    initializeAdminApp();
     </script>
 </body>
 </html>

@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // --- App State ---
     let allProducts = [];
+    let flashSaleProducts = [];
     let currentLang = 'en';
     let currentCurr = localStorage.getItem('userCurrency') || 'USD';
     const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
@@ -62,40 +63,90 @@ document.addEventListener('DOMContentLoaded', async function() {
             currentCurr = modalCurrSelect.value;
             localStorage.setItem('userCurrency', currentCurr);
             applyFiltersAndSorting();
+            renderFlashSaleProducts();
             renderMiniCart();
             closeModal();
         });
     }
 
     // --- Product Rendering Functions ---
+    // FINAL version: Context-aware rendering for badges and buttons
+    function renderProductCard(prod, context = 'grid') { // context can be 'grid' or 'carousel'
+        const name = prod.name.en || 'Unnamed Product';
+        const price = (prod.price[currentCurr] || prod.price.USD) || 0;
+        const originalPriceValue = prod.isFlashSale ? (prod.originalPrice[currentCurr] || prod.originalPrice.USD) : 0;
+        
+        const priceHTML = prod.isFlashSale 
+            ? `<p class="product-price">
+                   ${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}
+                   <span class="original-price">${currencySymbols[currentCurr] || '$'}${originalPriceValue.toFixed(2)}</span>
+               </p>`
+            : `<p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>`;
+        
+        // --- NEW: Context-aware Badge Logic ---
+        let badgeHTML = '';
+        if (prod.isFlashSale) {
+            badgeHTML = `<div class="badge-flash-sale"><i class="fas fa-bolt"></i> Flash Sale</div>`;
+        } else if (prod.isHot) {
+            badgeHTML = `<div class="badge-hot">HOT</div>`;
+        }
+        
+        const deliveryBadgeHTML = prod.delivery ? `<div class="tag-delivery">${prod.delivery.en || 'Instant Delivery'}</div>` : '';
+        const stars = getStarRatingHTML(prod.averageRating);
+        const reviewCount = prod.reviewCount || 0;
+        const ratingHTML = `<div class="product-rating">${stars}<span class="review-count">(${reviewCount})</span></div>`;
+
+        // --- NEW: Context-aware Button Logic ---
+        const buttonsHTML = context === 'carousel'
+            ? `<div class="card-buttons">
+                   <button class="card-btn add-to-cart flash-sale-btn" data-id="${prod.id}"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+               </div>`
+            : `<div class="card-buttons">
+                   <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
+                   <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
+               </div>`;
+
+        return `
+            <div class="product-card" data-product-id="${prod.id}">
+                ${badgeHTML}
+                <button class="wishlist-btn" data-product-id="${prod.id}" aria-label="Add to Wishlist"><i class="far fa-heart"></i></button>
+                <div class="card-image-container"><a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy"/></a></div>
+                <div class="card-content-wrapper">
+                    ${deliveryBadgeHTML}
+                    <h3 class="product-name">${name}</h3>
+                    ${ratingHTML}
+                    ${priceHTML}
+                    ${buttonsHTML}
+                </div>
+            </div>`;
+    }
+
     function renderProducts(list) {
         if (!productGrid) return;
-        productGrid.innerHTML = list.map((prod) => {
-            const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
-            const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
-            const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
-            const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
-            
-            return `
-                <div class="product-card" data-product-id="${prod.id}">
-                    ${hotBadgeHTML}
-                    <button class="wishlist-btn" data-product-id="${prod.id}" aria-label="Add to Wishlist">
-                        <i class="far fa-heart"></i>
-                    </button>
-                    <div class="card-image-container">
-                        <a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a>
-                    </div>
-                    <div class="card-content-wrapper">
-                        <h3 class="product-name">${name}</h3>
-                        <div class="tag-delivery">${deliveryText}</div>
-                        <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
-                        <div class="card-buttons">
-                            <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                            <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
-                        </div>
-                    </div>
-                </div>`;
-        }).join('');
+        if (!list || list.length === 0) {
+            productGrid.innerHTML = `<p style="text-align: center; grid-column: 1 / -1;">No products found.</p>`;
+            return;
+        }
+        // Always render from the 'grid' context
+        productGrid.innerHTML = list.map(prod => renderProductCard(prod, 'grid')).join('');
+    }
+    
+    function renderFlashSaleProducts() {
+        const container = document.getElementById('flashSaleCarouselContainer');
+        if (!container || flashSaleProducts.length === 0) return;
+        // Always render from the 'carousel' context
+        container.innerHTML = flashSaleProducts.map(prod => `<div class="swiper-slide">${renderProductCard(prod, 'carousel')}</div>`).join('');
+    }
+
+    function getStarRatingHTML(rating) {
+        let html = '';
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+        const emptyStars = 5 - fullStars - halfStar;
+        for (let i = 0; i < fullStars; i++) html += '<i class="fas fa-star"></i>';
+        if (halfStar) html += '<i class="fas fa-star-half-alt"></i>';
+        for (let i = 0; i < emptyStars; i++) html += '<i class="far fa-star"></i>';
+        return html;
     }
 
     function showSkeletonLoaders() {
@@ -104,8 +155,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     function applyFiltersAndSorting() {
-        if (!allProducts || allProducts.length === 0) return;
-        let filteredProducts = [...allProducts];
+        // --- NEW: Combine all products for the main grid ---
+        const combinedProducts = [...allProducts, ...flashSaleProducts];
+
+        if (!combinedProducts || combinedProducts.length === 0) return;
+        let filteredProducts = [...combinedProducts];
+        
         if (categoryFilter && categoryFilter.value !== 'all') {
             filteredProducts = filteredProducts.filter(p => p.category === categoryFilter.value);
         }
@@ -118,6 +173,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                 case 'price-desc':
                     filteredProducts.sort((a, b) => (b.price[currentCurr] || b.price['USD']) - (a.price[currentCurr] || a.price['USD']));
                     break;
+                case 'name-asc':
+                    filteredProducts.sort((a, b) => a.name.en.localeCompare(b.name.en));
+                    break;
+                case 'name-desc':
+                    filteredProducts.sort((a, b) => b.name.en.localeCompare(a.name.en));
+                    break;
             }
         }
         renderProducts(filteredProducts);
@@ -126,11 +187,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     function handleSearch(inputElement, suggestionsElement) {
         if (!suggestionsElement) return;
         const val = inputElement.value.trim().toLowerCase();
+        const allAvailableProducts = allProducts.concat(flashSaleProducts);
         if (val.length < 1) {
             suggestionsElement.style.display = 'none';
             return;
         }
-        const result = allProducts.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(val));
+        const result = allAvailableProducts.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(val));
         suggestionsElement.innerHTML = result.map(p => {
             const highlightedName = (p.name[currentLang] || p.name.en).replace(new RegExp(val, 'gi'), `<b>$&</b>`);
             return `<div class="suggestion-item" onclick="window.location='product-details.html?id=${p.id}'">${highlightedName}</div>`;
@@ -138,26 +200,77 @@ document.addEventListener('DOMContentLoaded', async function() {
         suggestionsElement.style.display = result.length > 0 ? 'block' : 'none';
     }
 
+    function initializeFlashSaleCountdown() {
+        const hoursEl = document.getElementById('flash-hours');
+        const minutesEl = document.getElementById('flash-minutes');
+        const secondsEl = document.getElementById('flash-seconds');
+    
+        function updateTimer() {
+            const now = new Date();
+            const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+            const distance = endOfDay - now;
+    
+            const hours = Math.floor(distance / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+            if(hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+            if(minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+            if(secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+    
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                window.location.reload();
+            }
+        }
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+    }
+
     async function initializePage() {
         if (productGrid) {
             showSkeletonLoaders();
-            try {
-                const response = await fetch('/.netlify/functions/get-products');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                if (data.success) {
-                    allProducts = data.products;
-                    applyFiltersAndSorting();
-                }
-            } catch (error) {
-                console.error("Error fetching products:", error);
-                productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
-            }
         }
-        initializeCart(allProducts);
+        try {
+            const response = await fetch('/.netlify/functions/get-products');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            
+            if (data.success) {
+                allProducts = data.products;
+                flashSaleProducts = data.flashSaleProducts;
+
+                applyFiltersAndSorting();
+                renderFlashSaleProducts();
+                initializeFlashSaleCountdown();
+                
+                new Swiper('#flashSaleCarousel', {
+                    slidesPerView: 1,
+                    spaceBetween: 30,
+                    navigation: {
+                        nextEl: '.swiper-button-next',
+                        prevEl: '.swiper-button-prev',
+                    },
+                    breakpoints: {
+                        640: { slidesPerView: 2 },
+                        768: { slidesPerView: 3 },
+                        1024: { slidesPerView: 4 },
+                        1200: { slidesPerView: 5 },
+                    }
+                });
+
+            } else {
+                throw new Error(data.message || 'Could not retrieve products.');
+            }
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            if(productGrid) productGrid.innerHTML = `<p style="text-align: center; grid-column: 1 / -1; color: red;">Error: Could not load products. Please try again later.</p>`;
+        }
+        
+        initializeCart([...allProducts, ...flashSaleProducts]);
     }
     
-    // --- Global Event Listeners ---
+    // --- Global Event Listeners & Other Functions ---
     if (categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndSorting);
     if (sortProductsControl) sortProductsControl.addEventListener('change', applyFiltersAndSorting);
     if (searchInputDesktop) searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
@@ -206,7 +319,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             const productId = wishlistBtn.dataset.productId;
             const user = firebase.auth().currentUser;
             if (!user) {
-                // This assumes `openAuthModal` is a globally available function or defined in your inline script
                 if (typeof openAuthModal === 'function') openAuthModal();
                 wishlistBtn.disabled = false;
                 return;
@@ -235,12 +347,8 @@ document.addEventListener('DOMContentLoaded', async function() {
              if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
         });
     }
-    // =================================================================
-    // SECTION 2: ADVANCED BANNER SLIDER LOGIC
-    // =================================================================
 
     const sliderContainer = document.getElementById('hero-slider');
-
     if (sliderContainer) {
         const bannerFiles = [
             'banner_1_powerful.html',
@@ -248,7 +356,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             'banner_3_unique.html',
             'banner_4_flashsale.html'
         ];
-
         async function loadBanners() {
             for (const file of bannerFiles) {
                 try {
@@ -265,17 +372,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
             initializeSlider();
         }
-
         function initializeSlider() {
             const slides = document.querySelectorAll('.slider-slide');
             const nextBtn = document.querySelector('.slider-nav.next');
             const prevBtn = document.querySelector('.slider-nav.prev');
             let currentSlide = 0;
             let slideInterval;
-            
             if (slides.length === 0) return;
             slides[0].classList.add('active');
-
             function showSlide(index) {
                 slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
             }
@@ -289,16 +393,18 @@ document.addEventListener('DOMContentLoaded', async function() {
             function stopSlider() {
                 clearInterval(slideInterval);
             }
-
             nextBtn.addEventListener('click', () => { stopSlider(); nextSlide(); startSlider(); });
-            prevBtn.addEventListener('click', () => { stopSlider(); prevSlide(); startSlider(); });
+            prevBtn.addEventListener('click', () => { 
+                stopSlider(); 
+                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+                showSlide(currentSlide);
+                startSlider(); 
+            });
             startSlider();
         }
-        
         loadBanners();
     }
 
-    // --- OBSERVER FOR BANNER-SPECIFIC JS (Countdown, Parallax) ---
     const observer = new MutationObserver((mutationsList) => {
         for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
@@ -324,14 +430,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         const countDownDate = new Date().getTime() + (24 * 60 * 60 * 1000); 
         const timer = setInterval(() => {
             const distance = countDownDate - new Date().getTime();
-            const d = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((distance % (1000 * 60)) / 1000);
-            document.getElementById("days").innerText = d.toString().padStart(2, '0');
-            document.getElementById("hours").innerText = h.toString().padStart(2, '0');
-            document.getElementById("minutes").innerText = m.toString().padStart(2, '0');
-            document.getElementById("seconds").innerText = s.toString().padStart(2, '0');
+            const daysEl = document.getElementById("days");
+            const hoursEl = document.getElementById("hours");
+            const minutesEl = document.getElementById("minutes");
+            const secondsEl = document.getElementById("seconds");
+            if(daysEl && hoursEl && minutesEl && secondsEl) {
+                daysEl.innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                hoursEl.innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+                minutesEl.innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                secondsEl.innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+            }
             if (distance < 0) {
                 clearInterval(timer);
                 timerElement.innerHTML = "<h2>SALE EXPIRED</h2>";
@@ -352,4 +460,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
         });
     }
+    
+    initializePage();
 });
