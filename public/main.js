@@ -1,7 +1,6 @@
 // Final, Combined, and Fully Corrected main.js for DigiWorld
 import { initializeCart, addToCart, renderMiniCart } from './cart-manager.js';
 
-// This is the main wrapper that ensures all HTML is loaded before running any code.
 document.addEventListener('DOMContentLoaded', async function() {
 
     // =================================================================
@@ -19,13 +18,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     const searchInputMobile = document.getElementById('mobileSearch');
     const searchSuggestionsMobile = document.getElementById('searchSuggestionsMobile');
 
-
     // --- App State ---
     let allProducts = [];
     let currentLang = 'en';
     let currentCurr = localStorage.getItem('userCurrency') || 'USD';
     const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
-    const langFlags = { en: '🇺🇸', si: '🇱🇰', ta: '🇮🇳', ru: '🇷🇺', zh: '🇨🇳', es: '🇪🇸' };
 
     // --- Language/Currency Modal Logic ---
     if (langCurrencyBtn) {
@@ -70,40 +67,37 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-// This is the updated renderProducts function for main.js
-
-function renderProducts(list) {
-    if (!productGrid) return;
-    productGrid.innerHTML = list.map((prod) => {
-        const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
-        const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
-        const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
-        const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
-        
-        // The only change is adding the <button class="wishlist-btn">...</button>
-        return `
-            <div class="product-card" data-product-id="${prod.id}">
-                ${hotBadgeHTML}
-                
-                <button class="wishlist-btn" data-product-id="${prod.id}" aria-label="Add to Wishlist">
-                    <i class="fas fa-heart"></i>
-                </button>
-                
-                <div class="card-image-container">
-                    <a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a>
-                </div>
-                <div class="card-content-wrapper">
-                    <h3 class="product-name">${name}</h3>
-                    <div class="tag-delivery">${deliveryText}</div>
-                    <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
-                    <div class="card-buttons">
-                        <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                        <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
+    // --- Product Rendering Functions ---
+    function renderProducts(list) {
+        if (!productGrid) return;
+        productGrid.innerHTML = list.map((prod) => {
+            const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
+            const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
+            const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
+            const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
+            
+            return `
+                <div class="product-card" data-product-id="${prod.id}">
+                    ${hotBadgeHTML}
+                    <button class="wishlist-btn" data-product-id="${prod.id}" aria-label="Add to Wishlist">
+                        <i class="far fa-heart"></i>
+                    </button>
+                    <div class="card-image-container">
+                        <a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a>
                     </div>
-                </div>
-            </div>`;
-    }).join('');
-}
+                    <div class="card-content-wrapper">
+                        <h3 class="product-name">${name}</h3>
+                        <div class="tag-delivery">${deliveryText}</div>
+                        <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
+                        <div class="card-buttons">
+                            <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
+                            <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
+                        </div>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
     function showSkeletonLoaders() {
         if (!productGrid) return;
         productGrid.innerHTML = Array(8).fill('').map(() => `<div class="skeleton-card"><div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`).join('');
@@ -124,18 +118,11 @@ function renderProducts(list) {
                 case 'price-desc':
                     filteredProducts.sort((a, b) => (b.price[currentCurr] || b.price['USD']) - (a.price[currentCurr] || a.price['USD']));
                     break;
-                case 'name-asc':
-                    filteredProducts.sort((a, b) => ((a.name[currentLang] || a.name.en).localeCompare(b.name[currentLang] || b.name.en)));
-                    break;
-                case 'name-desc':
-                    filteredProducts.sort((a, b) => ((b.name[currentLang] || b.name.en).localeCompare(a.name[currentLang] || a.name.en)));
-                    break;
             }
         }
         renderProducts(filteredProducts);
     }
-    
-    // --- Search Functionality ---
+
     function handleSearch(inputElement, suggestionsElement) {
         if (!suggestionsElement) return;
         const val = inputElement.value.trim().toLowerCase();
@@ -144,82 +131,110 @@ function renderProducts(list) {
             return;
         }
         const result = allProducts.filter(p => (p.name[currentLang] || p.name.en).toLowerCase().includes(val));
-        if (result.length === 0) {
-            suggestionsElement.style.display = 'none';
-            return;
-        }
         suggestionsElement.innerHTML = result.map(p => {
-            const name = p.name[currentLang] || p.name.en;
-            const highlightedName = name.replace(new RegExp(val, 'gi'), `<b>$&</b>`);
+            const highlightedName = (p.name[currentLang] || p.name.en).replace(new RegExp(val, 'gi'), `<b>$&</b>`);
             return `<div class="suggestion-item" onclick="window.location='product-details.html?id=${p.id}'">${highlightedName}</div>`;
         }).join('');
-        suggestionsElement.style.display = 'block';
+        suggestionsElement.style.display = result.length > 0 ? 'block' : 'none';
     }
 
-    // --- Data Fetching & Initialization ---
-    if (productGrid) {
-        showSkeletonLoaders();
-        try {
-            const response = await fetch('/.netlify/functions/get-products');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            if (!data.success) throw new Error(data.message || 'API error');
-            allProducts = data.products;
-            applyFiltersAndSorting();
-            initializeCart(allProducts);
-        } catch (error) {
-            console.error("Error fetching products:", error);
-            productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
-        }
-    } else {
-        initializeCart([]);
-    }
-
-    // --- Global Event Listeners ---
-document.body.addEventListener('click', async function(e) {
-    const wishlistBtn = e.target.closest('.wishlist-btn');
-    if (wishlistBtn) {
-        // Prevent other clicks while processing
-        wishlistBtn.disabled = true;
-
-        const productId = wishlistBtn.dataset.productId;
-        const user = firebase.auth().currentUser;
-
-        if (!user) {
-            // If the user is not logged in, open the authentication modal
-            openAuthModal();
-            wishlistBtn.disabled = false;
-            return;
-        }
-
-        try {
-            const idToken = await user.getIdToken();
-            const response = await fetch('/.netlify/functions/add-to-wishlist', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${idToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ productId: productId })
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                // Toggle the 'active' class to show it's been added
-                wishlistBtn.classList.toggle('active'); 
-                // You could add a more sophisticated notification here if you like
-            } else {
-                throw new Error(result.message || 'Failed to add to wishlist.');
+    async function initializePage() {
+        if (productGrid) {
+            showSkeletonLoaders();
+            try {
+                const response = await fetch('/.netlify/functions/get-products');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                if (data.success) {
+                    allProducts = data.products;
+                    applyFiltersAndSorting();
+                }
+            } catch (error) {
+                console.error("Error fetching products:", error);
+                productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
             }
-        } catch (error) {
-            console.error('Wishlist Error:', error);
-            // Optionally, show an error message to the user
-        } finally {
-            wishlistBtn.disabled = false;
         }
+        initializeCart(allProducts);
     }
-});
+    
+    // --- Global Event Listeners ---
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFiltersAndSorting);
+    if (sortProductsControl) sortProductsControl.addEventListener('change', applyFiltersAndSorting);
+    if (searchInputDesktop) searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
+    if (searchInputMobile) searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile));
+
+    document.body.addEventListener('click', async function(e) {
+        const addToCartBtn = e.target.closest('.add-to-cart');
+        const buyNowBtn = e.target.closest('.buy-now');
+        const wishlistBtn = e.target.closest('.wishlist-btn');
+
+        if (addToCartBtn) {
+            const card = addToCartBtn.closest('.product-card');
+            const img = card.querySelector('.card-image');
+            const cartBtn = document.getElementById('cartBtn');
+            if (img && cartBtn) {
+                const flyingImage = img.cloneNode(true);
+                flyingImage.classList.add('flying-image');
+                const rect = img.getBoundingClientRect();
+                flyingImage.style.left = `${rect.left}px`;
+                flyingImage.style.top = `${rect.top}px`;
+                flyingImage.style.width = `${rect.width}px`;
+                document.body.appendChild(flyingImage);
+                const cartRect = cartBtn.getBoundingClientRect();
+                requestAnimationFrame(() => {
+                    flyingImage.style.left = `${cartRect.left + cartRect.width / 2}px`;
+                    flyingImage.style.top = `${cartRect.top + cartRect.height / 2}px`;
+                    flyingImage.style.width = '20px';
+                    flyingImage.style.opacity = '0';
+                });
+                setTimeout(() => {
+                    flyingImage.remove();
+                    cartBtn.classList.add('animated');
+                    setTimeout(() => cartBtn.classList.remove('animated'), 430);
+                }, 700);
+            }
+            addToCart(addToCartBtn.dataset.id);
+        }
+
+        if (buyNowBtn) {
+            addToCart(buyNowBtn.dataset.id);
+            window.location.href = 'checkout.html';
+        }
+        
+        if (wishlistBtn) {
+            wishlistBtn.disabled = true;
+            const productId = wishlistBtn.dataset.productId;
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                // This assumes `openAuthModal` is a globally available function or defined in your inline script
+                if (typeof openAuthModal === 'function') openAuthModal();
+                wishlistBtn.disabled = false;
+                return;
+            }
+            try {
+                const idToken = await user.getIdToken();
+                const response = await fetch('/.netlify/functions/add-to-wishlist', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${idToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId: productId })
+                });
+                if (response.ok) {
+                    wishlistBtn.classList.toggle('active');
+                }
+            } catch (error) {
+                console.error('Wishlist Error:', error);
+            } finally {
+                wishlistBtn.disabled = false;
+            }
+        }
+    });
+
+    if(backBtn) {
+        backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
+        window.addEventListener('scroll', () => {
+             if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
+        });
+    }
     // =================================================================
     // SECTION 2: ADVANCED BANNER SLIDER LOGIC
     // =================================================================

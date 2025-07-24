@@ -8,239 +8,121 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="styles.css">
     <style>
-        :root {
-            --primary: #f57224;
-            --primary-dark: #d45703;
-            --accent: #fe724c;
-            --card-bg: #fff;
-            --bg: #f6f6fa;
-            --radius: 18px;
-            --shadow: 0 6px 32px rgba(245, 114, 36, 0.15);
-            --success: #28a745;
-        }
-        body {
-            background-color: var(--bg);
-        }
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-        }
-        .page-title {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--primary-dark);
-            margin-bottom: 30px;
-            border-bottom: 4px solid var(--primary);
-            padding-bottom: 10px;
-        }
-        #downloads-container {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-        .download-card {
-            background-color: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 25px;
-            box-shadow: var(--shadow);
-            border-left: 5px solid var(--success);
-        }
-        .download-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .download-product {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #333;
-        }
-        .download-date {
-            font-size: 0.9em;
-            color: #777;
-            font-weight: 600;
-        }
-        .key-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #f0f2f5;
-            padding: 12px 18px;
-            border-radius: 10px;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--primary-dark);
-            border: 2px dashed #ddd;
-        }
-        .copy-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            transition: background-color 0.2s;
-        }
-        .copy-btn:hover {
-            background: var(--primary-dark);
-        }
-        .copy-btn.copied {
-            background-color: var(--success);
-        }
-        #loading-message, #auth-message {
-            text-align: center;
-            padding: 50px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--primary-dark);
-        }
+        body { background-color: var(--bg); }
+        .downloads-container { max-width: 900px; margin: 2rem auto; padding: 20px; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 3px solid var(--primary); padding-bottom: 15px;}
+        .page-header h1 { font-size: 2.5rem; font-weight: 900; color: var(--primary-dark); margin: 0; }
+        .back-link { font-weight: 700; color: var(--primary); text-decoration: none; }
+        .download-card { background-color: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: var(--shadow); border-left: 5px solid var(--accent); margin-bottom: 25px; }
+        .download-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .download-product { font-weight: 700; font-size: 1.2rem; color: #333; }
+        .download-date { font-size: 0.9em; color: #777; font-weight: 600; }
+        .key-container { display: flex; align-items: center; justify-content: space-between; background-color: #f0f2f5; padding: 12px 18px; border-radius: 10px; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 1.1rem; color: var(--primary-dark); border: 2px dashed #ddd; }
+        .copy-btn { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 700; transition: background-color 0.2s; }
+        .copy-btn:hover { background: var(--primary-dark); }
+        .copy-btn.copied { background-color: var(--badge-green); }
+        #loading-message, #auth-message { text-align: center; padding: 50px; font-weight: 700; font-size: 1.2rem; color: var(--primary-dark); }
     </style>
 </head>
 <body>
-
     <header class="site-header">
-      <div class="header-main-pro">
-        <a href="index.html" class="logo-pro" style="text-decoration:none;">DigiWorld</a>
-        <nav>
-          <a href="index.html" class="nav-link-pro">Home</a>
-          <a href="account.html" class="nav-link-pro active">My Account</a>
-          <a href="contact.html" class="nav-link-pro">Contact</a>
-        </nav>
-        <div class="header-controls">
-          <button class="cart-btn" id="cartBtn" aria-label="Open cart">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Cart</span>
-            <span class="cart-icon-badge" id="cartCount">0</span>
-          </button>
-        </div>
-      </div>
-    </header>
+        </header>
 
-    <main class="container">
-        <h1 class="page-title">My Downloads</h1>
-        <div id="downloads-container">
+    <main class="downloads-container">
+        <div class="page-header">
+            <h1>My Downloads</h1>
+            <a href="account.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Account</a>
+        </div>
+        <div id="downloads-list">
             <p id="loading-message">Loading your downloads...</p>
-            <p id="auth-message" style="display: none;">Please <a href="login.html">log in</a> to view your downloads.</p>
         </div>
     </main>
 
     <footer class="site-footer">
-      <div class="footer-grid">
-          </div>
-      <div class="footer-bottom">
-          &copy; 2025 DigiWorld. All rights reserved.
-      </div>
-    </footer>
-    
+        </footer>
+
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-  authDomain: "digiworld-46a1e.firebaseapp.com",
-  projectId: "digiworld-46a1e",
-  storageBucket: "digiworld-46a1e.firebasestorage.app",
-  messagingSenderId: "242235397710",
-  appId: "1:242235397710:web:a80c15cc285188610cd51f",
-  measurementId: "G-R8C4BWHXBL"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-        firebase.initializeApp(firebaseConfig);
-
-        const auth = firebase.auth();
-        const downloadsContainer = document.getElementById('downloads-container');
-        const loadingMessage = document.getElementById('loading-message');
-        const authMessage = document.getElementById('auth-message');
-
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                loadingMessage.style.display = 'block';
-                authMessage.style.display = 'none';
-                try {
-                    const idToken = await user.getIdToken();
-                    const response = await fetch('/.netlify/functions/get-user-downloads', {
-                        headers: { 'Authorization': `Bearer ${idToken}` }
-                    });
-
-                    if (!response.ok) {
-                         const errorResult = await response.json();
-                         throw new Error(errorResult.message || 'Failed to fetch downloads.');
-                    }
-
-                    const result = await response.json();
-
-                    if (result.success && result.downloads.length > 0) {
-                        renderDownloads(result.downloads);
-                    } else {
-                        downloadsContainer.innerHTML = '<p>You have no downloads available. Keys will appear here after a completed purchase.</p>';
-                    }
-
-                } catch (error) {
-                    console.error('Error:', error);
-                    downloadsContainer.innerHTML = `<p style="color:red;">Error loading downloads: ${error.message}</p>`;
-                } finally {
-                    loadingMessage.style.display = 'none';
-                }
-            } else {
-                loadingMessage.style.display = 'none';
-                authMessage.style.display = 'block';
+        async function initializeFirebase() {
+            try {
+                const response = await fetch('/.netlify/functions/get-firebase-config');
+                const firebaseConfig = await response.json();
+                firebase.initializeApp(firebaseConfig);
+                runApp();
+            } catch (error) {
+                document.getElementById('loading-message').textContent = "Error connecting to services.";
             }
-        });
-
-        function renderDownloads(downloads) {
-            downloadsContainer.innerHTML = downloads.map(download => {
-                const assignedDate = new Date(download.assignedAt).toLocaleDateString();
-                return `
-                    <div class="download-card">
-                        <div class="download-header">
-                            <div class="download-product">${download.productId}</div>
-                            <div class="download-date">Purchased: ${assignedDate}</div>
-                        </div>
-                        <div class="key-container">
-                            <span id="key-${download.orderId}">${download.key}</span>
-                            <button class="copy-btn" data-key-id="key-${download.orderId}">Copy</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
         }
-        
-        downloadsContainer.addEventListener('click', function(event) {
-            if (event.target.classList.contains('copy-btn')) {
-                const button = event.target;
-                const keyId = button.dataset.keyId;
-                const keySpan = document.getElementById(keyId);
-                
-                navigator.clipboard.writeText(keySpan.textContent).then(() => {
-                    button.textContent = 'Copied!';
-                    button.classList.add('copied');
-                    setTimeout(() => {
-                        button.textContent = 'Copy';
-                        button.classList.remove('copied');
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Failed to copy text: ', err);
-                });
+
+        function runApp() {
+            const auth = firebase.auth();
+            const downloadsList = document.getElementById('downloads-list');
+
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        const idToken = await user.getIdToken();
+                        const response = await fetch('/.netlify/functions/get-user-downloads', {
+                            headers: { 'Authorization': `Bearer ${idToken}` }
+                        });
+                        if (!response.ok) throw new Error('Failed to fetch downloads.');
+                        const result = await response.json();
+                        if (result.success) {
+                            renderDownloads(result.downloads);
+                        } else {
+                            throw new Error(result.message);
+                        }
+                    } catch (error) {
+                        downloadsList.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+                    }
+                } else {
+                    downloadsList.innerHTML = `<p id="auth-message">Please <a href="login.html">log in</a> to view your downloads.</p>`;
+                }
+            });
+
+            function renderDownloads(downloads) {
+                if (downloads.length === 0) {
+                    downloadsList.innerHTML = '<p>You have no downloads available. Keys will appear here after a completed purchase.</p>';
+                    return;
+                }
+                downloadsList.innerHTML = downloads.map(download => {
+                    const assignedDate = new Date(download.assignedAt).toLocaleDateString();
+                    return `
+                        <div class="download-card">
+                            <div class="download-header">
+                                <div class="download-product">${download.productId}</div>
+                                <div class="download-date">Purchased: ${assignedDate}</div>
+                            </div>
+                            <div class="key-container">
+                                <span id="key-${download.orderId}">${download.key}</span>
+                                <button class="copy-btn" data-key-id="key-${download.orderId}">Copy</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
             }
-        });
+            
+            downloadsList.addEventListener('click', function(event) {
+                if (event.target.classList.contains('copy-btn')) {
+                    const button = event.target;
+                    const keyId = button.dataset.keyId;
+                    const keySpan = document.getElementById(keyId);
+                    navigator.clipboard.writeText(keySpan.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        button.classList.add('copied');
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                            button.classList.remove('copied');
+                        }, 2000);
+                    });
+                }
+            });
+        }
+
+        initializeFirebase();
     </script>
 </body>
 </html>

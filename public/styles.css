@@ -3368,3 +3368,22 @@
     color: white;
     border-color: transparent;
 }
+/* =================================================================== */
+/* ============== WISHLIST BUTTON FEEDBACK STYLE ===================== */
+/* =================================================================== */
+
+.wishlist-btn .fa-heart {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 400; /* This makes the icon hollow (far) */
+}
+
+.wishlist-btn.active {
+    background-color: #ffe0e6;
+    color: #ff3a5e;
+    border-color: #ffc2cf;
+}
+
+.wishlist-btn.active .fa-heart {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900; /* This makes the icon solid (fas) */
+}

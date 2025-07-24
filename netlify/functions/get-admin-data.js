@@ -1,8 +1,7 @@
 // /netlify/functions/get-admin-data.js
-
 const { db } = require('./firebase-admin');
 
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -20,15 +19,24 @@ exports.handler = async (event, context) => {
       ordersSnapshot,
       productsSnapshot
     ] = await Promise.all([
-      // CORRECTED: Query the 'digital_keys' collection
       db.collection('digital_keys').where('status', '==', 'available').get(),
-      // CORRECTED: Query for reviews where 'isApproved' is false
       db.collection('reviews').where('isApproved', '==', false).get(),
-      db.collection('orders').orderBy('createdAt', 'desc').limit(20).get(),
+      db.collection('orders').where('status', '==', 'completed').get(),
       db.collection('products').orderBy('name.en').get()
     ]);
 
-    // Process inventory by counting keys for each product ID
+    // --- Calculate Sales Analytics ---
+    let totalRevenue = 0;
+    ordersSnapshot.forEach(doc => {
+        const order = doc.data();
+        const amount = order.totalAmount || order.amount; // Handle both single and cart orders
+        if (amount && typeof amount === 'number') {
+            totalRevenue += amount;
+        }
+    });
+    const totalOrders = ordersSnapshot.size;
+
+    // Process other data
     const inventory = {};
     inventorySnapshot.forEach(doc => {
       const data = doc.data();
@@ -36,14 +44,11 @@ exports.handler = async (event, context) => {
         inventory[data.productId] = (inventory[data.productId] || 0) + 1;
       }
     });
-
-    // Process pending reviews
     const pendingReviews = reviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    // Process recent orders
-    const orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    
-    // Process the fetched products
+    // Create a new array from the snapshot docs before sorting/slicing
+    const allOrders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const recentOrders = allOrders.slice(0, 20);
     const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     return {
@@ -51,9 +56,13 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         success: true,
         data: {
+          stats: {
+            totalRevenue: totalRevenue.toFixed(2),
+            totalOrders: totalOrders,
+          },
           inventory,
           pendingReviews,
-          orders,
+          orders: recentOrders,
           products
         }
       }),
