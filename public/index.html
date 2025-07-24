@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 </head>
 <body>
-  
+
 <header class="site-header">
   <div class="header-main-pro header-desktop">
     <a href="index.html" class="logo-pro" style="text-decoration: none;">DigiWorld</a>
@@ -24,12 +24,10 @@
       <a href="products.html" class="nav-link-pro">Products</a>
       <a href="contact.html" class="nav-link-pro">Contact</a>
     </nav>
-    
     <div class="header-controls">
         <button class="header-btn" id="langCurrencyBtn" aria-label="Language and Currency Settings">
             <span id="currentLangFlag">🇱🇰</span> EN / LKR <i class="fas fa-chevron-down"></i>
         </button>
-        
         <div class="account-control" id="accountControl">
             <i class="fas fa-user"></i>
             <div class="account-text">
@@ -37,11 +35,9 @@
                 <span class="auth-action">Sign In / Register</span>
             </div>
             <div class="auth-dropdown-menu">
-                <div id="authDropdownContent">
-                    </div>
+                <div id="authDropdownContent"></div>
             </div>
         </div>
-        
         <button class="header-btn cart-btn" id="cartBtn" aria-label="Open cart">
             <i class="fas fa-shopping-cart"></i>
             <span>Cart</span>
@@ -49,65 +45,56 @@
         </button>
     </div>
   </div>
-
   <form class="search-bar-modern" autocomplete="off" onsubmit="return false;" role="search">
     <select class="category-dropdown" aria-label="Select category">
       <option>All Categories</option>
       <option>Windows</option>
       <option>Office</option>
-      <option>Development Tools</option>
     </select>
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="Search for products…"
-      aria-autocomplete="list"
-      aria-controls="searchSuggestionsDesktop"
-      aria-expanded="false"
-      aria-label="Search products"
-    />
+    <input type="text" id="searchInput" placeholder="Search for products…" aria-label="Search products"/>
     <button class="search-btn-modern" type="submit">Search</button>
     <div class="search-suggestions" id="searchSuggestionsDesktop" role="listbox"></div>
   </form>
 </header>
 
 <main>
-  <section class="main-section" aria-label="Featured products">
-    <div class="product-controls">
-      <div class="control-group">
-        <label for="categoryFilter">Category:</label>
-        <select id="categoryFilter">
-          <option value="all">All Products</option>
-          <option value="Office">Office</option>
-          <option value="Windows">Windows</option>
-          <option value="Development">Development Tools</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <label for="sortProducts">Sort by:</label>
-        <select id="sortProducts">
-          <option value="default">Default</option>
-          <option value="price-asc">Price: Low to High</option>
-          <option value="price-desc">Price: High to Low</option>
-          <option value="name-asc">Name: A to Z</option>
-          <option value="name-desc">Name: Z to A</option>
-        </select>
-      </div>
-    </div>
-    
-    <div class="section-title">Featured Products</div>
-    <div class="product-grid" id="productGrid">
+    <section class="hero-slider-wrapper" aria-label="Promotional Banners">
+        <div id="hero-slider">
+            </div>
+        <button class="slider-nav prev" aria-label="Previous slide">&#10094;</button>
+        <button class="slider-nav next" aria-label="Next slide">&#10095;</button>
+    </section>
+
+    <section class="main-section" aria-label="Featured products">
+        <div class="product-controls">
+            <div class="control-group">
+                <label for="categoryFilter">Category:</label>
+                <select id="categoryFilter">
+                    <option value="all">All Products</option>
+                    <option value="Office">Office</option>
+                    <option value="Windows">Windows</option>
+                    <option value="Development">Development Tools</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="sortProducts">Sort by:</label>
+                <select id="sortProducts">
+                    <option value="default">Default</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name-asc">Name: A to Z</option>
+                    <option value="name-desc">Name: Z to A</option>
+                </select>
+            </div>
         </div>
-  </section>
+        <div class="section-title">Featured Products</div>
+        <div class="product-grid" id="productGrid">
+            </div>
+    </section>
 </main>
 
 <div class="mini-cart-overlay" id="miniCartOverlay" role="dialog" aria-modal="true" aria-labelledby="miniCartTitle"></div>
-<div
-  class="mini-cart-drawer"
-  id="miniCartDrawer"
-  aria-labelledby="miniCartTitle"
-  tabindex="-1"
->
+<div class="mini-cart-drawer" id="miniCartDrawer" aria-labelledby="miniCartTitle" tabindex="-1">
   <div class="mini-cart-header">
     <span id="miniCartTitle">Your Cart</span>
     <button class="mini-cart-close" id="miniCartClose" aria-label="Close cart">&times;</button>
@@ -115,7 +102,7 @@
   <div class="mini-cart-items" id="miniCartItems"></div>
   <div class="mini-cart-footer">
     <div class="mini-cart-total" id="miniCartTotal"></div>
-    <button class="mini-cart-checkout" onclick="window.location.href='cart.html'">Go to Cart</button>
+    <button class="mini-cart-checkout" onclick="window.location.href='checkout.html'">Go to Cart</button>
   </div>
 </div>
 
@@ -177,7 +164,6 @@
     </div>
 </div>
 
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
@@ -211,7 +197,6 @@
           <button class="auth-dropdown-signin-btn" id="dropdownSignInBtn">Sign In</button>
           <a href="#" class="register-link" id="dropdownRegisterBtn">Register</a>
       `;
-      // Add listeners to open the modal from the dropdown
       document.getElementById('dropdownSignInBtn').addEventListener('click', openAuthModal);
       document.getElementById('dropdownRegisterBtn').addEventListener('click', openAuthModal);
   }
@@ -271,7 +256,7 @@
           return;
       }
       const actionCodeSettings = {
-        url: window.location.href, // After sign in, redirect back to this page
+        url: window.location.href,
         handleCodeInApp: true,
       };
       auth.sendSignInLinkToEmail(email, actionCodeSettings)

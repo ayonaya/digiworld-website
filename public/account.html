@@ -2,199 +2,228 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>DigiWorld - Account</title>
+  <title>DigiWorld - My Account</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700;900&display=swap" rel="stylesheet" />
-  <!-- Font Awesome for Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
   <style>
-    :root {
-      --primary: #f57224;
-      --primary-dark: #d45703;
-      --accent: #fe724c;
-      --bg: #f6f6fa;
-      --radius: 18px;
-      --shadow: 0 6px 32px #f5722420, 0 2px 6px #0001;
+    /* Custom styles for the new Account Dashboard */
+    body {
+        background-color: var(--bg, #f6f6fa);
     }
-    body { 
-      font-family: 'Nunito Sans', 'Segoe UI', Arial, sans-serif; 
-      background: var(--bg); 
-      margin: 0; 
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+    .account-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
     }
-    .container { 
-      max-width: 400px; 
-      width: 100%;
-      margin: auto; 
-      background: white; 
-      padding: 30px 35px; 
-      border-radius: var(--radius); 
-      box-shadow: var(--shadow);
-      text-align: center;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInSlideUp 0.6s 0.2s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    .account-header {
+        text-align: center;
+        margin-bottom: 30px;
     }
-    @keyframes fadeInSlideUp {
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    .container h2 {
+    .account-header h1 {
+        font-size: 2.5rem;
         font-weight: 900;
         color: var(--primary-dark);
-        font-size: 1.9rem;
-        margin-bottom: 10px;
+        margin: 0;
     }
-    .container .user-email {
-        font-weight: 700;
+    .account-header .user-email {
+        font-weight: 600;
         color: #777;
-        margin-top: 0;
-        margin-bottom: 30px;
-        word-break: break-all;
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
-    .account-button {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      width: 100%;
-      box-sizing: border-box;
-      margin: 15px 0;
-      padding: 15px 20px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      border-radius: 12px;
-      border: 2px solid transparent;
-      cursor: pointer;
-      text-align: left;
-      text-decoration: none;
-      color: white;
-      background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
-      transition: all 0.3s ease;
-      opacity: 0;
-      transform: translateX(-20px);
-      animation: fadeInSlideLeft 0.5s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    .account-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
     }
-    /* Stagger the button animations */
-    .account-button:nth-of-type(1) { animation-delay: 0.4s; }
-    .account-button:nth-of-type(2) { animation-delay: 0.5s; }
-    .account-button:nth-of-type(3) { animation-delay: 0.6s; }
-    .account-button:nth-of-type(4) { animation-delay: 0.7s; }
-    .account-button:nth-of-type(5) { animation-delay: 0.8s; } /* Animation for new button */
-
-    @keyframes fadeInSlideLeft {
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    .account-button:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 20px #fd7e1a44;
-    }
-    .account-button i {
-        font-size: 1.2rem;
-        width: 25px;
+    .account-card {
+        background: #fff;
+        border-radius: var(--radius, 18px);
+        padding: 25px;
         text-align: center;
+        text-decoration: none;
+        color: #333;
+        box-shadow: var(--shadow, 0 6px 32px rgba(0,0,0,0.08));
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .account-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 40px rgba(245, 114, 36, 0.2);
+    }
+    .account-card .icon {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 15px;
+    }
+    .account-card h3 {
+        font-weight: 700;
+        margin: 0 0 5px 0;
+    }
+    .account-card p {
+        font-size: 0.95rem;
+        color: #666;
+        margin: 0;
+        flex-grow: 1;
+    }
+    #currencySelector {
+        margin-top: 15px;
+        background: none;
+        border: 2px solid var(--primary);
+        color: var(--primary-dark);
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-family: 'Poppins', sans-serif;
+    }
+    .logout-section {
+        text-align: center;
+        margin-top: 40px;
     }
     #logoutBtn {
-      background: #555;
-      margin-top: 24px;
+        background: #555;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s;
     }
     #logoutBtn:hover {
         background: #333;
-        box-shadow: 0 4px 15px #44444455;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="accountContainer">
-    <!-- Content will be loaded here by JavaScript -->
-    <h2>Loading...</h2>
-  </div>
+
+  <header class="site-header">
+    </header>
+
+  <main class="account-container" id="accountContainer">
+    <div class="account-header">
+        <h1>Loading...</h1>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+      </footer>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script>
-    // Your actual Firebase config here
-    const firebaseConfig = {
-      apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-      authDomain: "digiworld-46a1e.firebaseapp.com",
-      projectId: "digiworld-46a1e",
-      storageBucket: "digiworld-46a1e.appspot.com",
-      messagingSenderId: "242235397710",
-      appId: "1:242235397710:web:a80c15cc285188610cd51f",
-      measurementId: "G-R8C4BWHXBL"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
     const container = document.getElementById('accountContainer');
 
-    function renderLoggedOut() {
-      container.innerHTML = `
-        <h2>My Account</h2>
-        <a href="login.html" class="account-button"><i class="fas fa-sign-in-alt"></i><span>Login</span></a>
-        <a href="signup.html" class="account-button"><i class="fas fa-user-plus"></i><span>Sign Up</span></a>
-      `;
+    // Securely fetch config and initialize Firebase
+    async function initializeFirebase() {
+        try {
+            const response = await fetch('/.netlify/functions/get-firebase-config');
+            if (!response.ok) {
+                throw new Error('Could not load Firebase configuration.');
+            }
+            const firebaseConfig = await response.json();
+            
+            // Initialize Firebase with the fetched config
+            firebase.initializeApp(firebaseConfig);
+            
+            // Now you can run the rest of your code that depends on Firebase
+            runApp();
+
+        } catch (error) {
+            console.error("Firebase Initialization Failed:", error);
+            container.innerHTML = `<p style="color:red; text-align:center;">Error connecting to services.</p>`;
+        }
     }
 
-    function renderLoggedIn(user) {
-      container.innerHTML = `
-        <h2>Welcome Back!</h2>
-        <p class="user-email">${user.email || 'Your Account'}</p>
-        
-        <!-- Currency Selector -->
-        <div class="account-button" style="padding: 0; align-items: stretch;">
-            <i class="fas fa-coins" style="padding: 15px 20px; border-right: 1px solid rgba(255,255,255,0.2);"></i>
-            <select id="currencySelector" style="background: none; border: none; color: white; font-size: 1.1rem; font-weight: 700; flex-grow: 1; cursor: pointer; padding: 0 15px; font-family: 'Nunito Sans', sans-serif; -webkit-appearance: none; appearance: none;">
-                <option value="USD" style="color: black;">USD - US Dollar</option>
-                <option value="LKR" style="color: black;">LKR - Sri Lankan Rupee</option>
-                <option value="EUR" style="color: black;">EUR - Euro</option>
-                <option value="GBP" style="color: black;">GBP - British Pound</option>
-                <option value="INR" style="color: black;">INR - Indian Rupee</option>
-            </select>
-        </div>
+    // This function contains your original code that runs after Firebase is ready
+    function runApp() {
+        const auth = firebase.auth();
 
-        <a href="profile.html" class="account-button"><i class="fas fa-user-circle"></i><span>Profile</span></a>
-        <a href="orders.html" class="account-button"><i class="fas fa-box"></i><span>My Orders</span></a>
-        <a href="downloads.html" class="account-button"><i class="fas fa-download"></i><span>My Downloads</span></a>
-        <button id="logoutBtn" class="account-button"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
-      `;
-      
-      const currencySelector = document.getElementById('currencySelector');
+        function renderLoggedOut() {
+            container.innerHTML = `
+                <div class="account-header">
+                    <h1>My Account</h1>
+                </div>
+                <p style="text-align: center; font-size: 1.2rem;">Please <a href="login.html" style="color: var(--primary);">log in</a> to access your account dashboard.</p>
+            `;
+        }
 
-      // On page load, set the selector to the currently saved currency
-      const savedCurrency = localStorage.getItem('userCurrency') || 'USD';
-      currencySelector.value = savedCurrency;
+        function renderLoggedIn(user) {
+          container.innerHTML = `
+            <div class="account-header">
+                <h1>My Account</h1>
+                <p class="user-email">${user.email || 'Welcome!'}</p>
+            </div>
+            <div class="account-grid">
+                <a href="profile.html" class="account-card">
+                    <div class="icon"><i class="fas fa-user-circle"></i></div>
+                    <h3>My Profile</h3>
+                    <p>Edit your personal details</p>
+                </a>
+                <a href="orders.html" class="account-card">
+                    <div class="icon"><i class="fas fa-box"></i></div>
+                    <h3>My Orders</h3>
+                    <p>View your order history</p>
+                </a>
+                <a href="downloads.html" class="account-card">
+                    <div class="icon"><i class="fas fa-download"></i></div>
+                    <h3>My Downloads</h3>
+                    <p>Access your purchased keys</p>
+                </a>
+                <a href="wishlist.html" class="account-card">
+                    <div class="icon"><i class="fas fa-heart"></i></div>
+                    <h3>My Wishlist</h3>
+                    <p>View your saved items</p>
+                </a>
+                <div class="account-card">
+                    <div class="icon"><i class="fas fa-coins"></i></div>
+                    <h3>Store Currency</h3>
+                    <p>Select your preferred currency</p>
+                    <select id="currencySelector">
+                        <option value="USD">USD - US Dollar</option>
+                        <option value="LKR">LKR - Sri Lankan Rupee</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="GBP">GBP - British Pound</option>
+                        <option value="INR">INR - Indian Rupee</option>
+                    </select>
+                </div>
+            </div>
+            <div class="logout-section">
+                <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+          `;
 
-      // When the user selects a new currency, save it to localStorage
-      currencySelector.addEventListener('change', () => {
-          localStorage.setItem('userCurrency', currencySelector.value);
-          // You can add a small confirmation message here if you want
-      });
+          // --- Event Listeners for new elements ---
+          const currencySelector = document.getElementById('currencySelector');
+          const savedCurrency = localStorage.getItem('userCurrency') || 'USD';
+          currencySelector.value = savedCurrency;
+          currencySelector.addEventListener('change', () => {
+              localStorage.setItem('userCurrency', currencySelector.value);
+          });
 
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        auth.signOut();
-      });
+          document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.signOut();
+          });
+        }
+
+        auth.onAuthStateChanged(user => {
+          if (user) {
+            renderLoggedIn(user);
+          } else {
+            renderLoggedOut();
+          }
+        });
     }
 
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        // User is signed in.
-        renderLoggedIn(user);
-      } else {
-        // User is signed out.
-        renderLoggedOut();
-      }
-    });
+    // Start the process
+    initializeFirebase();
   </script>
+
 </body>
 </html>

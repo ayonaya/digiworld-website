@@ -70,34 +70,40 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // --- Product Rendering Functions ---
-    function renderProducts(list) {
-        if (!productGrid) return;
-        productGrid.innerHTML = list.map((prod) => {
-            const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
-            const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
-            const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
-            const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
-            
-            return `
-                <div class="product-card" data-product-id="${prod.id}">
-                    ${hotBadgeHTML}
-                    <div class="card-image-container">
-                        <a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a>
-                    </div>
-                    <div class="card-content-wrapper">
-                        <h3 class="product-name">${name}</h3>
-                        <div class="tag-delivery">${deliveryText}</div>
-                        <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
-                        <div class="card-buttons">
-                            <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
-                            <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
-                        </div>
-                    </div>
-                </div>`;
-        }).join('');
-    }
+// This is the updated renderProducts function for main.js
 
+function renderProducts(list) {
+    if (!productGrid) return;
+    productGrid.innerHTML = list.map((prod) => {
+        const name = (prod.name && prod.name[currentLang]) || (prod.name && prod.name['en']) || 'Unnamed Product';
+        const price = (prod.price && prod.price[currentCurr]) || (prod.price && prod.price['USD']) || 0;
+        const deliveryText = (prod.delivery && prod.delivery[currentLang]) || (prod.delivery && prod.delivery['en']) || '';
+        const hotBadgeHTML = prod.isHot ? '<div class="badge-hot"><i class="fas fa-fire"></i> Hot</div>' : '';
+        
+        // The only change is adding the <button class="wishlist-btn">...</button>
+        return `
+            <div class="product-card" data-product-id="${prod.id}">
+                ${hotBadgeHTML}
+                
+                <button class="wishlist-btn" data-product-id="${prod.id}" aria-label="Add to Wishlist">
+                    <i class="fas fa-heart"></i>
+                </button>
+                
+                <div class="card-image-container">
+                    <a href="product-details.html?id=${prod.id}"><img class="card-image" src="${prod.image}" alt="${name}" loading="lazy" /></a>
+                </div>
+                <div class="card-content-wrapper">
+                    <h3 class="product-name">${name}</h3>
+                    <div class="tag-delivery">${deliveryText}</div>
+                    <p class="product-price">${currencySymbols[currentCurr] || '$'}${price.toFixed(2)}</p>
+                    <div class="card-buttons">
+                        <button class="card-btn add-to-cart" data-id="${prod.id}">Add to Cart</button>
+                        <button class="card-btn buy-now" data-id="${prod.id}">Buy Now</button>
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+}
     function showSkeletonLoaders() {
         if (!productGrid) return;
         productGrid.innerHTML = Array(8).fill('').map(() => `<div class="skeleton-card"><div class="skeleton-image"></div><div class="skeleton-content"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>`).join('');
@@ -129,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderProducts(filteredProducts);
     }
     
-    // --- Search Functionality (Restored) ---
+    // --- Search Functionality ---
     function handleSearch(inputElement, suggestionsElement) {
         if (!suggestionsElement) return;
         const val = inputElement.value.trim().toLowerCase();
@@ -166,41 +172,54 @@ document.addEventListener('DOMContentLoaded', async function() {
             productGrid.innerHTML = `<p class="error-message">Could not load products.</p>`;
         }
     } else {
-        // Still initialize cart for pages that don't show products
         initializeCart([]);
     }
 
     // --- Global Event Listeners ---
-    document.body.addEventListener('click', function(e) {
-        const target = e.target;
-        if (target.closest('.add-to-cart')) {
-            addToCart(target.closest('.add-to-cart').dataset.id);
+document.body.addEventListener('click', async function(e) {
+    const wishlistBtn = e.target.closest('.wishlist-btn');
+    if (wishlistBtn) {
+        // Prevent other clicks while processing
+        wishlistBtn.disabled = true;
+
+        const productId = wishlistBtn.dataset.productId;
+        const user = firebase.auth().currentUser;
+
+        if (!user) {
+            // If the user is not logged in, open the authentication modal
+            openAuthModal();
+            wishlistBtn.disabled = false;
+            return;
         }
-        if (target.closest('.buy-now')) {
-            addToCart(target.closest('.buy-now').dataset.id);
-            window.location.href = 'checkout.html';
+
+        try {
+            const idToken = await user.getIdToken();
+            const response = await fetch('/.netlify/functions/add-to-wishlist', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${idToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId: productId })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                // Toggle the 'active' class to show it's been added
+                wishlistBtn.classList.toggle('active'); 
+                // You could add a more sophisticated notification here if you like
+            } else {
+                throw new Error(result.message || 'Failed to add to wishlist.');
+            }
+        } catch (error) {
+            console.error('Wishlist Error:', error);
+            // Optionally, show an error message to the user
+        } finally {
+            wishlistBtn.disabled = false;
         }
-    });
-
-    if (searchInputDesktop) {
-        searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
     }
-    if (searchInputMobile) {
-        searchInputMobile.addEventListener('input', () => handleSearch(searchInputMobile, searchSuggestionsMobile));
-    }
-    document.addEventListener('click', () => {
-        if (searchSuggestionsDesktop) searchSuggestionsDesktop.style.display = 'none';
-        if (searchSuggestionsMobile) searchSuggestionsMobile.style.display = 'none';
-    });
-    
-    if(backBtn) {
-        backBtn.onclick = () => window.scrollTo({top:0, behavior:'smooth'});
-        window.addEventListener('scroll', () => {
-             if(backBtn) backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none';
-        });
-    }
-
-
+});
     // =================================================================
     // SECTION 2: ADVANCED BANNER SLIDER LOGIC
     // =================================================================
@@ -247,10 +266,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
             function nextSlide() {
                 currentSlide = (currentSlide + 1) % slides.length;
-                showSlide(currentSlide);
-            }
-            function prevSlide() {
-                currentSlide = (currentSlide - 1 + slides.length) % slides.length;
                 showSlide(currentSlide);
             }
             function startSlider() {
