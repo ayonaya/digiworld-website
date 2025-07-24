@@ -23,4 +23,4 @@ if (admin.apps.length === 0) {
 }
 
 // Export the initialized firestore database instance for other functions to use.
-module.exports = { db: admin.firestore() };
+module.exports = { db: admin.firestore(), admin: admin };
