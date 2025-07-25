@@ -3574,3 +3574,97 @@
         box-shadow: 0 0 0 0 rgba(245, 114, 36, 0);
     }
 }
+/* ======================================= */
+/* PRODUCT COMPARISON POP-UP STYLES        */
+/* ======================================= */
+
+.comparison-popup-container {
+    position: absolute;
+    z-index: 1100; /* Ensure it appears above other content */
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 50px rgba(0,0,0,0.2);
+    padding: 30px;
+    
+    /* Start hidden */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none; /* Can't interact with it when hidden */
+}
+
+.comparison-popup-container.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.comparison-table th, .comparison-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.comparison-table th {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.comparison-table .product-image {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+}
+
+.comparison-table .feature-label {
+    text-align: left;
+    font-weight: 700;
+    color: #555;
+}
+
+.comparison-table .fa-check-circle {
+    color: var(--success);
+    font-size: 1.5rem;
+}
+
+.comparison-table .fa-times-circle {
+    color: var(--danger);
+    font-size: 1.5rem;
+}
+
+.comparison-table .current-product-col {
+    background-color: #fef4f0; /* Highlight the current product */
+    border: 2px solid var(--primary);
+    border-radius: var(--radius);
+}
+/* ======================================= */
+/* LAYOUT FOR CENTERED PAGES               */
+/* ======================================= */
+
+/* This wrapper ensures the header, main content, and footer behave correctly */
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Make the main content area grow to fill available space */
+.page-wrapper main {
+    flex-grow: 1;
+    width: 100%; /* Ensure main takes up full width for centering */
+}
+
+/* Prevent header and footer from shrinking */
+.page-wrapper .site-header,
+.page-wrapper .site-footer {
+    flex-shrink: 0;
+}

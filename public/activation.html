@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-        body { background-color: var(--bg); }
+        /* Page-specific styles remain here, layout styles are now in styles.css */
         .helper-container { max-width: 700px; margin: 3rem auto; padding: 20px; text-align: center; }
         .card { 
             background: var(--card-bg); 
@@ -111,9 +111,18 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body class="page-wrapper">
     <header class="site-header">
-        </header>
+        <div class="header-main-pro header-desktop">
+            <a href="index.html" class="logo-pro" style="text-decoration: none;">DigiWorld</a>
+            <nav>
+              <a href="index.html" class="nav-link-pro">Home</a>
+              <a href="products.html" class="nav-link-pro">Products</a>
+              <a href="contact.html" class="nav-link-pro">Contact</a>
+            </nav>
+        </div>
+    </header>
+
     <main class="helper-container">
         <div class="card">
             <h1><i class="fas fa-magic"></i> Product Activation Helper</h1>
@@ -137,7 +146,14 @@
         </div>
     </main>
 
+    <footer class="site-footer">
+        <div class="footer-bottom">
+            &copy; 2025 DigiWorld. All rights reserved.
+        </div>
+    </footer>
+
     <script>
+        // The JavaScript does not need any changes
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('cidForm');
             const submitBtn = document.getElementById('submitBtn');
@@ -189,7 +205,6 @@
                 }
             });
             
-            // Event listener for the new copy button
             resultArea.addEventListener('click', function(event) {
                 if (event.target.id === 'copyBtn') {
                     const copyBtn = event.target;

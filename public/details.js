@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const reviewsList = document.getElementById('reviews-list');
     const reviewForm = document.getElementById('review-form');
     const relatedProductsContainer = document.getElementById('related-products-list');
+    const compareTabBtn = document.getElementById('compareTabBtn');
+    const comparisonPopup = document.getElementById('comparisonPopup');
 
     let allProducts = [];
     let currentProduct = null;
@@ -23,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // Show skeleton loader while fetching
         showSkeletonLoader();
 
         const [productResponse, allProductsResponse] = await Promise.all([
@@ -38,20 +39,115 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (allProductsResponse.ok) {
             const allProductsData = await allProductsResponse.json();
-            if (allProductsData.success) allProducts = allProductsData.products;
+            if (allProductsData.success) {
+                // Combine regular and flash sale products for comparison purposes
+                allProducts = [...allProductsData.products, ...allProductsData.flashSaleProducts];
+            }
         }
 
-        // Render all page components with the fetched data
         renderProduct(currentProduct);
         renderInfoTabs(currentProduct);
         renderRelatedProducts(currentProduct, allProducts);
+        renderComparisonPopup(currentProduct, allProducts); // NEW: Build the comparison pop-up
         fetchAndRenderReviews(productId);
         
-        initializeCart(allProducts); // Initialize cart manager with all product data
+        initializeCart(allProducts);
 
     } catch (error) {
         console.error("Error loading page:", error);
         detailsContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+    }
+
+    // --- NEW: Function to build the comparison table ---
+    function renderComparisonPopup(currentProd, allProds) {
+        if (!comparisonPopup) return;
+
+        const compareProducts = allProds.filter(p => 
+            p.category === currentProd.category && p.id !== currentProd.id
+        ).slice(0, 2); // Get up to 2 other products to compare against
+
+        if (compareProducts.length === 0) {
+            compareTabBtn.style.display = 'none'; // Hide compare tab if there's nothing to compare
+            return;
+        }
+
+        // Create a list of all features from all products to build the table rows
+        const allFeatures = new Set();
+        [currentProd, ...compareProducts].forEach(p => {
+            if (p.features && p.features.en) {
+                p.features.en.forEach(f => allFeatures.add(f));
+            }
+        });
+
+        const productsToDisplay = [currentProd, ...compareProducts];
+
+        const tableHeader = productsToDisplay.map(p => 
+            `<th class="${p.id === currentProd.id ? 'current-product-col' : ''}">
+                <a href="product-details.html?id=${p.id}">
+                    <img src="${p.image}" alt="${p.name.en}" class="product-image">
+                    <br>${p.name.en}
+                </a>
+            </th>`
+        ).join('');
+        
+        const tableBody = Array.from(allFeatures).map(feature => `
+            <tr>
+                <td class="feature-label">${feature}</td>
+                ${productsToDisplay.map(p => `
+                    <td class="${p.id === currentProd.id ? 'current-product-col' : ''}">
+                        ${(p.features && p.features.en && p.features.en.includes(feature)) ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>'}
+                    </td>
+                `).join('')}
+            </tr>
+        `).join('');
+
+        comparisonPopup.innerHTML = `
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th class="feature-label">Feature</th>
+                        ${tableHeader}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableBody}
+                </tbody>
+            </table>
+        `;
+    }
+
+    // --- EVENT LISTENERS ---
+    let popupTimeout;
+    if (compareTabBtn && comparisonPopup) {
+        // --- Desktop Hover Logic ---
+        compareTabBtn.addEventListener('mouseenter', () => {
+            clearTimeout(popupTimeout);
+            comparisonPopup.classList.add('show');
+        });
+        compareTabBtn.addEventListener('mouseleave', () => {
+            popupTimeout = setTimeout(() => comparisonPopup.classList.remove('show'), 300);
+        });
+
+        // Keep popup open if hovering over it
+        comparisonPopup.addEventListener('mouseenter', () => clearTimeout(popupTimeout));
+        comparisonPopup.addEventListener('mouseleave', () => {
+            popupTimeout = setTimeout(() => comparisonPopup.classList.remove('show'), 300);
+        });
+
+        // --- Mobile Touch Logic ---
+        compareTabBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const isVisible = comparisonPopup.classList.contains('show');
+            if (!isVisible) {
+                // Use haptic feedback on supported devices
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                comparisonPopup.classList.add('show');
+            } else {
+                comparisonPopup.classList.remove('show');
+            }
+        });
     }
 
     // --- RENDER FUNCTIONS ---
@@ -79,7 +175,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             </div>`;
         
-        // Show the sections that were hidden during loading
         document.querySelector('.product-info-tabs').style.display = 'block';
         document.querySelector('.reviews-container').style.display = 'block';
         document.querySelector('.related-products-container').style.display = 'block';
@@ -152,7 +247,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>`;
     }
 
-    // --- EVENT LISTENERS ---
     document.body.addEventListener('click', (e) => {
         const addToCartBtn = e.target.closest('.add-to-cart');
         const buyNowBtn = e.target.closest('.buy-now');
@@ -160,17 +254,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (addToCartBtn) {
             const prodId = addToCartBtn.dataset.id;
             addToCart(prodId);
-            renderMiniCart(); // Re-render the mini cart to show the new item
-            // Open the mini-cart
+            renderMiniCart();
             document.getElementById('miniCartDrawer')?.classList.add('active');
             document.getElementById('miniCartOverlay')?.classList.add('active');
         }
 
         if (buyNowBtn) {
-            e.preventDefault(); // Prevent the link from navigating immediately
+            e.preventDefault();
             const prodId = currentProduct.id;
-            addToCart(prodId); // Add the item to the cart first
-            window.location.href = 'checkout.html'; // Then go to checkout
+            addToCart(prodId);
+            window.location.href = 'checkout.html';
         }
     });
 
@@ -206,7 +299,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (e) => {
+            // Prevent the default behavior for the compare button since it has special hover/touch logic
+            if (e.currentTarget.id === 'compareTabBtn') {
+                return;
+            }
+
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             document.querySelectorAll('.tab-content').forEach(content => {
