@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Post - DigiWorld</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header">
+        </header>
+
+    <main class="container">
+        <div id="post-container">
+            <p id="loading-message">Loading post...</p>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const postContainer = document.getElementById('post-container');
+            const params = new URLSearchParams(window.location.search);
+            const postId = params.get('id');
+
+            if (!postId) {
+                postContainer.innerHTML = '<p style="color:red;">Error: No post ID provided.</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch('/.netlify/functions/get-blog-posts');
+                if (!response.ok) throw new Error('Could not fetch posts.');
+                const result = await response.json();
+
+                if (result.success) {
+                    const post = result.posts.find(p => p.id === postId);
+                    if (post) {
+                        document.title = `${post.title} - DigiWorld Blog`;
+                        const postDate = new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                        postContainer.innerHTML = `
+                            <article class="blog-post">
+                                <a href="blog.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Blog</a>
+                                <h1 class="post-title-main">${post.title}</h1>
+                                <div class="post-meta-main">
+                                    <span>Posted by <strong>${post.author}</strong> on ${postDate}</span>
+                                </div>
+                                <div class="post-content">
+                                    ${post.content}
+                                </div>
+                            </article>
+                        `;
+                    } else {
+                        throw new Error('Post not found.');
+                    }
+                } else {
+                    throw new Error('Could not load blog posts.');
+                }
+            } catch (error) {
+                postContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

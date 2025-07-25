@@ -1,4 +1,4 @@
-// netlify/functions/create-product.js
+// /netlify/functions/create-blog-post.js
 const { db, admin } = require('./firebase-admin');
 
 exports.handler = async (event) => {
@@ -17,24 +17,28 @@ exports.handler = async (event) => {
             return { statusCode: 403, body: JSON.stringify({ success: false, message: 'Forbidden. User is not an admin.' }) };
         }
 
-        const { productData } = JSON.parse(event.body);
-        
-        if (!productData || !productData.id || !productData.name?.en) {
-             return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Product ID and English Name are required.' }) };
+        const { title, content, author } = JSON.parse(event.body);
+        if (!title || !content || !author) {
+            return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Title, content, and author are required.' }) };
         }
 
-        const productRef = db.collection('products').doc(productData.id);
-        await productRef.set(productData);
+        const postRef = db.collection('blog_posts').doc();
+        await postRef.set({
+            title,
+            content,
+            author,
+            createdAt: new Date().toISOString()
+        });
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ success: true, message: `Product "${productData.name.en}" has been saved.` }),
+            body: JSON.stringify({ success: true, message: `Blog post "${title}" has been published.` }),
         };
     } catch (error) {
-        console.error('Error in create-product function:', error);
+        console.error('Error creating blog post:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ success: false, message: 'An error occurred while creating the product.' }),
+            body: JSON.stringify({ success: false, message: 'An error occurred while creating the post.' }),
         };
     }
 };

@@ -1,22 +1,23 @@
-// This secure function handles approving or deleting a review.
-
-// CORRECT: Imports the initialized 'db' instance.
-const { db } = require('./firebase-admin');
+// netlify/functions/moderate-review.js
+const { db, admin } = require('./firebase-admin');
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
+    
+    const token = event.headers.authorization?.split('Bearer ')[1];
+    if (!token) {
+        return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Authentication required.' }) };
+    }
 
     try {
-        const { adminPassword, reviewId, action } = JSON.parse(event.body);
-        const SERVER_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
-        // --- Security Check ---
-        if (!SERVER_ADMIN_PASSWORD || adminPassword !== SERVER_ADMIN_PASSWORD) {
-            console.warn("Unauthorized moderation attempt.");
-            return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Unauthorized.' }) };
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        if (decodedToken.isAdmin !== true) {
+            return { statusCode: 403, body: JSON.stringify({ success: false, message: 'Forbidden. User is not an admin.' }) };
         }
+
+        const { reviewId, action } = JSON.parse(event.body);
 
         if (!reviewId || !action) {
             return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Review ID and action are required.' }) };
@@ -26,11 +27,9 @@ exports.handler = async (event) => {
 
         if (action === 'approve') {
             await reviewRef.update({ isApproved: true });
-            console.log(`Review ${reviewId} has been approved.`);
             return { statusCode: 200, body: JSON.stringify({ success: true, message: 'Review approved.' }) };
         } else if (action === 'delete') {
             await reviewRef.delete();
-            console.log(`Review ${reviewId} has been deleted.`);
             return { statusCode: 200, body: JSON.stringify({ success: true, message: 'Review deleted.' }) };
         } else {
             return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Invalid action.' }) };
@@ -40,10 +39,7 @@ exports.handler = async (event) => {
         console.error('Error in moderate-review function:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({
-                success: false,
-                message: 'An error occurred while moderating the review.'
-            }),
+            body: JSON.stringify({ success: false, message: 'An error occurred while moderating the review.' }),
         };
     }
 };

@@ -1,7 +1,6 @@
 // public/activation.js
 
 // Wait for the custom 'componentsLoaded' event before running the script.
-// This ensures the header and footer are fully loaded.
 document.addEventListener('componentsLoaded', () => {
     const form = document.getElementById('cidForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -108,6 +107,9 @@ document.addEventListener('componentsLoaded', () => {
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Verify & Get Confirmation ID';
+                
+                // --- NEW: Smoothly scroll to the result box ---
+                resultArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
     }

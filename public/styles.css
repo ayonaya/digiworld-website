@@ -3668,3 +3668,146 @@
 .page-wrapper .site-footer {
     flex-shrink: 0;
 }
+
+/* ======================================= */
+/* UPGRADED FLY-TO-CART & BUTTON ANIMATION */
+/* ======================================= */
+
+/* This keyframe defines the curved path and shrinking effect */
+@keyframes fly-to-cart-curve {
+    0% {
+        transform: translate(var(--start-x), var(--start-y)) scale(0.3);
+        opacity: 1;
+    }
+    30% {
+        /* This intermediate step creates the "arc" of the curve */
+        transform: translate(var(--control-x), var(--control-y)) scale(0.4);
+        opacity: 1;
+    }
+    100% {
+        /* The final destination at the cart icon */
+        transform: translate(var(--end-x), var(--end-y)) scale(0);
+        opacity: 0.5;
+    }
+}
+
+/* This is the keyframe for the "bump" animation on the cart icon */
+@keyframes cart-bump {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.2); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+/* The style for the small product image that will fly */
+.flying-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Adds a nice shadow */
+    animation-name: fly-to-cart-curve;
+    animation-duration: 0.8s; /* "Average fast" speed */
+    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+    pointer-events: none;
+}
+
+/* This class will trigger the bump animation */
+.cart-btn.animated {
+    animation: cart-bump 0.4s ease-out;
+}
+
+/* New style for the "Added!" button state */
+.card-btn.add-to-cart.added {
+    background: var(--badge-green);
+    color: white;
+    transform: scale(1.05);
+}
+/* =================================================================== */
+/* ======================== BLOG PAGE STYLES ========================= */
+/* =================================================================== */
+
+.page-header { text-align: center; margin-bottom: 40px; }
+.page-header h1 { font-size: 2.8rem; font-weight: 900; color: var(--primary-dark); margin: 0; }
+.page-header p { font-size: 1.2rem; color: #666; margin-top: 10px; }
+
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.post-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    color: #333;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 40px rgba(245, 114, 36, 0.2);
+}
+
+.post-card-content {
+    padding: 25px;
+}
+
+.post-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 0 0 15px 0;
+}
+
+.post-snippet {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.post-meta {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #888;
+}
+
+/* Single Post Page Styles */
+.blog-post {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 40px;
+    box-shadow: var(--shadow);
+}
+
+.post-title-main {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary-dark);
+    line-height: 1.2;
+}
+
+.post-meta-main {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #777;
+    margin: -10px 0 30px 0;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.post-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+.post-content h2 { font-size: 1.8rem; color: var(--primary-dark); margin-top: 2rem; }
+.post-content h3 { font-size: 1.5rem; color: var(--accent); margin-top: 1.5rem; }
+.post-content p { margin-bottom: 1.5em; }
+.post-content a { color: var(--primary); font-weight: 700; }
+.post-content ul, .post-content ol { padding-left: 25px; }
+.post-content li { margin-bottom: 10px; }

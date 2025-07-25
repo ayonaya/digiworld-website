@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - DigiWorld</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header">
+        </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>The DigiWorld Blog</h1>
+            <p>News, tutorials, and insights on digital software and security.</p>
+        </div>
+        <div id="posts-container" class="blog-grid">
+            <p id="loading-message">Loading posts...</p>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const postsContainer = document.getElementById('posts-container');
+            try {
+                const response = await fetch('/.netlify/functions/get-blog-posts');
+                if (!response.ok) throw new Error('Could not fetch posts.');
+                const result = await response.json();
+
+                if (result.success && result.posts.length > 0) {
+                    postsContainer.innerHTML = result.posts.map(post => {
+                        const postDate = new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                        // Create a short snippet from the content
+                        const snippet = post.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
+                        return `
+                            <a href="post.html?id=${post.id}" class="post-card">
+                                <div class="post-card-content">
+                                    <h2 class="post-title">${post.title}</h2>
+                                    <p class="post-snippet">${snippet}</p>
+                                    <div class="post-meta">
+                                        <span>By ${post.author}</span> | <span>${postDate}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        `;
+                    }).join('');
+                } else {
+                    postsContainer.innerHTML = '<p>No blog posts have been published yet. Check back soon!</p>';
+                }
+            } catch (error) {
+                postsContainer.innerHTML = `<p style="color:red;">Error: Could not load blog posts.</p>`;
+            }
+        });
+    </script>
+
+</body>
+</html>

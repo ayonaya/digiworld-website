@@ -2,9 +2,8 @@
 import { initializeCart, addToCart, renderMiniCart } from './cart-manager.js';
 
 // This function contains all the main application logic.
-// It will only be called after the header, footer, and modals are loaded by component-loader.js
+// It will only be called after the header, footer, and modals are loaded.
 function runMainApp() {
-
     // --- DOM Elements (now safely accessed) ---
     const productGrid = document.getElementById('productGrid');
     const categoryFilter = document.getElementById('categoryFilter');
@@ -190,30 +189,13 @@ function runMainApp() {
 
     async function initializePage() {
         if (productGrid) showSkeletonLoaders();
-        try {
-            const response = await fetch('/.netlify/functions/get-products');
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            
-            if (data.success) {
-                allProducts = data.products;
-                flashSaleProducts = data.flashSaleProducts;
-                applyFiltersAndSorting();
-                renderFlashSaleProducts();
-                initializeFlashSaleCountdown();
-                
-                if (document.getElementById('flashSaleCarousel') && typeof Swiper !== 'undefined') {
-                    new Swiper('#flashSaleCarousel', { slidesPerView: 1, spaceBetween: 30, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, breakpoints: { 640: { slidesPerView: 2 }, 768: { slidesPerView: 3 }, 1024: { slidesPerView: 4 }, 1200: { slidesPerView: 5 } } });
-                }
-            } else {
-                throw new Error(data.message || 'Could not retrieve products.');
-            }
-        } catch (error) {
-            console.error("Error fetching products:", error);
-            if(productGrid) productGrid.innerHTML = `<p style="text-align: center; grid-column: 1 / -1; color: red;">Error: Could not load products.</p>`;
-        }
+        // Product data is now pre-loaded by loadAllProductData
+        applyFiltersAndSorting();
+        renderFlashSaleProducts();
         
-        initializeCart([...allProducts, ...flashSaleProducts]);
+        if (document.getElementById('flashSaleCarousel') && typeof Swiper !== 'undefined') {
+            new Swiper('#flashSaleCarousel', { slidesPerView: 1, spaceBetween: 30, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, breakpoints: { 640: { slidesPerView: 2 }, 768: { slidesPerView: 3 }, 1024: { slidesPerView: 4 }, 1200: { slidesPerView: 5 } } });
+        }
     }
 
     // --- Banner Slider Logic ---
@@ -299,38 +281,65 @@ function runMainApp() {
     if (sortProductsControl) sortProductsControl.addEventListener('change', applyFiltersAndSorting);
     if (searchInputDesktop) searchInputDesktop.addEventListener('input', () => handleSearch(searchInputDesktop, searchSuggestionsDesktop));
     
+    // --- FINAL, UPGRADED: Event Delegation for Product Buttons ---
     document.body.addEventListener('click', async (e) => {
         const addToCartBtn = e.target.closest('.add-to-cart');
         const buyNowBtn = e.target.closest('.buy-now');
         const wishlistBtn = e.target.closest('.wishlist-btn');
 
-        if (addToCartBtn) {
+        if (addToCartBtn && !addToCartBtn.classList.contains('added')) {
             const productId = addToCartBtn.dataset.id;
             addToCart(productId);
+
+            // --- Haptic Feedback for Mobile ---
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+
+            // --- UPGRADED: Curved Fly-to-Cart Animation ---
             const card = addToCartBtn.closest('.product-card');
             const img = card?.querySelector('.card-image');
             const cartIcon = document.getElementById('cartBtn');
             if (img && cartIcon) {
                 const imgRect = img.getBoundingClientRect();
+                const cartRect = cartIcon.getBoundingClientRect();
+
                 const flyingImage = img.cloneNode(true);
                 flyingImage.classList.add('flying-image');
-                flyingImage.style.left = `${imgRect.left}px`;
-                flyingImage.style.top = `${imgRect.top}px`;
+                
                 flyingImage.style.width = `${imgRect.width}px`;
+                flyingImage.style.height = `${imgRect.height}px`;
+                
+                // Set CSS variables to control the start, end, and curve points of the animation
+                flyingImage.style.setProperty('--start-x', `${imgRect.left}px`);
+                flyingImage.style.setProperty('--start-y', `${imgRect.top}px`);
+                flyingImage.style.setProperty('--end-x', `${cartRect.left + cartRect.width / 2}px`);
+                flyingImage.style.setProperty('--end-y', `${cartRect.top + cartRect.height / 2}px`);
+                flyingImage.style.setProperty('--control-x', `${(imgRect.left + cartRect.left) / 2}px`);
+                flyingImage.style.setProperty('--control-y', `${imgRect.top - 70}px`);
+
                 document.body.appendChild(flyingImage);
-                const cartRect = cartIcon.getBoundingClientRect();
-                requestAnimationFrame(() => {
-                    flyingImage.style.left = `${cartRect.left + cartRect.width / 2}px`;
-                    flyingImage.style.top = `${cartRect.top + cartRect.height / 2}px`;
-                    flyingImage.style.width = '20px';
-                    flyingImage.style.opacity = '0';
-                });
-                setTimeout(() => { flyingImage.remove(); }, 700);
+
+                // Animate the cart button after a slight delay
+                setTimeout(() => {
+                    cartIcon.classList.add('animated');
+                }, 600);
+                
+                // Clean up the animations
+                setTimeout(() => {
+                    flyingImage.remove();
+                    cartIcon.classList.remove('animated');
+                }, 900);
             }
+            
+            // --- "Added!" Button Animation ---
             addToCartBtn.innerHTML = 'Added! <i class="fas fa-check"></i>';
             addToCartBtn.classList.add('added');
             setTimeout(() => {
-                addToCartBtn.innerHTML = 'Add to Cart';
+                const originalText = addToCartBtn.classList.contains('flash-sale-btn') 
+                    ? '<i class="fas fa-shopping-cart"></i> Add to Cart' 
+                    : 'Add to Cart';
+                addToCartBtn.innerHTML = originalText;
                 addToCartBtn.classList.remove('added');
             }, 2000);
         }
@@ -339,7 +348,7 @@ function runMainApp() {
             addToCart(buyNowBtn.dataset.id);
             window.location.href = 'checkout.html';
         }
-        if (wishlistBtn) { /* ... (wishlist logic) ... */ }
+        if (wishlistBtn) { /* ... wishlist logic ... */ }
     });
 
     if (backBtn) {
@@ -347,27 +356,57 @@ function runMainApp() {
         window.addEventListener('scroll', () => { backBtn.style.display = (window.scrollY > 300) ? 'flex' : 'none'; });
     }
     
-    // --- Initialize Page ---
-    if (document.getElementById('productGrid') || document.getElementById('hero-slider')) {
-        initializePage();
-    } else {
-        initializeCart([]);
+    // --- Centralized Data Fetching & Page Initialization ---
+    async function loadApp() {
+        await loadAllProductData();
+        if (document.getElementById('productGrid') || document.getElementById('hero-slider')) {
+            initializePage();
+        }
+        initializeFlashSaleCountdown();
     }
+
+    async function loadAllProductData() {
+        try {
+            const response = await fetch('/.netlify/functions/get-products');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            if (data.success) {
+                allProducts = data.products;
+                flashSaleProducts = data.flashSaleProducts;
+                initializeCart([...allProducts, ...flashSaleProducts]);
+            } else {
+                throw new Error(data.message || 'Could not retrieve products.');
+            }
+        } catch (error) {
+            console.error("Error fetching products for search/cart:", error);
+            initializeCart([]);
+        }
+    }
+    
+    loadApp();
 }
 
 // --- NEW SCRIPT STRUCTURE ---
-// 1. Initialize Firebase as soon as possible.
-const firebaseConfig = {
-    apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-    authDomain: "digiworld-46a1e.firebaseapp.com",
-    projectId: "digiworld-46a1e",
-    storageBucket: "digiworld-46a1e.appspot.com",
-    messagingSenderId: "242235397710",
-    appId: "1:242235397710:web:a80c15cc285188610cd51f"
-};
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+// 1. Initialize Firebase as soon as possible by fetching the config securely.
+async function initializeFirebase() {
+    try {
+        const response = await fetch('/.netlify/functions/get-firebase-config');
+        if (!response.ok) throw new Error('Could not load Firebase configuration.');
+        const firebaseConfig = await response.json();
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+    } catch (error) {
+        console.error("Critical Error: Firebase Initialization Failed.", error);
+        document.body.innerHTML = 'Error loading site configuration. Please try again later.';
+    }
 }
 
-// 2. Wait for our custom 'componentsLoaded' event, then run the main app logic.
-document.addEventListener('componentsLoaded', runMainApp);
+// 2. Main execution flow
+async function startApp() {
+    await initializeFirebase();
+    // Listen for our custom 'componentsLoaded' event, then run the main app logic.
+    document.addEventListener('componentsLoaded', runMainApp);
+}
+
+startApp();

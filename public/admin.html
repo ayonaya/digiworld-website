@@ -30,7 +30,7 @@
         .hidden { display: none !important; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
         .modal-overlay.show { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: var(--radius); width: 90%; max-width: 600px; }
+        .modal-content { background: white; padding: 30px; border-radius: var(--radius); width: 90%; max-width: 600px; overflow-y: auto; max-height: 90vh; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h2 { margin: 0; }
         .modal-close { font-size: 1.5rem; cursor: pointer; background: none; border: none; }
@@ -115,6 +115,28 @@
             </form>
         </div>
     </div>
+    
+    <div class="modal-overlay hidden" id="createPostModal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Create New Blog Post</h2><button class="modal-close">&times;</button></div>
+            <form id="createPostForm" class="admin-form">
+                <div class="form-group">
+                    <label for="postTitle">Post Title</label>
+                    <input type="text" id="postTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="postAuthor">Author Name</label>
+                    <input type="text" id="postAuthor" required>
+                </div>
+                <div class="form-group">
+                    <label for="postContent">Content (HTML is supported)</label>
+                    <textarea id="postContent" rows="15" required></textarea>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; background-color: var(--primary);">Publish Post</button>
+                <div id="createPostMessage" class="message"></div>
+            </form>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -137,22 +159,20 @@
         const auth = firebase.auth();
         const loginContainer = document.getElementById('loginContainer');
         const dashboardContainer = document.getElementById('dashboardContainer');
-        const statsGrid = document.getElementById('statsGrid');
-        const dashboardGrid = document.getElementById('dashboardGrid');
-        const loginForm = document.getElementById('loginForm');
-        const logoutBtn = document.getElementById('logoutBtn');
         let allProductsData = [];
         
         const modals = {
             editProduct: document.getElementById('editProductModal'),
             createProduct: document.getElementById('createProductModal'),
-            addKeys: document.getElementById('addKeysModal')
+            addKeys: document.getElementById('addKeysModal'),
+            createPost: document.getElementById('createPostModal')
         };
         
         const forms = {
             editProduct: document.getElementById('editProductForm'),
             createProduct: document.getElementById('createProductForm'),
-            addKeys: document.getElementById('addKeysForm')
+            addKeys: document.getElementById('addKeysForm'),
+            createPost: document.getElementById('createPostForm')
         };
 
         async function apiCall(endpoint, body = {}) {
@@ -188,11 +208,14 @@
                 renderDashboard(result.data);
             } catch (error) {
                 console.error("Dashboard Error:", error);
-                auth.signOut();
+                auth.signOut(); // Log out on critical error
             }
         }
 
         function renderDashboard(data) {
+            const statsGrid = document.getElementById('statsGrid');
+            const dashboardGrid = document.getElementById('dashboardGrid');
+
             statsGrid.innerHTML = `
                 <div class="stat-card"><h4 class="stat-title">TOTAL REVENUE (USD)</h4><p class="stat-value">$${data.stats.totalRevenue}</p></div>
                 <div class="stat-card"><h4 class="stat-title">COMPLETED ORDERS</h4><p class="stat-value">${data.stats.totalOrders}</p></div>
@@ -204,14 +227,14 @@
                         <h3><i class="fas fa-box-open"></i> Product Management</h3>
                         <table id="productsTable">
                             <thead><tr><th>Product Name</th><th>Price (USD)</th><th>Actions</th></tr></thead>
-                            <tbody>${renderTableRows(data.products, p => `<tr><td>${p.name.en}</td><td>$${p.price.USD.toFixed(2)}</td><td><button class="action-btn edit-btn" data-id="${p.id}">Edit</button><button class="action-btn delete-btn" data-id="${p.id}">Delete</button></td></tr>`, 'No products found.')}</tbody>
+                            <tbody>${renderTableRows(data.products, p => `<tr><td>${p.name.en}</td><td>$${(p.priceUSD || 0).toFixed(2)}</td><td><button class="action-btn edit-btn" data-id="${p.id}">Edit</button><button class="action-btn delete-btn" data-id="${p.id}">Delete</button></td></tr>`, 'No products found.')}</tbody>
                         </table>
                     </div>
                     <div class="dashboard-card">
                         <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
                         <table id="ordersTable">
                             <thead><tr><th>Order ID</th><th>Email</th><th>Amount</th><th>Date</th></tr></thead>
-                            <tbody>${renderTableRows(data.orders, o => `<tr><td>${o.id.slice(0,15)}...</td><td>${o.customerEmail}</td><td>$${(o.totalAmount || o.amount).toFixed(2)}</td><td>${new Date(o.createdAt).toLocaleDateString()}</td></tr>`, 'No recent orders.')}</tbody>
+                            <tbody>${renderTableRows(data.orders, o => `<tr><td>${o.id.slice(0,15)}...</td><td>${o.customerEmail}</td><td>$${(o.totalAmount || o.amount || 0).toFixed(2)}</td><td>${new Date(o.createdAt).toLocaleDateString()}</td></tr>`, 'No recent orders.')}</tbody>
                         </table>
                     </div>
                      <div class="dashboard-card">
@@ -240,6 +263,13 @@
                         </div>
                     </div>
                     <div class="dashboard-card">
+                        <h3><i class="fas fa-newspaper"></i> Blog Management</h3>
+                        <p>Create and manage articles for your store's blog.</p>
+                        <button class="btn" id="openCreatePostModalBtn" style="background-color: var(--primary);">
+                            <i class="fas fa-plus-circle"></i> Create New Blog Post
+                        </button>
+                    </div>
+                    <div class="dashboard-card">
                         <h3><i class="fas fa-users"></i> User Management</h3>
                         <table id="usersTable">
                             <thead><tr><th>Email</th><th>Registered On</th></tr></thead>
@@ -248,7 +278,6 @@
                     </div>
                 </div>
             `;
-            dashboardGrid.style.display = 'grid';
             bindDashboardEvents();
         }
                 
@@ -261,72 +290,69 @@
         function closeModal(modal) { modal.classList.remove('show'); }
 
         function bindDashboardEvents() {
-            document.getElementById('openCreateProductModalBtn').addEventListener('click', () => openModal(modals.createProduct));
-            document.getElementById('openAddKeysModalBtn').addEventListener('click', () => {
-                const productSelect = document.getElementById('addKeysProductId');
-                productSelect.innerHTML = allProductsData.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
-                openModal(modals.addKeys);
-            });
-            document.getElementById('productsTable').addEventListener('click', handleProductActions);
-            document.getElementById('pendingReviewsList').addEventListener('click', handleReviewActions);
-            document.getElementById('generateTokensBtn').addEventListener('click', handleGenerateTokens);
-            document.getElementById('tokensTable').addEventListener('click', handleTokenActions);
-        }
+            const dashboard = document.getElementById('dashboardContainer');
+            if (!dashboard) return;
 
-        async function handleProductActions(e) {
-            const button = e.target.closest('button.action-btn');
-            if (!button) return;
-            const productId = button.dataset.id;
-            if (button.classList.contains('edit-btn')) {
-                const product = allProductsData.find(p => p.id === productId);
-                if (!product) return;
-                forms.editProduct.editProductId.value = product.id;
-                forms.editProduct.editProductNameEn.value = product.name.en;
-                forms.editProduct.editProductPriceUSD.value = product.price.USD;
-                forms.editProduct.editProductCategory.value = product.category;
-                openModal(modals.editProduct);
-            }
-            if (button.classList.contains('delete-btn')) {
-                if (confirm(`Are you sure you want to delete product "${productId}"? This cannot be undone.`)) {
-                    try { 
-                        await apiCall('delete-product', { productId }); 
+            dashboard.addEventListener('click', async (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                if (button.id === 'openCreateProductModalBtn') {
+                    openModal(modals.createProduct);
+                } else if (button.id === 'openAddKeysModalBtn') {
+                    const productSelect = document.getElementById('addKeysProductId');
+                    productSelect.innerHTML = allProductsData.map(p => `<option value="${p.id}">${p.name.en}</option>`).join('');
+                    openModal(modals.addKeys);
+                } else if (button.id === 'openCreatePostModalBtn') {
+                    openModal(modals.createPost);
+                }
+                else if (button.id === 'generateTokensBtn') {
+                    if (confirm("Are you sure you want to generate a new batch of 10 tokens?")) {
+                        try {
+                            const result = await apiCall('generate-activation-tokens');
+                            alert(result.message);
+                            showDashboard();
+                        } catch (error) {
+                            alert(`Error: ${error.message}`);
+                        }
+                    }
+                }
+                else if (button.classList.contains('edit-btn')) {
+                    const productId = button.dataset.id;
+                    const product = allProductsData.find(p => p.id === productId);
+                    if (!product) return;
+                    document.getElementById('editProductId').value = product.id;
+                    document.getElementById('editProductNameEn').value = product.name.en;
+                    document.getElementById('editProductPriceUSD').value = product.priceUSD;
+                    document.getElementById('editProductCategory').value = product.category;
+                    openModal(modals.editProduct);
+                }
+                else if (button.classList.contains('delete-btn')) {
+                    const productId = button.dataset.id;
+                    if (confirm(`Are you sure you want to delete product "${productId}"? This cannot be undone.`)) {
+                        try { 
+                            await apiCall('delete-product', { productId }); 
+                            showDashboard(); 
+                        } catch (error) { 
+                            alert(`Error: ${error.message}`); 
+                        }
+                    }
+                }
+                else if (button.classList.contains('copy-token-btn')) {
+                    const token = button.dataset.token;
+                    navigator.clipboard.writeText(token).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+                    });
+                }
+                else if (button.dataset.action === 'approve' || button.dataset.action === 'delete') {
+                     try { 
+                        await apiCall('moderate-review', { reviewId: button.dataset.id, action: button.dataset.action }); 
                         showDashboard(); 
                     } catch (error) { 
                         alert(`Error: ${error.message}`); 
                     }
                 }
-            }
-        }
-
-        async function handleReviewActions(e) {
-            const button = e.target.closest('button.action-btn');
-            if (!button) return;
-            try { 
-                await apiCall('moderate-review', { reviewId: button.dataset.id, action: button.dataset.action }); 
-                showDashboard(); 
-            } catch (error) { 
-                alert(`Error: ${error.message}`); 
-            }
-        }
-        
-        async function handleGenerateTokens() {
-            if (!confirm("Are you sure you want to generate a new batch of 10 tokens?")) return;
-            try {
-                const result = await apiCall('generate-activation-tokens');
-                alert(result.message);
-                showDashboard(); // Refresh the dashboard to show new tokens
-            } catch (error) {
-                alert(`Error: ${error.message}`);
-            }
-        }
-
-        function handleTokenActions(e) {
-            const button = e.target.closest('.copy-token-btn');
-            if (!button) return;
-            const token = button.dataset.token;
-            navigator.clipboard.writeText(token).then(() => {
-                button.textContent = 'Copied!';
-                setTimeout(() => { button.textContent = 'Copy'; }, 2000);
             });
         }
 
@@ -339,6 +365,7 @@
                     const result = await apiCall(endpoint, getBody());
                     msgElement.textContent = result.message || 'Success!';
                     msgElement.style.color = 'green';
+                    form.reset();
                     setTimeout(() => { 
                         closeModal(form.closest('.modal-overlay')); 
                         msgElement.textContent = ''; 
@@ -366,10 +393,10 @@
             }
         });
 
-        loginForm.addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = loginForm.adminEmail.value;
-            const password = loginForm.adminPassword.value;
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
             const loginMessage = document.getElementById('loginMessage');
             loginMessage.textContent = 'Logging in...';
 
@@ -379,7 +406,7 @@
                 });
         });
 
-        logoutBtn.addEventListener('click', () => {
+        document.getElementById('logoutBtn').addEventListener('click', () => {
             auth.signOut();
         });
         
@@ -390,28 +417,39 @@
                 } 
             });
         });
-
+        
         setupFormListener(forms.editProduct, 'update-product', 'editProductMessage', () => ({
-            productId: forms.editProduct.editProductId.value,
+            productId: document.getElementById('editProductId').value,
             productData: { 
-                'name.en': forms.editProduct.editProductNameEn.value, 
-                'price.USD': Number(forms.editProduct.editProductPriceUSD.value), 
-                'category': forms.editProduct.editProductCategory.value 
+                'name.en': document.getElementById('editProductNameEn').value, 
+                priceUSD: Number(document.getElementById('editProductPriceUSD').value), 
+                category: document.getElementById('editProductCategory').value 
             }
         }));
+        
         setupFormListener(forms.createProduct, 'create-product', 'createProductMessage', () => ({
             productData: { 
-                id: forms.createProduct.createProductId.value, 
-                name: { en: forms.createProduct.createProductNameEn.value }, 
-                price: { USD: Number(forms.createProduct.createProductPriceUSD.value) }, 
-                category: forms.createProduct.createProductCategory.value, 
-                image: forms.createProduct.createProductImage.value, 
-                desc: { en: forms.createProduct.createProductDescEn.value } 
+                id: document.getElementById('createProductId').value, 
+                name: { en: document.getElementById('createProductNameEn').value }, 
+                priceUSD: Number(document.getElementById('createProductPriceUSD').value), 
+                category: document.getElementById('createProductCategory').value, 
+                image: document.getElementById('createProductImage').value, 
+                desc: { en: document.getElementById('createProductDescEn').value },
+                features: { en: [] },
+                requirements: { en: [] },
+                activation: { en: [] }
             }
         }));
+        
         setupFormListener(forms.addKeys, 'add-keys', 'addKeysMessage', () => ({
-            productId: forms.addKeys.addKeysProductId.value,
-            keys: forms.addKeys.addKeysTextarea.value
+            productId: document.getElementById('addKeysProductId').value,
+            keys: document.getElementById('addKeysTextarea').value
+        }));
+        
+        setupFormListener(forms.createPost, 'create-blog-post', 'createPostMessage', () => ({
+            title: document.getElementById('postTitle').value,
+            author: document.getElementById('postAuthor').value,
+            content: document.getElementById('postContent').value
         }));
     }
 

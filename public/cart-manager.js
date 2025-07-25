@@ -1,45 +1,51 @@
-// /cart-manager.js
+// /public/cart-manager.js
 
 // --- STATE & CONFIGURATION ---
 let cart = JSON.parse(localStorage.getItem('digiworldCart')) || {};
-let allProducts = []; // This will be populated by the scripts that use this manager
+let allProducts = [];
 const currencySymbols = { USD: '$', LKR: 'Rs', INR: '₹', EUR: '€', GBP: '£' };
 let currentCurr = localStorage.getItem('userCurrency') || 'USD';
 
 // --- CORE CART FUNCTIONS ---
 
 /**
- * Saves the current cart state to localStorage.
+ * Saves the cart to localStorage and, if the user is logged in, to Firestore.
  */
-function saveCart() {
+async function saveCart() {
     localStorage.setItem('digiworldCart', JSON.stringify(cart));
+    
+    // NEW: Save cart to Firestore for logged-in users
+    const user = firebase.auth().currentUser;
+    if (user) {
+        const cartRef = firebase.firestore().collection('carts').doc(user.uid);
+        const productDetails = Object.entries(cart).map(([id, quantity]) => ({ id, quantity }));
+        
+        if (productDetails.length > 0) {
+            await cartRef.set({
+                userEmail: user.email,
+                items: productDetails,
+                updatedAt: new Date(), // This timestamp is crucial for the backend function
+                reminderSent: false // Reset reminder status on cart update
+            });
+        } else {
+            // If cart is empty, delete the document from Firestore
+            await cartRef.delete();
+        }
+    }
 }
 
-/**
- * Adds a product to the cart or increments its quantity.
- * @param {string} productId - The ID of the product to add.
- */
 export function addToCart(productId) {
     cart[productId] = (cart[productId] || 0) + 1;
     saveCart();
     updateCartBadge();
 }
 
-/**
- * Removes a product completely from the cart.
- * @param {string} productId - The ID of the product to remove.
- */
 export function removeFromCart(productId) {
     delete cart[productId];
     saveCart();
     updateCartBadge();
 }
 
-/**
- * Updates the quantity of a specific product in the cart.
- * @param {string} productId - The ID of the product to update.
- * @param {number} quantity - The new quantity.
- */
 export function updateQuantity(productId, quantity) {
     if (quantity > 0) {
         cart[productId] = quantity;
@@ -51,10 +57,6 @@ export function updateQuantity(productId, quantity) {
 }
 
 // --- UI UPDATE FUNCTIONS ---
-
-/**
- * Updates the cart count badge in the header.
- */
 export function updateCartBadge() {
     const count = Object.values(cart).reduce((sum, q) => sum + q, 0);
     const cartCountDesktop = document.getElementById('cartCount');
@@ -63,9 +65,6 @@ export function updateCartBadge() {
     if (cartCountMobile) cartCountMobile.textContent = count;
 }
 
-/**
- * Renders the contents of the mini-cart drawer.
- */
 export function renderMiniCart() {
     const miniCartItems = document.getElementById('miniCartItems');
     const miniCartTotal = document.getElementById('miniCartTotal');
@@ -100,16 +99,10 @@ export function renderMiniCart() {
 }
 
 // --- INITIALIZATION & HELPERS ---
-
-/**
- * Initializes the cart manager with product data and sets up UI listeners.
- * @param {Array} productsData - The array of all products from the server.
- */
 export function initializeCart(productsData) {
     allProducts = productsData;
     currentCurr = localStorage.getItem('userCurrency') || 'USD';
     
-    // Attach listeners for mini-cart functionality
     const miniCartDrawer = document.getElementById('miniCartDrawer');
     const miniCartOverlay = document.getElementById('miniCartOverlay');
     const miniCartClose = document.getElementById('miniCartClose');
@@ -132,12 +125,11 @@ export function initializeCart(productsData) {
     if (miniCartClose) miniCartClose.onclick = closeMiniCart;
     if (miniCartOverlay) miniCartOverlay.onclick = (e) => { if(e.target === miniCartOverlay) closeMiniCart(); };
     
-    // Listener for removing items from the mini-cart
     document.body.addEventListener('click', (e) => {
         if (e.target.classList.contains('mini-cart-item-remove')) {
             const id = e.target.dataset.removeId;
             removeFromCart(id);
-            renderMiniCart(); // Re-render after removal
+            renderMiniCart();
         }
     });
 
