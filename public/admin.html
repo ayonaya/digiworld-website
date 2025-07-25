@@ -26,6 +26,7 @@
         .action-btn { color: white; border: none; padding: 6px 10px; font-size: 0.85rem; border-radius: 6px; cursor: pointer; margin-right: 5px; }
         .edit-btn { background-color: var(--info); }
         .delete-btn { background-color: var(--danger); }
+        .copy-token-btn { background-color: var(--info); }
         .hidden { display: none !important; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
         .modal-overlay.show { display: flex; }
@@ -128,8 +129,7 @@
             runAdminPanel();
         } catch (error) {
             console.error("Critical Error: Firebase Initialization Failed.", error);
-            const loginContainer = document.getElementById('loginContainer');
-            loginContainer.innerHTML = `<h2 style="color: var(--danger);">Error</h2><p>Could not load application configuration. Please contact support.</p>`;
+            document.getElementById('loginContainer').innerHTML = `<h2 style="color: var(--danger);">Error</h2><p>Could not load application configuration. Please contact support.</p>`;
         }
     }
 
@@ -208,18 +208,17 @@
                         </table>
                     </div>
                     <div class="dashboard-card">
-                        <h3><i class="fas fa-chart-line"></i> Top Selling Products</h3>
-                        <table id="topSellersTable">
-                           <thead><tr><th>Product</th><th>Sales</th></tr></thead>
-                           <tbody>${renderTableRows(data.topSellers, p => `<tr><td>${p.name}</td><td>${p.sales}</td></tr>`, 'No sales data available.')}</tbody>
-                        </table>
-                    </div>
-                    <div class="dashboard-card">
                         <h3><i class="fas fa-receipt"></i> Recent Orders</h3>
                         <table id="ordersTable">
                             <thead><tr><th>Order ID</th><th>Email</th><th>Amount</th><th>Date</th></tr></thead>
                             <tbody>${renderTableRows(data.orders, o => `<tr><td>${o.id.slice(0,15)}...</td><td>${o.customerEmail}</td><td>$${(o.totalAmount || o.amount).toFixed(2)}</td><td>${new Date(o.createdAt).toLocaleDateString()}</td></tr>`, 'No recent orders.')}</tbody>
                         </table>
+                    </div>
+                     <div class="dashboard-card">
+                        <h3><i class="fas fa-star"></i> Pending Reviews</h3>
+                        <div id="pendingReviewsList" style="max-height: 400px; overflow-y: auto;">
+                            ${(data.pendingReviews && data.pendingReviews.length > 0) ? data.pendingReviews.map(r => `<div class="review-card" style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;"><strong>${r.authorName}</strong> (${r.rating}★) on <em>${r.productId}</em><p style="margin: 5px 0;">${r.reviewText}</p><button class="btn action-btn" data-id="${r.id}" data-action="approve" style="background:var(--success);">Approve</button> <button class="btn action-btn" data-id="${r.id}" data-action="delete" style="background:var(--danger);">Delete</button></div>`).join('') : '<p>No pending reviews.</p>'}
+                        </div>
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 30px;">
@@ -228,6 +227,16 @@
                         <div style="display: flex; flex-direction: column; gap: 15px;">
                             <button class="btn" id="openCreateProductModalBtn" style="background-color: var(--primary);"><i class="fas fa-plus-circle"></i> Create New Product</button>
                             <button class="btn" id="openAddKeysModalBtn" style="background-color: var(--primary);"><i class="fas fa-key"></i> Add Digital Keys</button>
+                            <button class="btn" id="generateTokensBtn" style="background-color: var(--accent);"><i class="fas fa-ticket-alt"></i> Generate Token Batch</button>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-clipboard-list"></i> Available Activation Tokens</h3>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <table id="tokensTable">
+                                <thead><tr><th>Token</th><th>Action</th></tr></thead>
+                                <tbody>${renderTableRows(data.availableTokens, token => `<tr><td><code>${token}</code></td><td><button class="btn action-btn copy-token-btn" data-token="${token}">Copy</button></td></tr>`, 'No available tokens. Generate a new batch.')}</tbody>
+                            </table>
                         </div>
                     </div>
                     <div class="dashboard-card">
@@ -237,20 +246,8 @@
                             <tbody>${renderTableRows(data.users, u => `<tr><td>${u.email}</td><td>${new Date(u.creationTime).toLocaleDateString()}</td></tr>`, 'No registered users.')}</tbody>
                         </table>
                     </div>
-                    <div class="dashboard-card">
-                        <h3><i class="fas fa-key"></i> Key Inventory</h3>
-                        <table id="inventoryTable">
-                            <thead><tr><th>Product ID</th><th>Available Keys</th></tr></thead>
-                            <tbody>${renderTableRows(Object.entries(data.inventory || {}), ([id, count]) => `<tr><td>${id}</td><td>${count}</td></tr>`, 'Inventory is empty.')}</tbody>
-                        </table>
-                    </div>
-                    <div class="dashboard-card">
-                        <h3><i class="fas fa-star"></i> Pending Reviews</h3>
-                        <div id="pendingReviewsList" style="max-height: 400px; overflow-y: auto;">
-                            ${(data.pendingReviews && data.pendingReviews.length > 0) ? data.pendingReviews.map(r => `<div class="review-card" style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;"><strong>${r.authorName}</strong> (${r.rating}★) on <em>${r.productId}</em><p style="margin: 5px 0;">${r.reviewText}</p><button class="btn action-btn" data-id="${r.id}" data-action="approve" style="background:var(--success);">Approve</button> <button class="btn action-btn" data-id="${r.id}" data-action="delete" style="background:var(--danger);">Delete</button></div>`).join('') : '<p>No pending reviews.</p>'}
-                        </div>
-                    </div>
-                </div>`;
+                </div>
+            `;
             dashboardGrid.style.display = 'grid';
             bindDashboardEvents();
         }
@@ -272,6 +269,8 @@
             });
             document.getElementById('productsTable').addEventListener('click', handleProductActions);
             document.getElementById('pendingReviewsList').addEventListener('click', handleReviewActions);
+            document.getElementById('generateTokensBtn').addEventListener('click', handleGenerateTokens);
+            document.getElementById('tokensTable').addEventListener('click', handleTokenActions);
         }
 
         async function handleProductActions(e) {
@@ -310,6 +309,27 @@
             }
         }
         
+        async function handleGenerateTokens() {
+            if (!confirm("Are you sure you want to generate a new batch of 10 tokens?")) return;
+            try {
+                const result = await apiCall('generate-activation-tokens');
+                alert(result.message);
+                showDashboard(); // Refresh the dashboard to show new tokens
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        function handleTokenActions(e) {
+            const button = e.target.closest('.copy-token-btn');
+            if (!button) return;
+            const token = button.dataset.token;
+            navigator.clipboard.writeText(token).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => { button.textContent = 'Copy'; }, 2000);
+            });
+        }
+
         function setupFormListener(form, endpoint, messageElId, getBody) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();

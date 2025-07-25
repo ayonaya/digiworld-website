@@ -11,3 +11,4 @@ node_modules
 # Explicitly ignore your Firebase service account key
 config/digiworld-46a1e-firebase-adminsdk-fbsvc-0bde804ae9.json
 # Or, to ignore ANY .json file in the config folder:
+.env

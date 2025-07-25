@@ -1,0 +1,174 @@
+/* public/activation.css */
+:root {
+    --primary: #f57224;
+    --primary-dark: #d45703;
+    --card-bg: #fff;
+    --badge-green: #28a745;
+    --badge-green-light: #e9f7ec;
+    --danger: #e74c3c;
+    --bg: #f6f6fa;
+    --shadow: 0 6px 32px #f5722420;
+    --radius: 18px;
+}
+
+body {
+    background-color: var(--bg);
+    font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    color: #333;
+    display: grid;
+    grid-template-rows: auto 1fr auto; /* Header, Main (fills space), Footer */
+    min-height: 100vh;
+}
+
+header, footer {
+    width: 100%;
+}
+
+/* Re-styling the header for this specific page */
+.site-header {
+    background: linear-gradient(90deg, #fd7e1a 0%, #ff3a5e 100%);
+    padding: 10px 0;
+}
+.header-main-pro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+.logo-pro {
+    font-size: 2.3rem;
+    font-weight: 900;
+    color: #fff;
+    text-decoration: none;
+}
+nav { display: flex; gap: 10px; }
+.nav-link-pro {
+    font-size: 1.05rem;
+    padding: 7px 17px;
+    color: #fff;
+    border-radius: 11px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* Main Content Centering */
+main.helper-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 2rem 1rem;
+}
+
+.card { 
+    background: var(--card-bg); 
+    border-radius: var(--radius); 
+    padding: 40px; 
+    box-shadow: var(--shadow); 
+    border-top: 5px solid var(--primary);
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+}
+
+h1 { 
+    font-weight: 900; 
+    color: var(--primary-dark); 
+    margin-top: 0; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+p.subtitle { color: #666; font-size: 1.1rem; line-height: 1.6; max-width: 500px; margin: 10px auto 30px auto; }
+.form-grid { display: grid; grid-template-columns: 1fr; gap: 20px; text-align: left; }
+.form-group label { 
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700; 
+    margin-bottom: 10px; 
+    font-size: 1.2rem; 
+}
+.form-group .fa-key, .form-group .fa-hashtag { color: var(--primary); }
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    font-size: 1rem;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group textarea { min-height: 120px; }
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(245, 114, 36, 0.2);
+}
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    background: var(--primary);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.submit-btn:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(245, 114, 36, 0.3);
+}
+.submit-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+#result-area { margin-top: 30px; text-align: left; }
+.result-box { padding: 25px; border-radius: 10px; font-weight: 600; animation: fadeIn 0.5s ease; position: relative; }
+.result-box.success { background-color: var(--badge-green-light); color: var(--badge-green); border-left: 5px solid var(--badge-green); }
+.result-box.error { background-color: #f8d7da; color: #721c24; border-left: 5px solid var(--danger); }
+.result-box h3 { margin-top: 0; display: flex; align-items: center; gap: 10px; }
+.result-box textarea { 
+    width: 100%; 
+    min-height: 150px; 
+    margin-top: 10px; 
+    font-family: monospace; 
+    font-size: 1.1rem; 
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+.copy-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: var(--badge-green);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.copy-btn:hover { background-color: #218838; }
+.copy-btn.copied { background-color: #1e7e34; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.site-footer {
+    text-align: center;
+    padding: 20px;
+    color: #999;
+    font-weight: 700;
+}

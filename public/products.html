@@ -15,66 +15,7 @@
 </head>
 <body>
 
-<header class="site-header">
-  <div class="header-main-pro header-desktop">
-    <a href="index.html" class="logo-pro" style="text-decoration: none;">DigiWorld</a>
-    <nav>
-      <a href="index.html" class="nav-link-pro">Home</a>
-      <a href="products.html" class="nav-link-pro active">Products</a>
-      <a href="contact.html" class="nav-link-pro">Contact</a>
-    </nav>
-    <div class="header-controls">
-        <div class="lang-currency-wrap">
-          <div class="lang-currency-switcher">
-            <div class="dropdown" id="langDropdown">
-              <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-                <span class="flag" id="currentLangFlag">🇺🇸</span>
-                <span id="currentLangLabel">English</span>
-                <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
-              </button>
-              <div class="dropdown-menu" id="langMenu">
-                <div class="dropdown-item" data-lang="en">🇺🇸 English</div>
-                <div class="dropdown-item" data-lang="si">🇱🇰 සිංහල</div>
-                <div class="dropdown-item" data-lang="ta">🇮🇳 தமிழ்</div>
-                <div class="dropdown-item" data-lang="ru">🇷🇺 Русский</div>
-                <div class="dropdown-item" data-lang="zh">🇨🇳 中文</div>
-                <div class="dropdown-item" data-lang="es">🇪🇸 Español</div>
-              </div>
-            </div>
-            <div class="dropdown" id="currencyDropdown">
-              <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">
-                <span id="currentCurrSymbol">$</span><span id="currentCurrLabel">USD</span>
-                <svg width="13" height="7"><path d="M1 1l5.5 5L12 1" stroke="#fe724c" stroke-width="2" fill="none"/></svg>
-              </button>
-              <div class="dropdown-menu" id="currencyMenu">
-                <div class="dropdown-item" data-curr="USD">$ USD</div>
-                <div class="dropdown-item" data-curr="LKR">🇱🇰 LKR</div>
-                <div class="dropdown-item" data-curr="INR">₹ INR</div>
-                <div class="dropdown-item" data-curr="EUR">€ EUR</div>
-                <div class="dropdown-item" data-curr="GBP">£ GBP</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button id="loginBtn" class="auth-btn" style="display:none;">Login</button>
-        <button id="signupBtn" class="auth-btn" style="display:none;">Signup</button>
-        <div class="account-dropdown" style="display:none; position: relative;">
-          <button id="accountBtn" aria-haspopup="true" aria-expanded="false" class="account-btn" aria-label="User Account">
-            Account
-            <svg width="12" height="7" style="margin-left:4px;" viewBox="0 0 12 7" fill="none" stroke="#fe724c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M1 1l5 5 5-5" />
-            </svg>
-          </button>
-          <div id="accountMenu" class="account-menu" style="display:none;"></div>
-        </div>
-        <button class="cart-btn" id="cartBtn" aria-label="Open cart">
-          <i class="fas fa-shopping-cart"></i>
-          <span>Cart</span>
-          <span class="cart-icon-badge" id="cartCount">0</span>
-        </button>
-    </div>
-  </div>
-</header>
+<header class="site-header"></header>
 
 <main>
   <section class="main-section" aria-label="All products">
@@ -106,100 +47,14 @@
   </section>
 </main>
 
-<div class="mini-cart-overlay" id="miniCartOverlay"></div>
-<div class="mini-cart-drawer" id="miniCartDrawer">
-  <div class="mini-cart-header">
-    <span id="miniCartTitle">Your Cart</span>
-    <button class="mini-cart-close" id="miniCartClose">&times;</button>
-  </div>
-  <div class="mini-cart-items" id="miniCartItems"></div>
-  <div class="mini-cart-footer">
-    <div class="mini-cart-total" id="miniCartTotal"></div>
-    <button class="mini-cart-checkout" onclick="window.location.href='cart.html'">Go to Cart</button>
-  </div>
-</div>
+<footer class="site-footer"></footer>
 
-<footer class="site-footer">
-    <div class="footer-grid">
-        <div class="footer-col">
-            <h3>Customer Care</h3>
-            <ul>
-                <li><a href="#">FAQ</a></li>
-                <li><a href="#">How to Buy</a></li>
-                <li><a href="#">Refund Policy</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>About DigiWorld</h3>
-            <ul>
-                <li><a href="about.html">About Us</a></li>
-                <li><a href="contact.html">Contact Us</a></li>
-                <li><a href="#">Terms & Conditions</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>We Accept</h3>
-            <div class="payment-methods-logos">
-                <img src="https://www.paypalobjects.com/webstatic/mktg/logo/AM_SbyPP_mc_vs_dc_ae.jpg" alt="PayPal and Credit Cards">
-                <img src="https://nowpayments.io/images/nowpayments.svg" alt="NowPayments Crypto">
-            </div>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        &copy; 2025 DigiWorld. All rights reserved.
-    </div>
-</footer>
+<div id="modals-placeholder"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script>
-  // This inline script handles the immediate visibility of the login/account buttons
-  const firebaseConfig = {
-    apiKey: "AIzaSyBbBDB38gK4lD-E3wYgfTSQbZ28WCmJB6M",
-    authDomain: "digiworld-46a1e.firebaseapp.com",
-    projectId: "digiworld-46a1e",
-    storageBucket: "digiworld-46a1e.appspot.com",
-    messagingSenderId: "242235397710",
-    appId: "1:242235397710:web:a80c15cc285188610cd51f",
-    measurementId: "G-R8C4BWHXBL"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const loginBtn = document.getElementById('loginBtn');
-  const signupBtn = document.getElementById('signupBtn');
-  const accountDropdown = document.querySelector('.account-dropdown');
-  const accountBtn = document.getElementById('accountBtn');
-  const accountMenu = document.getElementById('accountMenu');
-
-  function renderLoggedInMenu() {
-    accountMenu.innerHTML = `<a href="profile.html">Profile</a><a href="orders.html">Orders</a><a href="downloads.html">Downloads</a><button id="logoutBtn">Logout</button>`;
-    document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
-  }
-
-  accountBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    accountMenu.style.display = accountMenu.style.display === 'block' ? 'none' : 'block';
-  });
-  document.addEventListener('click', () => { if(accountMenu) accountMenu.style.display = 'none'; });
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      if(loginBtn) loginBtn.style.display = 'none';
-      if(signupBtn) signupBtn.style.display = 'none';
-      if(accountDropdown) accountDropdown.style.display = 'inline-block';
-      renderLoggedInMenu();
-    } else {
-      if(loginBtn) loginBtn.style.display = 'inline-block';
-      if(signupBtn) signupBtn.style.display = 'inline-block';
-      if(accountDropdown) accountDropdown.style.display = 'none';
-    }
-  });
-
-  if (loginBtn) loginBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
-  if (signupBtn) signupBtn.addEventListener('click', () => { window.location.href = 'signup.html'; });
-</script>
-
-<script src="main.js" type="module" defer></script>
+<script src="component-loader.js"></script> 
+<script src="main.js" type="module"></script>
 
 </body>
 </html>

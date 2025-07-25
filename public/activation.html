@@ -8,221 +8,77 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Page-specific styles remain here, layout styles are now in styles.css */
-        .helper-container { max-width: 700px; margin: 3rem auto; padding: 20px; text-align: center; }
-        .card { 
-            background: var(--card-bg); 
-            border-radius: var(--radius); 
-            padding: 40px; 
-            box-shadow: var(--shadow); 
-            border-top: 5px solid var(--primary);
-        }
-        h1 { 
-            font-weight: 900; 
-            color: var(--primary-dark); 
-            margin-top: 0; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        p.subtitle { color: #666; font-size: 1.1rem; line-height: 1.6; max-width: 500px; margin: 10px auto 30px auto; }
-        .form-grid { display: grid; grid-template-columns: 1fr; gap: 20px; text-align: left; }
-        .form-group label { 
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700; 
-            margin-bottom: 10px; 
-            font-size: 1.2rem; 
-        }
-        .form-group .fa-key, .form-group .fa-hashtag { color: var(--primary); }
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #ddd;
-            font-size: 1rem;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
+        body { background-color: var(--bg); }
+        .activation-container { max-width: 1200px; margin: 2rem auto; padding: 20px; }
+        .activation-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; align-items: flex-start; }
+        .activation-form-card, .instructions-card { background: var(--card-bg); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); }
+        .instructions-card h3 { margin-top: 0; font-weight: 700; color: var(--primary-dark); border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .instructions-card ol { padding-left: 20px; }
+        .instructions-card li { margin-bottom: 15px; line-height: 1.7; }
+        h1 { font-weight: 900; color: var(--primary-dark); margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        p.subtitle { color: #666; font-size: 1rem; line-height: 1.6; margin: 10px 0 30px 0; text-align: left;}
+        .activation-tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 25px; }
+        .tab-link { padding: 10px 20px; font-weight: 700; color: #888; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .form-group { text-align: left; }
+        .form-group label { display: flex; align-items: center; gap: 10px; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem; }
+        .form-group input, .form-group textarea { width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #ddd; font-size: 1rem; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         .form-group textarea { min-height: 120px; }
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(245, 114, 36, 0.2);
-        }
-        .submit-btn {
-            width: 100%;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: white;
-            background: var(--primary);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .submit-btn:hover:not(:disabled) {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(245, 114, 36, 0.3);
-        }
-        .submit-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .submit-btn { width: 100%; padding: 15px; margin-top: 20px; font-size: 1.2rem; font-weight: 700; color: white; background: var(--primary); border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         #result-area { margin-top: 30px; text-align: left; }
-        .result-box { padding: 25px; border-radius: 10px; font-weight: 600; animation: fadeIn 0.5s ease; position: relative; }
-        .result-box.success { background-color: var(--badge-green-light); color: var(--badge-green); border-left: 5px solid var(--badge-green); }
-        .result-box.error { background-color: #f8d7da; color: #721c24; border-left: 5px solid var(--danger); }
-        .result-box h3 { margin-top: 0; display: flex; align-items: center; gap: 10px; }
-        .result-box textarea { 
-            width: 100%; 
-            min-height: 150px; 
-            margin-top: 10px; 
-            font-family: monospace; 
-            font-size: 1.1rem; 
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            box-sizing: border-box;
-        }
-        .copy-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: var(--badge-green);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .copy-btn:hover { background-color: #218838; }
-        .copy-btn.copied { background-color: #1e7e34; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none; }
+        @media (max-width: 900px) { .activation-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
-<body class="page-wrapper">
-    <header class="site-header">
-        <div class="header-main-pro header-desktop">
-            <a href="index.html" class="logo-pro" style="text-decoration: none;">DigiWorld</a>
-            <nav>
-              <a href="index.html" class="nav-link-pro">Home</a>
-              <a href="products.html" class="nav-link-pro">Products</a>
-              <a href="contact.html" class="nav-link-pro">Contact</a>
-            </nav>
-        </div>
-    </header>
+<body>
+    <header class="site-header"></header>
 
-    <main class="helper-container">
-        <div class="card">
-            <h1><i class="fas fa-magic"></i> Product Activation Helper</h1>
-            <p class="subtitle">Enter your Order ID and Installation ID below to receive your Confirmation ID instantly.</p>
-            
-            <form id="cidForm">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="orderId"><i class="fas fa-receipt"></i> Your Order ID</label>
-                        <input type="text" id="orderId" placeholder="Found in your confirmation email (e.g., DIGIWORLD-NP-...)" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="installationId"><i class="fas fa-hashtag"></i> Your Installation ID</label>
-                        <textarea id="installationId" placeholder="Paste your full Installation ID here..." required></textarea>
-                    </div>
+    <main class="activation-container">
+        <div class="activation-grid">
+            <div class="activation-form-card">
+                <h1><i class="fas fa-magic"></i> Product Activation Helper</h1>
+                <p class="subtitle">Please select a verification method to receive your Confirmation ID.</p>
+                <div class="activation-tabs">
+                    <div class="tab-link active" data-tab="orderIdTab">Verify with Order ID</div>
+                    <div class="tab-link" data-tab="tokenTab">Use Activation Token</div>
                 </div>
-                <button type="submit" class="submit-btn" id="submitBtn">Verify & Get Confirmation ID</button>
-            </form>
-            
-            <div id="result-area"></div>
+                <form id="cidForm">
+                    <div class="form-group" id="orderIdTab"><label for="orderId"><i class="fas fa-receipt"></i> Your Order ID</label><input type="text" id="orderId" placeholder="Found in your confirmation email..."/></div>
+                    <div class="form-group hidden" id="tokenTab"><label for="activationToken"><i class="fas fa-ticket-alt"></i> Activation Token</label><input type="text" id="activationToken" placeholder="Provided by customer support..."/></div>
+                    <div class="form-group" style="margin-top: 20px;"><label for="installationId"><i class="fas fa-hashtag"></i> Your Installation ID</label><textarea id="installationId" placeholder="Paste your full Installation ID here..." required></textarea></div>
+                    <button type="submit" class="submit-btn" id="submitBtn">Verify & Get Confirmation ID</button>
+                </form>
+                <div id="result-area"></div>
+            </div>
+            <div class="instructions-card">
+                <h3>How To Use This Tool</h3>
+                <ol>
+                    <li>After installing your software, choose "Activate by phone".</li>
+                    <li>The activation wizard will show your <strong>Installation ID</strong>.</li>
+                    <li>Copy that entire number and paste it into the box on the left.</li>
+                    <li>Verify your purchase using your <strong>Order ID</strong> or a <strong>Token</strong>.</li>
+                    <li>Click the button to receive your <strong>Confirmation ID</strong>.</li>
+                    <li>Enter the Confirmation ID back into the wizard to activate.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="suggestions-section">
+            <h2 class="section-title">You Might Also Like</h2>
+            <div class="product-grid" id="suggestions-grid"></div>
         </div>
     </main>
 
-    <footer class="site-footer">
-        <div class="footer-bottom">
-            &copy; 2025 DigiWorld. All rights reserved.
-        </div>
-    </footer>
+    <footer class="site-footer"></footer>
+    
+    <div class="mini-cart-overlay" id="miniCartOverlay"></div>
+    <div class="mini-cart-drawer" id="miniCartDrawer"></div>
+    <div class="auth-modal-overlay" id="authModal"></div>
 
-    <script>
-        // The JavaScript does not need any changes
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('cidForm');
-            const submitBtn = document.getElementById('submitBtn');
-            const orderIdInput = document.getElementById('orderId');
-            const installationIdInput = document.getElementById('installationId');
-            const resultArea = document.getElementById('result-area');
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const orderId = orderIdInput.value;
-                const iid = installationIdInput.value;
-
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-                resultArea.innerHTML = '';
-
-                try {
-                    const response = await fetch('/.netlify/functions/get-confirmation-id', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orderId: orderId, installationId: iid })
-                    });
-                    
-                    const result = await response.json();
-
-                    if (!response.ok || !result.success) {
-                        throw new Error(result.message || 'An unknown error occurred.');
-                    }
-                    
-                    resultArea.innerHTML = `
-                        <div class="result-box success">
-                            <button class="copy-btn" id="copyBtn">Copy ID</button>
-                            <h3><i class="fas fa-check-circle"></i> Success!</h3>
-                            <p>Here is your Confirmation ID. Please copy the full ID below to complete your product activation.</p>
-                            <textarea readonly id="confirmationIdText">${result.data}</textarea>
-                        </div>
-                    `;
-
-                } catch (error) {
-                    resultArea.innerHTML = `
-                        <div class="result-box error">
-                            <h3><i class="fas fa-exclamation-triangle"></i> Verification Failed</h3>
-                            <p>${error.message}</p>
-                        </div>
-                    `;
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Verify & Get Confirmation ID';
-                }
-            });
-            
-            resultArea.addEventListener('click', function(event) {
-                if (event.target.id === 'copyBtn') {
-                    const copyBtn = event.target;
-                    const confirmationIdText = document.getElementById('confirmationIdText');
-                    
-                    navigator.clipboard.writeText(confirmationIdText.value).then(() => {
-                        copyBtn.textContent = 'Copied!';
-                        copyBtn.classList.add('copied');
-                        setTimeout(() => {
-                            copyBtn.textContent = 'Copy ID';
-                            copyBtn.classList.remove('copied');
-                        }, 2000);
-                    }).catch(err => {
-                        console.error('Failed to copy text: ', err);
-                    });
-                }
-            });
-        });
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <script src="component-loader.js"></script>
+    <script src="main.js" type="module"></script> 
+    <script src="activation.js" type="module"></script>
 </body>
 </html>

@@ -6,35 +6,35 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  // 1. Get the authentication token from the request headers
   const token = event.headers.authorization?.split('Bearer ')[1];
   if (!token) {
     return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Authentication token is required.' }) };
   }
 
   try {
-    // 2. Verify the token and check if the user has the 'isAdmin' custom claim
     const decodedToken = await admin.auth().verifyIdToken(token);
     if (decodedToken.isAdmin !== true) {
       return { statusCode: 403, body: JSON.stringify({ success: false, message: 'Forbidden. User does not have admin privileges.' }) };
     }
 
-    // --- If verification succeeds, proceed to fetch all admin data ---
+    // UPDATED: Added activationTokensSnapshot to the parallel fetch
     const [
       inventorySnapshot,
       reviewsSnapshot,
       ordersSnapshot,
       productsSnapshot,
-      listUsersResult
+      listUsersResult,
+      activationTokensSnapshot
     ] = await Promise.all([
       db.collection('digital_keys').where('status', '==', 'available').get(),
       db.collection('reviews').where('isApproved', '==', false).get(),
       db.collection('orders').where('status', '==', 'completed').get(),
       db.collection('products').get(),
-      admin.auth().listUsers(100)
+      admin.auth().listUsers(100),
+      db.collection('activationTokens').where('status', '==', 'available').get()
     ]);
 
-    // --- Process All Data (This part remains the same) ---
+    // --- Process All Data ---
     const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     const productMap = new Map(products.map(p => [p.id, p]));
     let totalRevenue = 0;
@@ -66,6 +66,9 @@ exports.handler = async (event) => {
         email: userRecord.email,
         creationTime: userRecord.metadata.creationTime,
     }));
+    
+    // NEW: Process the available tokens
+    const availableTokens = activationTokensSnapshot.docs.map(doc => doc.id);
 
     return {
       statusCode: 200,
@@ -78,7 +81,8 @@ exports.handler = async (event) => {
           orders: recentOrders,
           products,
           topSellers,
-          users
+          users,
+          availableTokens // Add the token list to the response
         }
       }),
     };
