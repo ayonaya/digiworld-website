@@ -286,8 +286,15 @@
             return `<tr><td colspan="100%" style="text-align:center; padding: 20px;">${emptyMessage}</td></tr>`;
         }
 
-        function openModal(modal) { modal.classList.add('show'); }
-        function closeModal(modal) { modal.classList.remove('show'); }
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('show');
+        }
+
+        function closeModal(modal) {
+            modal.classList.remove('show');
+            modal.classList.add('hidden');
+        }
 
         function bindDashboardEvents() {
             const dashboard = document.getElementById('dashboardContainer');
