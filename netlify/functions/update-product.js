@@ -6,7 +6,6 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  // FIX: Switched to secure token-based admin verification
   const token = event.headers.authorization?.split('Bearer ')[1];
   if (!token) {
       return { statusCode: 401, body: JSON.stringify({ success: false, message: 'Authentication required.' }) };
@@ -23,11 +22,21 @@ exports.handler = async (event) => {
     if (!productId || !productData) {
       return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Product ID and data are required.' }) };
     }
+    
+    // *** FIX: Ensure data is in the correct format before updating ***
+    const dataToUpdate = {
+        'name.en': productData['name.en'],
+        category: productData.category,
+        priceUSD: Number(productData.priceUSD)
+    };
+
+    if (isNaN(dataToUpdate.priceUSD)) {
+        return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Invalid price format.' }) };
+    }
 
     const productRef = db.collection('products').doc(productId);
 
-    // .update() will change only the fields provided.
-    await productRef.update(productData);
+    await productRef.update(dataToUpdate);
 
     return {
       statusCode: 200,

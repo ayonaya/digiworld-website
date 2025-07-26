@@ -33,11 +33,35 @@ exports.handler = async (event) => {
             };
         }
 
-        const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // For each order, fetch the latest product name and image
+        const productsRef = db.collection('products');
+        const ordersWithDetails = await Promise.all(
+            snapshot.docs.map(async (doc) => {
+                const orderData = { id: doc.id, ...doc.data() };
+                const enrichedCart = [];
+
+                if (orderData.cart && orderData.cart.length > 0) {
+                    for (const item of orderData.cart) {
+                        const productDoc = await productsRef.doc(item.id).get();
+                        if (productDoc.exists) {
+                            const productData = productDoc.data();
+                            enrichedCart.push({
+                                ...item,
+                                name: productData.name.en,
+                                image: productData.image
+                            });
+                        }
+                    }
+                }
+
+                orderData.cart = enrichedCart;
+                return orderData;
+            })
+        );
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ success: true, orders: orders })
+            body: JSON.stringify({ success: true, orders: ordersWithDetails })
         };
 
     } catch (error) {

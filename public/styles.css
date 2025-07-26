@@ -3811,3 +3811,8 @@
 .post-content a { color: var(--primary); font-weight: 700; }
 .post-content ul, .post-content ol { padding-left: 25px; }
 .post-content li { margin-bottom: 10px; }
+/* === ADMIN MODAL FIX === */
+.modal-overlay.show {
+    display: flex !important;
+    opacity: 1 !important;
+}

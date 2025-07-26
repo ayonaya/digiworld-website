@@ -23,41 +23,60 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script>
-        // Your Firebase config here
-        const firebaseConfig = { /* ... */ };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+    <script type="module">
+        import { addToCart } from './cart-manager.js';
+
         const wishlistContainer = document.getElementById('wishlist-container');
         const loadingMessage = document.getElementById('loading-message');
 
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const idToken = await user.getIdToken();
-                    const response = await fetch('/.netlify/functions/get-wishlist', {
-                        headers: { 'Authorization': `Bearer ${idToken}` }
-                    });
-                    if (!response.ok) throw new Error('Could not fetch wishlist.');
-
-                    const result = await response.json();
-                    if (result.success && result.products.length > 0) {
-                        renderWishlist(result.products);
-                    } else {
-                        wishlistContainer.innerHTML = '<p>Your wishlist is empty.</p>';
-                    }
-                } catch (error) {
-                    wishlistContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
-                }
-            } else {
-                wishlistContainer.innerHTML = `<p>Please <a href="login.html">log in</a> to see your wishlist.</p>`;
+        async function initializeFirebase() {
+            try {
+                const response = await fetch('/.netlify/functions/get-firebase-config');
+                const firebaseConfig = await response.json();
+                firebase.initializeApp(firebaseConfig);
+                runWishlistApp();
+            } catch (error) {
+                wishlistContainer.innerHTML = `<p style="color:red;">Error connecting to services.</p>`;
             }
-            loadingMessage.style.display = 'none';
-        });
+        }
+
+        function runWishlistApp() {
+            const auth = firebase.auth();
+
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        const idToken = await user.getIdToken();
+                        const response = await fetch('/.netlify/functions/get-wishlist', {
+                            headers: { 'Authorization': `Bearer ${idToken}` }
+                        });
+                        if (!response.ok) throw new Error('Could not fetch wishlist.');
+
+                        const result = await response.json();
+                        if (result.success && result.products.length > 0) {
+                            renderWishlist(result.products);
+                        } else {
+                            wishlistContainer.innerHTML = '<p>Your wishlist is empty.</p>';
+                        }
+                    } catch (error) {
+                        wishlistContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+                    }
+                } else {
+                    wishlistContainer.innerHTML = `<p>Please <a href="login.html">log in</a> to see your wishlist.</p>`;
+                }
+                loadingMessage.style.display = 'none';
+            });
+
+            wishlistContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-to-cart')) {
+                    const id = e.target.dataset.id;
+                    addToCart(id);
+                }
+            });
+        }
 
         function renderWishlist(products) {
             wishlistContainer.innerHTML = products.map(prod => {
-                // This uses the same product card style from your main.js for consistency
                 return `
                 <div class="product-card" data-product-id="${prod.id}">
                     <div class="card-image-container">
@@ -75,6 +94,8 @@
                 </div>`;
             }).join('');
         }
+
+        initializeFirebase();
     </script>
 </body>
 </html>

@@ -17,18 +17,32 @@ exports.handler = async (event) => {
             return { statusCode: 403, body: JSON.stringify({ success: false, message: 'Forbidden. User is not an admin.' }) };
         }
 
-        const { productData } = JSON.parse(event.body);
+        let { productData } = JSON.parse(event.body);
         
-        if (!productData || !productData.id || !productData.name?.en) {
-             return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Product ID and English Name are required.' }) };
+        if (!productData || !productData.id || !productData.name?.en || typeof productData.priceUSD !== 'number') {
+             return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Product ID, English Name, and a numeric priceUSD are required.' }) };
         }
 
-        const productRef = db.collection('products').doc(productData.id);
-        await productRef.set(productData);
+        // *** FIX: Ensure the data saved to the database is clean and consistent ***
+        const cleanData = {
+            id: productData.id,
+            name: { en: productData.name.en || '' },
+            priceUSD: Number(productData.priceUSD),
+            category: productData.category || 'Uncategorized',
+            image: productData.image || '',
+            desc: { en: productData.desc.en || '' },
+            features: { en: productData.features?.en || [] },
+            requirements: { en: productData.requirements?.en || [] },
+            activation: { en: productData.activation?.en || [] },
+            isHot: productData.isHot || false
+        };
+
+        const productRef = db.collection('products').doc(cleanData.id);
+        await productRef.set(cleanData);
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ success: true, message: `Product "${productData.name.en}" has been saved.` }),
+            body: JSON.stringify({ success: true, message: `Product "${cleanData.name.en}" has been saved.` }),
         };
     } catch (error) {
         console.error('Error in create-product function:', error);

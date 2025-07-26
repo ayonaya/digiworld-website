@@ -12,7 +12,8 @@ exports.handler = async (event, context) => {
         { loc: '/faq.html', priority: '0.7', changefreq: 'monthly' },
         { loc: '/terms.html', priority: '0.5', changefreq: 'yearly' },
         { loc: '/privacy.html', priority: '0.5', changefreq: 'yearly' },
-        { loc: '/refund-policy.html', priority: '0.5', changefreq: 'yearly' }
+        { loc: '/refund-policy.html', priority: '0.5', changefreq: 'yearly' },
+        { loc: '/blog.html', priority: '0.8', changefreq: 'weekly' },
     ];
 
     try {
@@ -31,6 +32,19 @@ exports.handler = async (event, context) => {
                     </url>`;
         }).join('');
 
+        const blogSnapshot = await db.collection('blog_posts').get();
+        const blogUrls = blogSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const lastmod = (data.createdAt ? new Date(data.createdAt) : new Date()).toISOString().split('T')[0];
+            const loc = data.slug ? `/post.html?slug=${data.slug}` : `/post.html?id=${doc.id}`;
+            return `<url>
+                        <loc>${baseUrl}${loc}</loc>
+                        <lastmod>${lastmod}</lastmod>
+                        <changefreq>weekly</changefreq>
+                        <priority>0.8</priority>
+                    </url>`;
+        }).join('');
+
         // Map all static pages to the sitemap URL format
         const staticUrls = staticPages.map(page =>
             `<url>
@@ -45,6 +59,7 @@ exports.handler = async (event, context) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     ${staticUrls}
     ${productUrls}
+    ${blogUrls}
 </urlset>`;
 
         // Return the sitemap as an XML file

@@ -18,14 +18,12 @@ exports.handler = async (event) => {
     }
 
     const [
-      inventorySnapshot,
       reviewsSnapshot,
       ordersSnapshot,
       productsSnapshot,
       listUsersResult,
       activationTokensSnapshot
     ] = await Promise.all([
-      db.collection('digital_keys').where('status', '==', 'available').get(),
       db.collection('reviews').where('isApproved', '==', false).get(),
       db.collection('orders').where('status', '==', 'completed').get(),
       db.collection('products').get(),
@@ -33,7 +31,23 @@ exports.handler = async (event) => {
       db.collection('activationTokens').where('status', '==', 'available').get()
     ]);
 
-    const products = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // *** FIX: Normalize product data before sending to client ***
+    const products = productsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      const product = { id: doc.id, ...data };
+      
+      // Ensure priceUSD is always a number. Handles old format { price: { USD: 10 } } and new format { priceUSD: 10 }
+      if (typeof product.priceUSD !== 'number') {
+        if (product.price && typeof product.price.USD === 'number') {
+          product.priceUSD = product.price.USD;
+        } else {
+          product.priceUSD = 0; // Default to 0 if price is missing or malformed
+        }
+      }
+      delete product.price; // Remove the old price object if it exists
+      return product;
+    });
+
     let totalRevenue = 0;
     ordersSnapshot.forEach(doc => {
       const order = doc.data();

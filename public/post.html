@@ -10,7 +10,7 @@
 </head>
 <body>
 
-    <header class="site-header">
+<header class="site-header">
         </header>
 
     <main class="container">
@@ -34,32 +34,28 @@
             }
 
             try {
-                const response = await fetch('/.netlify/functions/get-blog-posts');
-                if (!response.ok) throw new Error('Could not fetch posts.');
+                const response = await fetch(`/.netlify/functions/get-blog-post?id=${encodeURIComponent(postId)}`);
+                if (!response.ok) throw new Error('Could not fetch post.');
                 const result = await response.json();
 
-                if (result.success) {
-                    const post = result.posts.find(p => p.id === postId);
-                    if (post) {
-                        document.title = `${post.title} - DigiWorld Blog`;
-                        const postDate = new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                        postContainer.innerHTML = `
-                            <article class="blog-post">
-                                <a href="blog.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Blog</a>
-                                <h1 class="post-title-main">${post.title}</h1>
-                                <div class="post-meta-main">
-                                    <span>Posted by <strong>${post.author}</strong> on ${postDate}</span>
-                                </div>
-                                <div class="post-content">
-                                    ${post.content}
-                                </div>
-                            </article>
-                        `;
-                    } else {
-                        throw new Error('Post not found.');
-                    }
+                if (result.success && result.post) {
+                    const post = result.post;
+                    document.title = `${post.title} - DigiWorld Blog`;
+                    const postDate = new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    postContainer.innerHTML = `
+                        <article class="blog-post">
+                            <a href="blog.html" class="back-link"><i class="fas fa-chevron-left"></i> Back to Blog</a>
+                            <h1 class="post-title-main">${post.title}</h1>
+                            <div class="post-meta-main">
+                                <span>Posted by <strong>${post.author}</strong> on ${postDate}</span>
+                            </div>
+                            <div class="post-content">
+                                ${post.content}
+                            </div>
+                        </article>
+                    `;
                 } else {
-                    throw new Error('Could not load blog posts.');
+                    throw new Error('Post not found.');
                 }
             } catch (error) {
                 postContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
