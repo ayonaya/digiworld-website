@@ -1,4 +1,4 @@
-// /netlify/functions/get-user-orders.js
+// /netlify/functions/get-user-downloads.js
 const { db, admin } = require('./firebase-admin');
 
 exports.handler = async (event) => {
@@ -15,48 +15,26 @@ exports.handler = async (event) => {
             return { statusCode: 403, body: JSON.stringify({ message: 'Token is valid, but email is missing.' }) };
         }
 
-        const ordersRef = db.collection('orders');
-        const ordersSnapshot = await ordersRef
-            .where('customerEmail', '==', userEmail)
-            .orderBy('createdAt', 'desc')
+        // Fetch digital keys assigned to this user
+        const downloadsRef = db.collection('digital_keys');
+        const snapshot = await downloadsRef
+            .where('assignedToEmail', '==', userEmail)
+            .orderBy('assignedAt', 'desc')
             .get();
 
-        if (ordersSnapshot.empty) {
-            return { statusCode: 200, body: JSON.stringify({ success: true, orders: [] }) };
+        if (snapshot.empty) {
+            return { statusCode: 200, body: JSON.stringify({ success: true, downloads: [] }) };
         }
 
-        // --- NEW: Fetch Product Details for Each Order ---
-        const productsRef = db.collection('products');
-        const ordersWithProductDetails = await Promise.all(
-            ordersSnapshot.docs.map(async (orderDoc) => {
-                const orderData = { id: orderDoc.id, ...orderDoc.data() };
-                const detailedCart = [];
-
-                if (orderData.cart && orderData.cart.length > 0) {
-                    for (const item of orderData.cart) {
-                        const productDoc = await productsRef.doc(item.id).get();
-                        if (productDoc.exists) {
-                            const productData = productDoc.data();
-                            detailedCart.push({
-                                ...item,
-                                name: productData.name.en,
-                                image: productData.image
-                            });
-                        }
-                    }
-                }
-                orderData.cart = detailedCart; // Replace old cart with detailed one
-                return orderData;
-            })
-        );
+        const downloads = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ success: true, orders: ordersWithProductDetails })
+            body: JSON.stringify({ success: true, downloads })
         };
 
     } catch (error) {
-        console.error('Error verifying token or fetching orders:', error);
+        console.error('Error verifying token or fetching downloads:', error);
         return {
             statusCode: 403,
             body: JSON.stringify({ message: 'Invalid or expired authentication token.' })
